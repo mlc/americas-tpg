@@ -73,8 +73,8 @@ async function main(): Promise<void> {
         properties: {
           country: name_0,
           level1: name_1,
-          gid_0,
-          gid_1,
+          gid0: gid_0,
+          gid1: gid_1,
         },
       });
     }

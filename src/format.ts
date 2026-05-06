@@ -3,8 +3,8 @@ import type { Feature, FeatureCollection, Point } from 'geojson';
 export interface OutputProps {
   country: string;
   level1: string;
-  gid_0: string;
-  gid_1: string;
+  gid0: string;
+  gid1: string;
 }
 
 export function formatHuman(features: Feature<Point, OutputProps>[]): string {
