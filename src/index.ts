@@ -2,10 +2,10 @@ import { parseArgs } from 'node:util';
 import type { Feature, Point } from 'geojson';
 import { formatGeoJson, formatHuman, type OutputProps } from './format.ts';
 import { openGadm } from './gadm.ts';
-import { createRng, type RngName } from './rng.ts';
+import { createRng, rngFactories, type RngName } from './rng.ts';
 import { samplePosition } from './sampler.ts';
 
-const RNG_NAMES: RngName[] = ['crypto', 'math', 'random.org'];
+const RNG_NAMES = Object.keys(rngFactories) as RngName[];
 
 const USAGE = `Usage: yarn start [--count <N>] [--geojson] [--rng <crypto|math|random.org>]
 

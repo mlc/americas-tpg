@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
 import {
   BoundingBox,
@@ -52,12 +53,17 @@ function readProps(props: Record<string, unknown>): GadmProperties {
 
 export async function openGadm(path?: string): Promise<GadmHandle> {
   const resolved = resolvePath(path);
+  if (!existsSync(resolved)) {
+    throw new Error(
+      `GADM geopackage not found at '${resolved}'. Set GADM_PATH or place the file at data/gadm.gpkg.`,
+    );
+  }
   let gp: Awaited<ReturnType<typeof GeoPackageAPI.open>>;
   try {
     gp = await GeoPackageAPI.open(resolved);
   } catch (cause) {
     throw new Error(
-      `Could not open GADM geopackage at '${resolved}'. Set GADM_PATH or place the file at data/gadm.gpkg.`,
+      `Could not open GADM geopackage at '${resolved}': file may be corrupt or unreadable.`,
       { cause },
     );
   }
