@@ -2,7 +2,7 @@ import { parseArgs } from 'node:util';
 import type { Feature, Point } from 'geojson';
 import { formatGeoJson, formatHuman, type OutputProps } from './format.ts';
 import { openGadm } from './gadm.ts';
-import { createRng, rngFactories, type RngName } from './rng.ts';
+import { createRng, type RngName, rngFactories } from './rng.ts';
 import { samplePosition } from './sampler.ts';
 
 const RNG_NAMES = Object.keys(rngFactories) as RngName[];

@@ -1,10 +1,6 @@
 import { existsSync } from 'node:fs';
+import { BoundingBox, GeoPackage, GeoPackageAPI } from '@ngageoint/geopackage';
 import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
-import {
-  BoundingBox,
-  GeoPackage,
-  GeoPackageAPI,
-} from '@ngageoint/geopackage';
 import type { Feature, MultiPolygon, Point, Polygon, Position } from 'geojson';
 
 const TABLE_NAME = 'gadm_410';
@@ -82,10 +78,7 @@ export async function openGadm(path?: string): Promise<GadmHandle> {
   // is the load-bearing one; we cast through unknown at the boundary.
   type RowFromQuery = { values: Record<string, unknown> };
 
-  function parseFeature(
-    fid: number,
-    row: RowFromQuery,
-  ): ParsedFeature | null {
+  function parseFeature(fid: number, row: RowFromQuery): ParsedFeature | null {
     const cached = cache.get(fid);
     if (cached !== undefined) return cached;
 
@@ -94,10 +87,7 @@ export async function openGadm(path?: string): Promise<GadmHandle> {
     );
     const parsed = GeoPackage.parseFeatureRowIntoGeoJSON(featureRow, dao.srs);
     const geom = parsed.geometry;
-    if (
-      !geom ||
-      (geom.type !== 'Polygon' && geom.type !== 'MultiPolygon')
-    ) {
+    if (!geom || (geom.type !== 'Polygon' && geom.type !== 'MultiPolygon')) {
       cache.set(fid, null);
       return null;
     }

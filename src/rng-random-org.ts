@@ -6,14 +6,17 @@ const DECIMAL_PLACES = 20;
 const REQUEST_TIMEOUT_MS = 15_000;
 
 async function fetchChunk(): Promise<number[]> {
-  const url =
-    `${ENDPOINT}?num=${CHUNK_SIZE}&dec=${DECIMAL_PLACES}&col=1&format=plain&rnd=new`;
+  const url = `${ENDPOINT}?num=${CHUNK_SIZE}&dec=${DECIMAL_PLACES}&col=1&format=plain&rnd=new`;
   let response: Response;
   try {
-    response = await fetch(url, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+    response = await fetch(url, {
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
   } catch (cause) {
     if (cause instanceof Error && cause.name === 'TimeoutError') {
-      throw new Error(`random.org request timed out after ${REQUEST_TIMEOUT_MS} ms`);
+      throw new Error(
+        `random.org request timed out after ${REQUEST_TIMEOUT_MS} ms`,
+      );
     }
     throw new Error(
       `random.org request failed (transport): ${cause instanceof Error ? cause.message : String(cause)}`,
