@@ -1,7 +1,13 @@
 {
   "name": "americas",
+  "type": "module",
   "packageManager": "yarn@4.9.2",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
+    "start": "yarn node src/index.ts",
+    "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
     "format": "biome format --write .",
     "check": "biome check ."
