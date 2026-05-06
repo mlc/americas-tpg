@@ -1,7 +1,7 @@
 ---
 title: 'feat: Random Americas geocoder CLI'
 type: feat
-status: active
+status: completed
 date: 2026-05-06
 ---
 
