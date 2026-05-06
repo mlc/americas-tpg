@@ -1,6 +1,10 @@
-import type { Feature, MultiPolygon, Point, Polygon, Position } from 'geojson';
 import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
-import { BoundingBox, GeoPackageAPI } from '@ngageoint/geopackage';
+import {
+  BoundingBox,
+  GeoPackage,
+  GeoPackageAPI,
+} from '@ngageoint/geopackage';
+import type { Feature, MultiPolygon, Point, Polygon, Position } from 'geojson';
 
 const TABLE_NAME = 'gadm_410';
 const BBOX_EPSILON = 1e-6;
@@ -28,10 +32,9 @@ export interface GadmHandle {
   close(): void;
 }
 
-interface RawFeature {
-  type: 'Feature';
-  geometry?: Polygon | MultiPolygon | null;
-  properties: Record<string, unknown>;
+interface ParsedFeature {
+  geometry: Polygon | MultiPolygon;
+  properties: GadmProperties;
 }
 
 function resolvePath(explicit?: string): string {
@@ -65,6 +68,40 @@ export async function openGadm(path?: string): Promise<GadmHandle> {
     );
   }
   const dao = gp.getFeatureDao(TABLE_NAME);
+  const cache = new Map<number, ParsedFeature | null>();
+
+  // dao.fastQueryBoundingBox yields rows that dao.getRow accepts at runtime,
+  // but @ngageoint/geopackage's types declare getRow's parameter as a flat
+  // Record<string, DBValue> rather than the row wrapper. The runtime contract
+  // is the load-bearing one; we cast through unknown at the boundary.
+  type RowFromQuery = { values: Record<string, unknown> };
+
+  function parseFeature(
+    fid: number,
+    row: RowFromQuery,
+  ): ParsedFeature | null {
+    const cached = cache.get(fid);
+    if (cached !== undefined) return cached;
+
+    const featureRow = dao.getRow(
+      row as unknown as Parameters<typeof dao.getRow>[0],
+    );
+    const parsed = GeoPackage.parseFeatureRowIntoGeoJSON(featureRow, dao.srs);
+    const geom = parsed.geometry;
+    if (
+      !geom ||
+      (geom.type !== 'Polygon' && geom.type !== 'MultiPolygon')
+    ) {
+      cache.set(fid, null);
+      return null;
+    }
+    const result: ParsedFeature = {
+      geometry: geom as Polygon | MultiPolygon,
+      properties: readProps(parsed.properties as Record<string, unknown>),
+    };
+    cache.set(fid, result);
+    return result;
+  }
 
   return {
     lookup(position: Position): LookupResult {
@@ -77,20 +114,25 @@ export async function openGadm(path?: string): Promise<GadmHandle> {
       );
       const point: Point = { type: 'Point', coordinates: [lon, lat] };
       const candidates = Array.from(
-        dao.queryForGeoJSONIndexedFeaturesWithBoundingBox(bbox),
-      ) as RawFeature[];
-      for (const raw of candidates) {
-        const geom = raw.geometry;
-        if (!geom) continue;
-        if (geom.type !== 'Polygon' && geom.type !== 'MultiPolygon') continue;
-        if (!booleanPointInPolygon(point, geom)) continue;
-        const properties = readProps(raw.properties);
-        if (properties.gid_0 === 'USA') {
+        dao.fastQueryBoundingBox(bbox),
+      ) as RowFromQuery[];
+      if (candidates.length === 0) return { kind: 'ocean' };
+
+      for (const row of candidates) {
+        const fid = Number(row.values.fid);
+        const parsed = parseFeature(fid, row);
+        if (!parsed) continue;
+        if (!booleanPointInPolygon(point, parsed.geometry)) continue;
+        if (parsed.properties.gid_0 === 'USA') {
           return { kind: 'mainland-us' };
         }
         return {
           kind: 'accept',
-          feature: { type: 'Feature', geometry: geom, properties },
+          feature: {
+            type: 'Feature',
+            geometry: parsed.geometry,
+            properties: parsed.properties,
+          },
         };
       }
       return { kind: 'ocean' };
