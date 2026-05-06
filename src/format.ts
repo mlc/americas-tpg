@@ -11,14 +11,14 @@ export function formatHuman(features: Feature<Point, OutputProps>[]): string {
   return features
     .map((f) => {
       const [lon, lat] = f.geometry.coordinates;
-      return [
-        `Latitude:    ${lat.toFixed(6)}`,
-        `Longitude:   ${lon.toFixed(6)}`,
-        `Country:     ${f.properties.country}`,
-        `Subdivision: ${f.properties.level1}`,
-      ].join('\n');
+      const latStr = `${Math.abs(lat).toFixed(6)}°${lat >= 0 ? 'N' : 'S'}`;
+      const lonStr = `${Math.abs(lon).toFixed(6)}°${lon >= 0 ? 'E' : 'W'}`;
+      const parts = [`${latStr} ${lonStr}`];
+      if (f.properties.level1) parts.push(f.properties.level1);
+      parts.push(f.properties.country);
+      return parts.join(', ');
     })
-    .join('\n\n');
+    .join('\n');
 }
 
 export function formatGeoJson(features: Feature<Point, OutputProps>[]): string {
