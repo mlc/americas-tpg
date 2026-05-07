@@ -132,6 +132,14 @@ describe('submitters / eliminationsForRound / eligibleForNextRound', () => {
     assert.deepEqual([...eliminationsForRound(round)], ['bob']);
   });
 
+  test('eliminationsForRound: 24.999 m closer IS tied (within buffer)', () => {
+    const round = buildRound(1, null, [
+      submission('alice', 100 - 0.024999), // 24.999 m closer than bob
+      submission('bob', 100),
+    ]);
+    assert.deepEqual([...eliminationsForRound(round)].sort(), ['alice', 'bob']);
+  });
+
   test('eliminationsForRound: zero submissions → empty set', () => {
     const round = buildRound(1, null, []);
     assert.equal(eliminationsForRound(round).size, 0);

@@ -8,6 +8,7 @@ import {
   type RoundFeature,
   type RoundFile,
   type SubmissionFeature,
+  submissionsOf,
   validateSubmissionEligibility,
 } from './round-domain.ts';
 import {
@@ -127,23 +128,16 @@ export async function submitRound(
     },
   };
 
-  // target is at index 0 and never matches; start the loop at 1.
-  const features = currentRound.features;
-  let existingIdx = -1;
-  for (let i = 1; i < features.length; i++) {
-    const f = features[i] as SubmissionFeature;
-    if (f.properties.player === player) {
-      existingIdx = i;
-      break;
-    }
-  }
-
-  const newFeatures: RoundFeature[] = [...features];
+  const subIdx = submissionsOf(currentRound).findIndex(
+    (s) => s.properties.player === player,
+  );
+  const newFeatures: RoundFeature[] = [...currentRound.features];
   let replaced = false;
-  if (existingIdx === -1) {
+  if (subIdx === -1) {
     newFeatures.push(submission);
   } else {
-    newFeatures[existingIdx] = submission;
+    // submissionsOf slices off the target at index 0; offset by 1 for newFeatures.
+    newFeatures[subIdx + 1] = submission;
     replaced = true;
   }
 
@@ -170,10 +164,16 @@ function fail(message: string): never {
   process.exit(1);
 }
 
+const NUMERIC_RE = /^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/;
+
 function parseCoord(raw: string, label: string): number {
-  const n = Number.parseFloat(raw);
+  const trimmed = raw.trim();
+  if (!NUMERIC_RE.test(trimmed)) {
+    return fail(`Invalid ${label}: '${raw}'. Expected a decimal number.`);
+  }
+  const n = Number.parseFloat(trimmed);
   if (!Number.isFinite(n)) {
-    fail(`Invalid ${label}: '${raw}'. Expected a number.`);
+    return fail(`Invalid ${label}: '${raw}'. Expected a finite number.`);
   }
   return n;
 }

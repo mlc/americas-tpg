@@ -1,6 +1,6 @@
 import { parseArgs } from 'node:util';
 import type { Feature, Point } from 'geojson';
-import { parseRng } from './cli-helpers.ts';
+import { isMain, parseRng } from './cli-helpers.ts';
 import { formatGeoJson, formatHuman, type OutputProps } from './format.ts';
 import { openGadm } from './gadm.ts';
 import { createRng } from './rng.ts';
@@ -78,4 +78,6 @@ async function main(): Promise<void> {
   );
 }
 
-await main();
+if (isMain(import.meta.url)) {
+  await main();
+}

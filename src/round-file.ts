@@ -26,7 +26,8 @@ export function roundPath(
 export function parseRoundNumber(filename: string): number | null {
   const match = ROUND_FILE_RE.exec(basename(filename));
   if (!match) return null;
-  return Number.parseInt(match[1], 10);
+  const n = Number.parseInt(match[1], 10);
+  return n >= 1 ? n : null;
 }
 
 export interface RoundEntry {
@@ -144,6 +145,30 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
   function fail(msg: string): never {
     throw new Error(`round file ${path}: ${msg}`);
   }
+  function validatePointGeometry(
+    geom: unknown,
+    where: string,
+  ): asserts geom is { type: 'Point'; coordinates: [number, number] } {
+    if (!geom || typeof geom !== 'object') {
+      fail(`${where} geometry must be an object`);
+    }
+    const g = geom as Record<string, unknown>;
+    if (g.type !== 'Point') {
+      fail(
+        `${where} geometry.type must be 'Point' (got ${JSON.stringify(g.type)})`,
+      );
+    }
+    if (!Array.isArray(g.coordinates) || g.coordinates.length < 2) {
+      fail(`${where} geometry.coordinates must be a [lon, lat] array`);
+    }
+    const [lon, lat] = g.coordinates as unknown[];
+    if (typeof lon !== 'number' || !Number.isFinite(lon)) {
+      fail(`${where} geometry.coordinates[0] (lon) must be a finite number`);
+    }
+    if (typeof lat !== 'number' || !Number.isFinite(lat)) {
+      fail(`${where} geometry.coordinates[1] (lat) must be a finite number`);
+    }
+  }
   if (!data || typeof data !== 'object') fail('not an object');
   const obj = data as Record<string, unknown>;
   if (obj.type !== 'FeatureCollection') {
@@ -156,6 +181,12 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
   const propsObj = props as Record<string, unknown>;
   if (!Number.isInteger(propsObj.round) || (propsObj.round as number) < 1) {
     fail('properties.round must be a positive integer');
+  }
+  const filenameRound = parseRoundNumber(path);
+  if (filenameRound !== null && filenameRound !== propsObj.round) {
+    fail(
+      `properties.round (${propsObj.round}) does not match filename round (${filenameRound})`,
+    );
   }
   const endedAt = propsObj.ended_at;
   if (endedAt !== null && typeof endedAt !== 'string') {
@@ -179,6 +210,7 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
       `features[0] must have id: "target" (got ${JSON.stringify(targetObj.id)})`,
     );
   }
+  validatePointGeometry(targetObj.geometry, 'features[0]');
   const targetProps = targetObj.properties as
     | Record<string, unknown>
     | undefined;
@@ -190,16 +222,23 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
     if (!sub || typeof sub !== 'object') {
       fail(`features[${i}] is not an object`);
     }
+    validatePointGeometry(
+      (sub as { geometry?: unknown }).geometry,
+      `features[${i}]`,
+    );
     const subPropsRaw = (sub as { properties?: unknown }).properties;
     if (!subPropsRaw || typeof subPropsRaw !== 'object') {
       fail(`features[${i}] must have properties (object)`);
     }
     const subProps = subPropsRaw as Record<string, unknown>;
-    if (typeof subProps.player !== 'string') {
-      fail(`features[${i}] must have properties.player (string)`);
+    if (typeof subProps.player !== 'string' || subProps.player.trim() === '') {
+      fail(`features[${i}] must have properties.player (non-empty string)`);
     }
-    if (typeof subProps.distance !== 'number') {
-      fail(`features[${i}] must have properties.distance (number)`);
+    if (
+      typeof subProps.distance !== 'number' ||
+      !Number.isFinite(subProps.distance)
+    ) {
+      fail(`features[${i}] must have properties.distance (finite number)`);
     }
   }
   return data as RoundFile;

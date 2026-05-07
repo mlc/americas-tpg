@@ -17,7 +17,9 @@ export function parseRound(
   if (raw === undefined) return undefined;
   const n = Number.parseInt(raw, 10);
   if (!Number.isInteger(n) || n < 1 || String(n) !== raw.trim()) {
-    fail(`Invalid --round value: '${raw}'. Expected a positive integer.`);
+    return fail(
+      `Invalid --round value: '${raw}'. Expected a positive integer.`,
+    );
   }
   return n;
 }
@@ -25,7 +27,7 @@ export function parseRound(
 export function parseRng(raw: string | undefined, fail: FailFn): RngName {
   if (raw === undefined) return 'crypto';
   if ((RNG_NAMES as string[]).includes(raw)) return raw as RngName;
-  fail(
+  return fail(
     `Invalid --rng value: '${raw}'. Expected one of: ${RNG_NAMES.join(', ')}.`,
   );
 }

@@ -83,11 +83,13 @@ export async function createRound(
   };
 }
 
+const MAX_SAMPLE_ATTEMPTS = 10_000;
+
 export async function sampleTargetFromGadm(
   rng: RandomSource,
   gadm: GadmHandle,
 ): Promise<TargetFeature> {
-  while (true) {
+  for (let attempt = 0; attempt < MAX_SAMPLE_ATTEMPTS; attempt++) {
     const position = await samplePosition(rng);
     const lookup = gadm.lookup(position);
     if (lookup.kind !== 'accept') continue;
@@ -103,6 +105,9 @@ export async function sampleTargetFromGadm(
       properties: { location },
     };
   }
+  throw new Error(
+    `failed to sample a valid Americas target after ${MAX_SAMPLE_ATTEMPTS} attempts; check that GADM_PATH points to the correct geopackage`,
+  );
 }
 
 function fail(message: string): never {

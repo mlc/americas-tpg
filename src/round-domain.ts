@@ -21,7 +21,7 @@ export interface TargetFeature extends Feature<Point, { location: string }> {
 export type SubmissionFeature = Feature<
   Point,
   { player: string; distance: number; location?: string }
->;
+> & { id?: never };
 
 export function submissionsOf(round: RoundFile): readonly SubmissionFeature[] {
   return round.features.slice(1) as SubmissionFeature[];
