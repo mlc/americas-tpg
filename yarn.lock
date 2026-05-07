@@ -516,6 +516,7 @@ __metadata:
     "@turf/distance": "npm:^7.3.5"
     "@types/geojson": "npm:^7946.0.16"
     "@types/node": "npm:24.12.2"
+    geographiclib-dms: "npm:^2.2.0"
     husky: "npm:^9.1.7"
     lint-staged: "npm:^17.0.2"
     typescript: "npm:^6.0.3"
@@ -924,6 +925,13 @@ __metadata:
   version: 1.0.0
   resolution: "fs-constants@npm:1.0.0"
   checksum: 10c0/a0cde99085f0872f4d244e83e03a46aa387b74f5a5af750896c6b05e9077fac00e9932fdf5aef84f2f16634cd473c63037d7a512576da7d5c2b9163d1909f3a8
+  languageName: node
+  linkType: hard
+
+"geographiclib-dms@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "geographiclib-dms@npm:2.2.0"
+  checksum: 10c0/5bbf4ce49b25fe2edfd702ea319a34052320fe418654ee05006e9b3b1383d365b600598d7f458b60b9b5791b262f5d8acae6b188158f62748f1dd3598bae77f0
   languageName: node
   linkType: hard
 

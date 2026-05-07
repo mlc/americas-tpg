@@ -2,6 +2,7 @@ import { parseArgs } from 'node:util';
 import { distance } from '@turf/distance';
 import type { Position } from 'geojson';
 import { isMain, parseRound } from './cli-helpers.ts';
+import { decodeCoord } from './coords.ts';
 import { type GadmHandle, openGadm } from './gadm.ts';
 import {
   formatLocation,
@@ -20,11 +21,15 @@ import {
   writeRoundAtomic,
 } from './round-file.ts';
 
-const USAGE = `Usage: yarn submit-round <player> <lat> <lng> [--round N] [--rounds-dir <dir>]
+const USAGE = `Usage: yarn submit-round <player> <coord>... [--round N] [--rounds-dir <dir>]
 
 Records a player submission against the active round (or --round N if explicit).
 Player names are normalized (NFC + zero-width strip + trim) but compared case-
 sensitively — 'Alice' and 'alice' are different players.
+
+The coordinate may be passed as one quoted string ("40.7128, -74.0060") or as
+separate positionals (40.7128 -74.0060). Decimal, NESW, and DMS forms are all
+accepted (e.g. "40.7128°N 74.0060°W", "40:42:46N 74:00:21W").
 
 Options:
       --round N         Target a specific round (default: latest unended round)
@@ -167,18 +172,21 @@ function fail(message: string): never {
   process.exit(1);
 }
 
-const NUMERIC_RE = /^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/;
-
-function parseCoord(raw: string, label: string): number {
-  const trimmed = raw.trim();
-  if (!NUMERIC_RE.test(trimmed)) {
-    return fail(`Invalid ${label}: '${raw}'. Expected a decimal number.`);
+export function parseCoordArgs(coordParts: string[]): Position {
+  if (coordParts.length === 0) {
+    throw new Error(
+      'Invalid coordinate: expected at least one <coord> positional.',
+    );
   }
-  const n = Number.parseFloat(trimmed);
-  if (!Number.isFinite(n)) {
-    return fail(`Invalid ${label}: '${raw}'. Expected a finite number.`);
+  const coordRaw = coordParts.join(' ');
+  try {
+    return decodeCoord(coordRaw).coordinates;
+  } catch (cause) {
+    throw new Error(
+      `Invalid coordinate '${coordRaw}': ${cause instanceof Error ? cause.message : String(cause)}`,
+      { cause },
+    );
   }
-  return n;
 }
 
 async function main(): Promise<void> {
@@ -197,15 +205,20 @@ async function main(): Promise<void> {
     return;
   }
 
-  if (positionals.length !== 3) {
+  if (positionals.length < 2) {
     fail(
-      `Expected 3 positional arguments (<player> <lat> <lng>), got ${positionals.length}.`,
+      `Expected at least 2 positional arguments (<player> <coord>...), got ${positionals.length}.`,
     );
   }
 
-  const [player, latRaw, lngRaw] = positionals;
-  const lat = parseCoord(latRaw, 'lat');
-  const lng = parseCoord(lngRaw, 'lng');
+  const [player, ...coordParts] = positionals;
+  let lat: number;
+  let lng: number;
+  try {
+    [lng, lat] = parseCoordArgs(coordParts);
+  } catch (cause) {
+    return fail(cause instanceof Error ? cause.message : String(cause));
+  }
   const explicitRound = parseRound(values.round, fail);
   const roundsDir = values['rounds-dir'] ?? DEFAULT_ROUNDS_DIR;
 

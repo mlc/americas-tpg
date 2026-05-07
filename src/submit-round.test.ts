@@ -13,6 +13,7 @@ import { roundPath, writeRoundAtomic } from './round-file.ts';
 import {
   defaultComputeDistance,
   type LookupLocation,
+  parseCoordArgs,
   submitRound,
 } from './submit-round.ts';
 
@@ -354,5 +355,49 @@ describe('submitRound — atomic write', () => {
     assert.equal(onDisk.features.length, 2);
     assert.equal(onDisk.features[1].properties.player, 'alice');
     assert.equal(onDisk.features[1].properties.distance, 11.123);
+  });
+});
+
+describe('parseCoordArgs — CLI coord argument joining', () => {
+  test('two positionals are joined with a space (decimal lat/lng)', () => {
+    const [lng, lat] = parseCoordArgs(['40.7128', '-74.0060']);
+    assert.equal(lng, -74.006);
+    assert.equal(lat, 40.7128);
+  });
+
+  test('single quoted positional with comma works', () => {
+    const [lng, lat] = parseCoordArgs(['40.7128, -74.0060']);
+    assert.equal(lng, -74.006);
+    assert.equal(lat, 40.7128);
+  });
+
+  test('NESW-suffixed positionals join correctly', () => {
+    const [lng, lat] = parseCoordArgs(['40.7128°N', '74.0060°W']);
+    assert.equal(lng, -74.006);
+    assert.equal(lat, 40.7128);
+  });
+
+  test('DMS form parses', () => {
+    const [lng, lat] = parseCoordArgs(['40:42:46N', '74:00:21W']);
+    assert.ok(Math.abs(lat - (40 + 42 / 60 + 46 / 3600)) < 1e-9);
+    assert.ok(Math.abs(lng - -(74 + 0 / 60 + 21 / 3600)) < 1e-9);
+  });
+
+  test('empty array → "expected at least one" error', () => {
+    assert.throws(() => parseCoordArgs([]), /expected at least one/);
+  });
+
+  test('un-decodable input → error includes the joined raw text', () => {
+    assert.throws(
+      () => parseCoordArgs(['40.5']),
+      /Invalid coordinate '40\.5':/,
+    );
+  });
+
+  test('out-of-range latitude → error includes the underlying DMS message', () => {
+    assert.throws(
+      () => parseCoordArgs(['91', '0']),
+      /Invalid coordinate '91 0': .*Latitude .* not in/,
+    );
   });
 });
