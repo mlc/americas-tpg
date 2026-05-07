@@ -18,7 +18,10 @@ export interface GadmProperties {
 
 export type LookupResult =
   | { kind: 'ocean' }
-  | { kind: 'mainland-us' }
+  | {
+      kind: 'mainland-us';
+      feature: Feature<Polygon | MultiPolygon, GadmProperties>;
+    }
   | {
       kind: 'accept';
       feature: Feature<Polygon | MultiPolygon, GadmProperties>;
@@ -119,17 +122,15 @@ export async function openGadm(path?: string): Promise<GadmHandle> {
         const parsed = parseFeature(fid, row);
         if (!parsed) continue;
         if (!booleanPointInPolygon(point, parsed.geometry)) continue;
-        if (parsed.properties.gid_0 === 'USA') {
-          return { kind: 'mainland-us' };
-        }
-        return {
-          kind: 'accept',
-          feature: {
-            type: 'Feature',
-            geometry: parsed.geometry,
-            properties: parsed.properties,
-          },
+        const feature: Feature<Polygon | MultiPolygon, GadmProperties> = {
+          type: 'Feature',
+          geometry: parsed.geometry,
+          properties: parsed.properties,
         };
+        if (parsed.properties.gid_0 === 'USA') {
+          return { kind: 'mainland-us', feature };
+        }
+        return { kind: 'accept', feature };
       }
       return { kind: 'ocean' };
     },

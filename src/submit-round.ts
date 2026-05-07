@@ -1,0 +1,251 @@
+import { pathToFileURL } from 'node:url';
+import { parseArgs } from 'node:util';
+import { distance } from '@turf/distance';
+import type { Position } from 'geojson';
+import { type GadmHandle, openGadm } from './gadm.ts';
+import {
+  formatLocation,
+  type RoundFeature,
+  type RoundFile,
+  type SubmissionFeature,
+  validateSubmissionEligibility,
+} from './round-domain.ts';
+import {
+  DEFAULT_ROUNDS_DIR,
+  findActiveRound,
+  readRound,
+  roundPath,
+  writeRoundAtomic,
+} from './round-file.ts';
+
+const USAGE = `Usage: yarn submit-round <player> <lat> <lng> [--round N] [--rounds-dir <dir>]
+
+Records a player submission against the active round (or --round N if explicit).
+
+Options:
+      --round N         Target a specific round (default: latest unended round)
+      --rounds-dir <d>  Rounds directory (default: rounds)
+  -h, --help            Show this message
+`;
+
+export type LookupLocation = (position: Position) => string | null;
+export type ComputeDistanceKm = (
+  target: Position,
+  submission: Position,
+) => number;
+
+export interface SubmitRoundDeps {
+  player: string;
+  lat: number;
+  lng: number;
+  roundsDir: string;
+  explicitRound?: number;
+  lookupLocation: LookupLocation;
+  computeDistance?: ComputeDistanceKm;
+}
+
+export interface SubmitRoundResult {
+  path: string;
+  round: number;
+  player: string;
+  distance: number;
+  location?: string;
+  replaced: boolean;
+  file: RoundFile;
+}
+
+export const defaultComputeDistance: ComputeDistanceKm = (target, submission) =>
+  distance(target, submission, { units: 'kilometers' });
+
+export function makeGadmLookupLocation(gadm: GadmHandle): LookupLocation {
+  return (position) => {
+    const result = gadm.lookup(position);
+    if (result.kind === 'ocean') return null;
+    return formatLocation({
+      name_0: result.feature.properties.name_0,
+      name_1: result.feature.properties.name_1,
+    });
+  };
+}
+
+export async function submitRound(
+  deps: SubmitRoundDeps,
+): Promise<SubmitRoundResult> {
+  const player = deps.player.trim();
+  if (!player) throw new Error('player name is required');
+  if (!Number.isFinite(deps.lat) || deps.lat < -90 || deps.lat > 90) {
+    throw new Error(
+      `invalid latitude: ${deps.lat} (expected number in [-90, 90])`,
+    );
+  }
+  if (!Number.isFinite(deps.lng) || deps.lng < -180 || deps.lng > 180) {
+    throw new Error(
+      `invalid longitude: ${deps.lng} (expected number in [-180, 180])`,
+    );
+  }
+
+  const computeDistance = deps.computeDistance ?? defaultComputeDistance;
+
+  // Resolve target round.
+  let targetPath: string;
+  let currentRound: RoundFile;
+  if (deps.explicitRound !== undefined) {
+    targetPath = roundPath(deps.explicitRound, deps.roundsDir);
+    currentRound = await readRound(targetPath);
+  } else {
+    const active = await findActiveRound(deps.roundsDir);
+    if (!active) {
+      throw new Error('no active round; run `yarn create-round` to start one');
+    }
+    targetPath = active.entry.path;
+    currentRound = active.file;
+  }
+
+  // Load previous round when needed for eligibility (round N >= 2).
+  let prevRound: RoundFile | null = null;
+  if (currentRound.properties.round >= 2) {
+    const prevPath = roundPath(
+      currentRound.properties.round - 1,
+      deps.roundsDir,
+    );
+    prevRound = await readRound(prevPath);
+  }
+
+  const eligibility = validateSubmissionEligibility({
+    player,
+    currentRound,
+    prevRound,
+  });
+  if (!eligibility.eligible) {
+    throw new Error(eligibility.reason ?? 'ineligible');
+  }
+
+  const submissionPos: Position = [deps.lng, deps.lat];
+  const targetPos = currentRound.features[0].geometry.coordinates;
+  const distanceKm = computeDistance(targetPos, submissionPos);
+  const location = deps.lookupLocation(submissionPos);
+
+  const submission: SubmissionFeature = {
+    type: 'Feature',
+    geometry: { type: 'Point', coordinates: submissionPos },
+    properties: {
+      player,
+      distance: distanceKm,
+      ...(location !== null ? { location } : {}),
+    },
+  };
+
+  // Append or replace by player (target is at index 0; never matches).
+  const features = currentRound.features as ReadonlyArray<RoundFeature>;
+  let existingIdx = -1;
+  for (let i = 1; i < features.length; i++) {
+    const f = features[i] as SubmissionFeature;
+    if (f.properties.player === player) {
+      existingIdx = i;
+      break;
+    }
+  }
+
+  const newFeatures: RoundFeature[] = [...features];
+  let replaced = false;
+  if (existingIdx === -1) {
+    newFeatures.push(submission);
+  } else {
+    newFeatures[existingIdx] = submission;
+    replaced = true;
+  }
+
+  const updated: RoundFile = {
+    ...currentRound,
+    features: newFeatures,
+  };
+
+  await writeRoundAtomic(targetPath, updated);
+
+  return {
+    path: targetPath,
+    round: currentRound.properties.round,
+    player,
+    distance: distanceKm,
+    ...(location !== null ? { location } : {}),
+    replaced,
+    file: updated,
+  };
+}
+
+function fail(message: string): never {
+  process.stderr.write(`${message}\n\n${USAGE}`);
+  process.exit(1);
+}
+
+function parseRound(raw: string | undefined): number | undefined {
+  if (raw === undefined) return undefined;
+  const n = Number.parseInt(raw, 10);
+  if (!Number.isInteger(n) || n < 1 || String(n) !== raw.trim()) {
+    fail(`Invalid --round value: '${raw}'. Expected a positive integer.`);
+  }
+  return n;
+}
+
+function parseCoord(raw: string, label: string): number {
+  const n = Number.parseFloat(raw);
+  if (!Number.isFinite(n)) {
+    fail(`Invalid ${label}: '${raw}'. Expected a number.`);
+  }
+  return n;
+}
+
+async function main(): Promise<void> {
+  const { values, positionals } = parseArgs({
+    options: {
+      round: { type: 'string' },
+      'rounds-dir': { type: 'string' },
+      help: { type: 'boolean', short: 'h', default: false },
+    },
+    allowPositionals: true,
+    strict: true,
+  });
+
+  if (values.help) {
+    process.stdout.write(USAGE);
+    return;
+  }
+
+  if (positionals.length !== 3) {
+    fail(
+      `Expected 3 positional arguments (<player> <lat> <lng>), got ${positionals.length}.`,
+    );
+  }
+
+  const [player, latRaw, lngRaw] = positionals;
+  const lat = parseCoord(latRaw, 'lat');
+  const lng = parseCoord(lngRaw, 'lng');
+  const explicitRound = parseRound(values.round);
+  const roundsDir = values['rounds-dir'] ?? DEFAULT_ROUNDS_DIR;
+
+  const gadm = await openGadm();
+  try {
+    const result = await submitRound({
+      player,
+      lat,
+      lng,
+      roundsDir,
+      explicitRound,
+      lookupLocation: makeGadmLookupLocation(gadm),
+    });
+    const locationPart = result.location ? `, ${result.location}` : '';
+    const verb = result.replaced ? 'updated' : 'submitted';
+    process.stdout.write(
+      `${verb}: ${result.player} ${result.distance.toFixed(3)} km${locationPart}\n`,
+    );
+  } finally {
+    gadm.close();
+  }
+}
+
+const isMainModule =
+  process.argv[1] !== undefined &&
+  import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isMainModule) {
+  await main();
+}
