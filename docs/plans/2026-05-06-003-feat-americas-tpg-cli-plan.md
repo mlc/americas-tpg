@@ -1,7 +1,7 @@
 ---
 title: 'feat: Américas TPG round CLI'
 type: feat
-status: active
+status: completed
 date: 2026-05-06
 origin: docs/brainstorms/2026-05-06-001-feat-americas-tpg-requirements.md
 ---
