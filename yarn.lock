@@ -277,6 +277,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/distance@npm:^7.3.5":
+  version: 7.3.5
+  resolution: "@turf/distance@npm:7.3.5"
+  dependencies:
+    "@turf/helpers": "npm:7.3.5"
+    "@turf/invariant": "npm:7.3.5"
+    "@types/geojson": "npm:^7946.0.10"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/4f9881f8ec4030878a1b456ec73adc81098a8fd2986e095ebeee9d5f52f5501084ced41bded873bb90626b2a72a1eea187887d6def67134b3c86934ae8b57c28
+  languageName: node
+  linkType: hard
+
 "@turf/helpers@npm:6.5.0, @turf/helpers@npm:6.x, @turf/helpers@npm:^6.3.0, @turf/helpers@npm:^6.5.0":
   version: 6.5.0
   resolution: "@turf/helpers@npm:6.5.0"
@@ -501,6 +513,7 @@ __metadata:
     "@ngageoint/geopackage": "npm:^4.2.6"
     "@tsconfig/node24": "npm:^24.0.4"
     "@turf/boolean-point-in-polygon": "npm:^7.3.5"
+    "@turf/distance": "npm:^7.3.5"
     "@types/geojson": "npm:^7946.0.16"
     "@types/node": "npm:24.12.2"
     husky: "npm:^9.1.7"
