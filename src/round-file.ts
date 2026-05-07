@@ -8,6 +8,7 @@ import {
 } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
 import type { RoundFile } from './round-domain.ts';
+import { applySimplestyle } from './simplestyle.ts';
 
 export const DEFAULT_ROUNDS_DIR = 'rounds';
 
@@ -127,7 +128,7 @@ export async function writeRoundAtomic(
 ): Promise<void> {
   await mkdir(dirname(path), { recursive: true });
   const tmp = `${path}.tmp`;
-  const json = `${JSON.stringify(file, null, 2)}\n`;
+  const json = `${JSON.stringify(applySimplestyle(file), null, 2)}\n`;
   try {
     await writeFile(tmp, json, 'utf8');
     await rename(tmp, path);
