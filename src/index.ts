@@ -1,11 +1,10 @@
 import { parseArgs } from 'node:util';
 import type { Feature, Point } from 'geojson';
+import { isMain, parseRng } from './cli-helpers.ts';
 import { formatGeoJson, formatHuman, type OutputProps } from './format.ts';
 import { openGadm } from './gadm.ts';
-import { createRng, type RngName, rngFactories } from './rng.ts';
+import { createRng } from './rng.ts';
 import { samplePosition } from './sampler.ts';
-
-const RNG_NAMES = Object.keys(rngFactories) as RngName[];
 
 const USAGE = `Usage: yarn start [--count <N>] [--geojson] [--rng <crypto|math|random.org>]
 
@@ -29,14 +28,6 @@ function parseCount(raw: string | undefined): number {
   return n;
 }
 
-function parseRng(raw: string | undefined): RngName {
-  if (raw === undefined) return 'crypto';
-  if ((RNG_NAMES as string[]).includes(raw)) return raw as RngName;
-  fail(
-    `Invalid --rng value: '${raw}'. Expected one of: ${RNG_NAMES.join(', ')}.`,
-  );
-}
-
 async function main(): Promise<void> {
   const { values } = parseArgs({
     options: {
@@ -54,7 +45,7 @@ async function main(): Promise<void> {
   }
 
   const count = parseCount(values.count);
-  const rngName = parseRng(values.rng);
+  const rngName = parseRng(values.rng, fail);
   const asGeoJson = values.geojson === true;
 
   const rng = createRng(rngName);
@@ -87,4 +78,10 @@ async function main(): Promise<void> {
   );
 }
 
-await main();
+if (isMain(import.meta.url)) {
+  try {
+    await main();
+  } catch (cause) {
+    fail(cause instanceof Error ? cause.message : String(cause));
+  }
+}

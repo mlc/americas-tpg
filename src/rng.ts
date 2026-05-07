@@ -31,6 +31,10 @@ export const rngFactories: Record<RngName, () => RandomSource> = {
   'random.org': () => createRandomOrgRng(),
 };
 
+export const RNG_NAMES = Object.keys(
+  rngFactories,
+) as (keyof typeof rngFactories)[];
+
 export function createRng(name: RngName): RandomSource {
   return rngFactories[name]();
 }

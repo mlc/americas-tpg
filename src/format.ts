@@ -1,4 +1,4 @@
-import type { Feature, FeatureCollection, Point } from 'geojson';
+import type { Feature, FeatureCollection, Point, Position } from 'geojson';
 
 export interface OutputProps {
   country: string;
@@ -7,13 +7,17 @@ export interface OutputProps {
   gid1: string;
 }
 
+export function formatCoords(coords: Position): string {
+  const [lon, lat] = coords;
+  const latStr = `${Math.abs(lat).toFixed(6)}°${lat >= 0 ? 'N' : 'S'}`;
+  const lonStr = `${Math.abs(lon).toFixed(6)}°${lon >= 0 ? 'E' : 'W'}`;
+  return `${latStr} ${lonStr}`;
+}
+
 export function formatHuman(features: Feature<Point, OutputProps>[]): string {
   return features
     .map((f) => {
-      const [lon, lat] = f.geometry.coordinates;
-      const latStr = `${Math.abs(lat).toFixed(6)}°${lat >= 0 ? 'N' : 'S'}`;
-      const lonStr = `${Math.abs(lon).toFixed(6)}°${lon >= 0 ? 'E' : 'W'}`;
-      const parts = [`${latStr} ${lonStr}`];
+      const parts = [formatCoords(f.geometry.coordinates)];
       if (f.properties.level1) parts.push(f.properties.level1);
       parts.push(f.properties.country);
       return parts.join(', ');
