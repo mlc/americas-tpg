@@ -4,7 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A small TypeScript CLI that draws uniformly distributed random points on the Earth's surface within an Americas-shaped lat/lon band, looks each one up in the GADM 4.10 administrative-boundaries geopackage, and reports the country + first-level subdivision (or rejects ocean / mainland-US hits and resamples). Output is either a human-readable line per point or a GeoJSON `FeatureCollection`.
+Two cooperating tools sharing the same sampler + GADM lookup pipeline:
+
+1. **`yarn start`** — draws uniformly distributed random points within an
+   Americas-shaped lat/lon band, resolves each via the GADM 4.10 geopackage to
+   `(country, level1)`, rejects ocean / mainland-US hits and resamples.
+   Outputs human-readable lines or a GeoJSON `FeatureCollection`.
+
+2. **`yarn create-round` / `submit-round` / `end-round`** — *TPG*, a turn-based
+   geo-guessing game. Each round picks a random Americas target, players submit
+   coordinates, the farthest (with a 25 m tie buffer) is eliminated, and the
+   last surviving player wins. Round state lives on disk in `rounds/NNN.geojson`.
 
 ## Toolchain (non-obvious bits)
 
@@ -12,21 +22,25 @@ A small TypeScript CLI that draws uniformly distributed random points on the Ear
 - **Yarn 4 + Plug'n'Play.** There is no `node_modules`. Always run TS files via `yarn node <file>` or the scripts below — bare `node src/foo.ts` will not resolve dependencies.
 - **Imports use `.ts` extensions** (e.g. `./gadm.ts`) — that's `allowImportingTsExtensions`, not a typo.
 - **Biome** does both lint and format. Single quotes, 2-space indent, LF.
+- **Tests** run via Node's built-in test runner: `node --test 'src/**/*.test.ts'`. No external test framework.
 
 ## Commands
 
 | Command | What it does |
 | --- | --- |
-| `yarn start` | Run `src/index.ts` (the CLI). |
+| `yarn start` | Run `src/index.ts` (the points sampler). |
+| `yarn create-round` | Start a new round of TPG. |
+| `yarn submit-round <player> <coord>...` | Record a player submission. |
+| `yarn end-round` | Close the active round and print standings. |
+| `yarn test` | Run `node --test` over every `src/**/*.test.ts`. |
 | `yarn typecheck` | `tsc --noEmit` over `src/`. |
 | `yarn lint` | Biome lint. |
 | `yarn format` | Biome formatter, write fixes. |
 | `yarn check` | Biome combined lint + format check (use this before committing). |
 | `yarn node <file>` | Run any TS file under the PnP runtime. |
 
-CLI flags: `--count <N>` (default 1), `--geojson`, `--rng <crypto|math|random.org>` (default `crypto`).
-
-There is no test runner configured.
+`yarn start` flags: `--count <N>` (default 1), `--geojson`, `--rng <crypto|math|random.org>` (default `crypto`).
+Round CLIs share `--round N` and `--rounds-dir <dir>`; `create-round` also takes `--rng`.
 
 ## Conventions
 
@@ -36,14 +50,33 @@ There is no test runner configured.
 
 ## Architecture
 
+### Points sampler (`yarn start`)
+
 Pipeline lives in `src/index.ts` and composes four pieces:
 
 1. **`rng.ts` / `rng-random-org.ts`** — `RandomSource` abstraction with three implementations: `crypto` (Node `randomBytes`, 53-bit float), `math` (`Math.random`), and `random.org` (HTTPS, fetches 200-value chunks with a 15s timeout and buffers them). `next()` is async because `random.org` is.
 2. **`sampler.ts`** — `samplePosition(rng)` produces uniform-on-sphere samples by inverse-CDF on `sin(lat)` within a fixed bounding box (`lat ∈ [-60, 35]`, `lon ∈ [-120, -30]`). This box is rectangular and contains ocean + parts of the eastern Atlantic; non-Americas points are filtered out downstream by the GADM lookup, not by the sampler.
-3. **`gadm.ts`** — opens `data/gadm.gpkg` (path overridable via `GADM_PATH` env var; file is gitignored, must be supplied locally) and exposes `lookup(position)` returning `{ kind: 'ocean' } | { kind: 'mainland-us' } | { kind: 'accept', feature }`. Mainland US is rejected by design; **Puerto Rico and the USVI come through as their own `GID_0` values (`PRI`, `VIR`) in GADM 4.10** — they are not children of `USA`, so rejecting `gid_0 === 'USA'` accepts them automatically. Don't "fix" that.
+3. **`gadm.ts`** — opens `data/gadm.gpkg` (path overridable via `GADM_PATH` env var; file is gitignored, must be supplied locally) and exposes `lookup(position)` returning `{ kind: 'ocean' } | { kind: 'mainland-us', feature } | { kind: 'accept', feature }`. Mainland US is rejected by design; **Puerto Rico and the USVI come through as their own `GID_0` values (`PRI`, `VIR`) in GADM 4.10** — they are not children of `USA`, so rejecting `gid_0 === 'USA'` accepts them automatically. Don't "fix" that.
 4. **`format.ts`** — `formatHuman` (one line per point, `lat°N/S lon°E/W, level1, country`) and `formatGeoJson` (FeatureCollection). `OutputProps` intentionally renames GADM's `GID_0`/`GID_1` to lowercase `gid0`/`gid1`.
 
 `index.ts` loops `samplePosition → gadm.lookup`, discarding `ocean` / `mainland-us` results until it has `count` accepted points, then formats and prints. The GADM handle is closed in a `finally`.
+
+### TPG (round CLIs)
+
+- **`round-domain.ts`** — `RoundFile` / `TargetFeature` / `SubmissionFeature` types, the 25 m tie-buffer elimination logic (`eliminationsForRound`, `eligibleForNextRound`), eligibility rules, and rendering helpers.
+- **`round-file.ts`** — atomic read/write/listing of `rounds/NNN.geojson`. `writeRoundAtomic` runs the file through `applySimplestyle` before serializing — every write recomputes marker styling.
+- **`coords.ts`** — `decodeCoord(string)` parses one positional coordinate via `geographiclib-dms`. Accepts decimal, NESW, and DMS forms (`40.7128, -74.0060`, `40.7128°N 74.0060°W`, `40:42:46N 74:00:21W`, `40d42'46"N 74d00'21"W`).
+- **`simplestyle.ts`** — applies [simplestyle 1.1](https://github.com/mapbox/simplestyle-spec/blob/master/1.1.0/README.md) `marker-symbol` / `marker-color` to every feature on write. Target = star + black; players = circle + gold/silver/bronze for 1st/2nd/3rd, red for last (same tie rule), gray otherwise. Last beats podium.
+- **`create-round.ts`** / **`submit-round.ts`** / **`end-round.ts`** — the three CLIs.
+
+### Round file format (load-bearing)
+
+The on-disk format is plain RFC 7946 GeoJSON. **Do not add a top-level `properties` foreign member** — strict GeoJSON validators reject it, and that bug has already cost us once.
+
+- Top level: `{ type: 'FeatureCollection', features: [...] }` only.
+- `features[0]` is the target: `id: 'target'`, point geometry, `properties.location` (string), `properties.ended_at` (`null` while open, ISO 8601 string once closed). The target is also stamped with simplestyle marker properties on every write.
+- `features[1..]` are submissions: `properties.player`, `properties.distance` (km from target), optional `properties.location`, and simplestyle marker properties.
+- The round number is **derived from the filename only** (`NNN.geojson`); it does not appear inside the file. `validateRoundFile` and the round CLIs source it from `entry.round` (returned by `resolveRound`).
 
 ### GADM lookup performance
 
@@ -60,6 +93,6 @@ There is a deliberate type cast in `parseFeature` because `dao.fastQueryBounding
 
 ## Repo layout pointers
 
-- `src/` — all source.
+- `src/` — all source. Tests are co-located as `*.test.ts`.
 - `docs/plans/` — historical planning docs; read for context, not authoritative.
 - `.yarn/sdks/` — committed PnP editor SDKs. Regenerate after upgrading TypeScript with `yarn dlx @yarnpkg/sdks base`.
