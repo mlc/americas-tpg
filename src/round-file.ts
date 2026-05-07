@@ -222,6 +222,11 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
     if (!sub || typeof sub !== 'object') {
       fail(`features[${i}] is not an object`);
     }
+    if ((sub as { id?: unknown }).id === 'target') {
+      fail(
+        `features[${i}] must not have id: "target" — only features[0] may carry that id`,
+      );
+    }
     validatePointGeometry(
       (sub as { geometry?: unknown }).geometry,
       `features[${i}]`,

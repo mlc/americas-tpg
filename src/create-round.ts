@@ -1,5 +1,3 @@
-import { constants as fsConstants } from 'node:fs';
-import { access } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import { isMain, parseRng } from './cli-helpers.ts';
 import { type GadmHandle, openGadm } from './gadm.ts';
@@ -54,17 +52,6 @@ export async function createRound(
   }
   const nextRound = latest ? latest.entry.round + 1 : 1;
   const path = roundPath(nextRound, roundsDir);
-
-  // Defensive overwrite guard — listRoundFiles + nextRound already prevents
-  // normal collisions; this catches genuine races and out-of-band file edits.
-  try {
-    await access(path, fsConstants.F_OK);
-    throw new Error(
-      `round file already exists at ${path}; refusing to overwrite`,
-    );
-  } catch (cause) {
-    if ((cause as NodeJS.ErrnoException).code !== 'ENOENT') throw cause;
-  }
 
   const target = await generateTarget();
 
@@ -147,5 +134,9 @@ async function main(): Promise<void> {
 }
 
 if (isMain(import.meta.url)) {
-  await main();
+  try {
+    await main();
+  } catch (cause) {
+    fail(cause instanceof Error ? cause.message : String(cause));
+  }
 }

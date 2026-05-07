@@ -5,6 +5,7 @@ import { isMain, parseRound } from './cli-helpers.ts';
 import { type GadmHandle, openGadm } from './gadm.ts';
 import {
   formatLocation,
+  normalizePlayerName,
   type RoundFeature,
   type RoundFile,
   type SubmissionFeature,
@@ -22,6 +23,8 @@ import {
 const USAGE = `Usage: yarn submit-round <player> <lat> <lng> [--round N] [--rounds-dir <dir>]
 
 Records a player submission against the active round (or --round N if explicit).
+Player names are normalized (NFC + zero-width strip + trim) but compared case-
+sensitively — 'Alice' and 'alice' are different players.
 
 Options:
       --round N         Target a specific round (default: latest unended round)
@@ -72,7 +75,7 @@ export function makeGadmLookupLocation(gadm: GadmHandle): LookupLocation {
 export async function submitRound(
   deps: SubmitRoundDeps,
 ): Promise<SubmitRoundResult> {
-  const player = deps.player.trim();
+  const player = normalizePlayerName(deps.player);
   if (!player) throw new Error('player name is required');
   if (!Number.isFinite(deps.lat) || deps.lat < -90 || deps.lat > 90) {
     throw new Error(
@@ -227,5 +230,9 @@ async function main(): Promise<void> {
 }
 
 if (isMain(import.meta.url)) {
-  await main();
+  try {
+    await main();
+  } catch (cause) {
+    fail(cause instanceof Error ? cause.message : String(cause));
+  }
 }

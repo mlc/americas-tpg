@@ -10,7 +10,11 @@ import type {
   TargetFeature,
 } from './round-domain.ts';
 import { roundPath, writeRoundAtomic } from './round-file.ts';
-import { type LookupLocation, submitRound } from './submit-round.ts';
+import {
+  defaultComputeDistance,
+  type LookupLocation,
+  submitRound,
+} from './submit-round.ts';
 
 const argentinaTarget: TargetFeature = {
   type: 'Feature',
@@ -318,6 +322,20 @@ describe('submitRound — error paths (R11)', () => {
       }),
       /player name is required/,
     );
+  });
+});
+
+describe('defaultComputeDistance — real @turf/distance wiring', () => {
+  test('1° longitude at equator ≈ 111.195 km (coordinate-order smoke test)', () => {
+    // distance from (0°N, 0°E) to (0°N, 1°E) on a sphere is about 111.195 km
+    // via Haversine. This pins coordinate order ([lon, lat]) and units (km).
+    const km = defaultComputeDistance([0, 0], [1, 0]);
+    assert.ok(Math.abs(km - 111.195) < 0.05, `expected ~111.195 km, got ${km}`);
+  });
+
+  test('1° latitude at meridian ≈ 111.195 km', () => {
+    const km = defaultComputeDistance([0, 0], [0, 1]);
+    assert.ok(Math.abs(km - 111.195) < 0.05, `expected ~111.195 km, got ${km}`);
   });
 });
 

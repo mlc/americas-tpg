@@ -79,5 +79,9 @@ async function main(): Promise<void> {
 }
 
 if (isMain(import.meta.url)) {
-  await main();
+  try {
+    await main();
+  } catch (cause) {
+    fail(cause instanceof Error ? cause.message : String(cause));
+  }
 }

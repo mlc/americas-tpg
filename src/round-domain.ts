@@ -3,6 +3,16 @@ import { formatCoords } from './format.ts';
 
 export const TIE_BUFFER_KM = 0.025;
 
+const ZERO_WIDTH_RE = /[​-‍﻿]/g;
+
+/**
+ * Normalize a player name: NFC + strip zero-width chars + trim.
+ * Player-name comparison is otherwise byte-exact (case-sensitive).
+ */
+export function normalizePlayerName(raw: string): string {
+  return raw.normalize('NFC').replace(ZERO_WIDTH_RE, '').trim();
+}
+
 export interface RoundFile {
   type: 'FeatureCollection';
   properties: {
