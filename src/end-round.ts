@@ -3,9 +3,11 @@ import { isMain, parseRound } from './cli-helpers.ts';
 import {
   eligibleForNextRound,
   eliminationsForRound,
+  endedAtOf,
   formatStandings,
   type RoundFile,
   submitters,
+  targetOf,
 } from './round-domain.ts';
 import {
   DEFAULT_ROUNDS_DIR,
@@ -53,11 +55,12 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
     missingMessage: 'no active round to end',
   });
   const path = entry.path;
+  const round = entry.round;
 
   // Load previous round for DNS computation when N >= 2.
   let prev: RoundFile | null = null;
-  if (current.properties.round >= 2) {
-    const prevPath = roundPath(current.properties.round - 1, deps.roundsDir);
+  if (round >= 2) {
+    const prevPath = roundPath(round - 1, deps.roundsDir);
     prev = await readRound(prevPath);
   }
 
@@ -75,23 +78,31 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
   const nextEligible = eligibleForNextRound(current);
 
   const output = formatRoundOutput({
-    round: current.properties.round,
+    round,
     standings: formatStandings(current),
     eliminations,
     dnsSet,
     nextEligible,
   });
 
-  if (current.properties.ended_at === null) {
+  const existingEndedAt = endedAtOf(current);
+  if (existingEndedAt === null) {
     const now = deps.now ?? (() => new Date());
     const endedAt = now().toISOString();
+    const target = targetOf(current);
     const updated: RoundFile = {
       ...current,
-      properties: { ...current.properties, ended_at: endedAt },
+      features: [
+        {
+          ...target,
+          properties: { ...target.properties, ended_at: endedAt },
+        },
+        ...current.features.slice(1),
+      ],
     };
     await writeRoundAtomic(path, updated);
     return {
-      round: current.properties.round,
+      round,
       path,
       output,
       eliminations,
@@ -104,13 +115,13 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
   }
 
   return {
-    round: current.properties.round,
+    round,
     path,
     output,
     eliminations,
     dnsSet,
     nextEligible,
-    endedAt: current.properties.ended_at,
+    endedAt: existingEndedAt,
     wasAlreadyEnded: true,
     file: current,
   };

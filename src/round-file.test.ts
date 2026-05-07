@@ -3,7 +3,7 @@ import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, test } from 'node:test';
-import type { RoundFile } from './round-domain.ts';
+import { endedAtOf, type RoundFile } from './round-domain.ts';
 import {
   findActiveRound,
   findLatestRound,
@@ -15,18 +15,17 @@ import {
 } from './round-file.ts';
 
 function makeRoundFile(
-  round: number,
+  _round: number,
   ended_at: string | null = null,
 ): RoundFile {
   return {
     type: 'FeatureCollection',
-    properties: { round, ended_at },
     features: [
       {
         type: 'Feature',
         id: 'target',
         geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-        properties: { location: 'Río Negro, Argentina' },
+        properties: { location: 'Río Negro, Argentina', ended_at },
       },
     ],
   };
@@ -98,8 +97,7 @@ describe('readRound', () => {
     const path = join(dir, '001.geojson');
     await writeFile(path, JSON.stringify(file, null, 2));
     const result = await readRound(path);
-    assert.equal(result.properties.round, 1);
-    assert.equal(result.properties.ended_at, null);
+    assert.equal(endedAtOf(result), null);
     assert.equal(result.features[0].id, 'target');
   });
 
@@ -115,7 +113,6 @@ describe('readRound', () => {
       path,
       JSON.stringify({
         type: 'FeatureCollection',
-        properties: { round: 1, ended_at: null },
         features: [],
       }),
     );
@@ -140,17 +137,23 @@ describe('readRound', () => {
     await assert.rejects(readRound(path), /must not have a player property/);
   });
 
-  test('rejects missing properties.round', async () => {
+  test('rejects target without ended_at property', async () => {
     const path = join(dir, '001.geojson');
     await writeFile(
       path,
       JSON.stringify({
         type: 'FeatureCollection',
-        properties: { ended_at: null },
-        features: [makeRoundFile(1).features[0]],
+        features: [
+          {
+            type: 'Feature',
+            id: 'target',
+            geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
+            properties: { location: 'Río Negro, Argentina' },
+          },
+        ],
       }),
     );
-    await assert.rejects(readRound(path), /properties.round/);
+    await assert.rejects(readRound(path), /properties\.ended_at/);
   });
 
   test('rejects invalid ended_at string', async () => {
@@ -184,7 +187,10 @@ describe('writeRoundAtomic', () => {
 
     const written = await readFile(path, 'utf8');
     const parsed = JSON.parse(written);
-    assert.equal(parsed.properties.round, 1);
+    assert.equal(parsed.type, 'FeatureCollection');
+    assert.equal(parsed.properties, undefined);
+    assert.equal(parsed.features[0].id, 'target');
+    assert.equal(parsed.features[0].properties.ended_at, null);
   });
 });
 
@@ -203,7 +209,7 @@ describe('findActiveRound / findLatestRound', () => {
     assert.equal(await findActiveRound(dir), null);
     const latest = await findLatestRound(dir);
     assert.equal(latest?.entry.round, 2);
-    assert.equal(latest?.file.properties.ended_at, '2026-05-06T13:00:00Z');
+    assert.equal(latest && endedAtOf(latest.file), '2026-05-06T13:00:00Z');
   });
 
   test('mix of ended + open → findActiveRound returns highest open', async () => {
@@ -214,6 +220,6 @@ describe('findActiveRound / findLatestRound', () => {
 
     const active = await findActiveRound(dir);
     assert.equal(active?.entry.round, 2);
-    assert.equal(active?.file.properties.ended_at, null);
+    assert.equal(active && endedAtOf(active.file), null);
   });
 });

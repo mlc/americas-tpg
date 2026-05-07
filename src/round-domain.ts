@@ -15,17 +15,22 @@ export function normalizePlayerName(raw: string): string {
 
 export interface RoundFile {
   type: 'FeatureCollection';
-  properties: {
-    round: number;
-    ended_at: string | null;
-  };
   features: ReadonlyArray<RoundFeature>;
 }
 
 export type RoundFeature = TargetFeature | SubmissionFeature;
 
-export interface TargetFeature extends Feature<Point, { location: string }> {
+export interface TargetFeature
+  extends Feature<Point, { location: string; ended_at: string | null }> {
   id: 'target';
+}
+
+export function targetOf(round: RoundFile): TargetFeature {
+  return round.features[0] as TargetFeature;
+}
+
+export function endedAtOf(round: RoundFile): string | null {
+  return targetOf(round).properties.ended_at;
 }
 
 export type SubmissionFeature = Feature<
@@ -60,6 +65,7 @@ export function eligibleForNextRound(round: RoundFile): ReadonlySet<string> {
 export interface EligibilityCheck {
   player: string;
   currentRound: RoundFile;
+  currentRoundNumber: number;
   prevRound: RoundFile | null;
 }
 
@@ -71,12 +77,13 @@ export interface EligibilityResult {
 export function validateSubmissionEligibility({
   player,
   currentRound,
+  currentRoundNumber,
   prevRound,
 }: EligibilityCheck): EligibilityResult {
-  if (currentRound.properties.ended_at !== null) {
+  if (endedAtOf(currentRound) !== null) {
     return {
       eligible: false,
-      reason: `round ${currentRound.properties.round} is ended; submissions are closed`,
+      reason: `round ${currentRoundNumber} is ended; submissions are closed`,
     };
   }
   if (prevRound === null) return { eligible: true };
@@ -86,7 +93,7 @@ export function validateSubmissionEligibility({
   const list = sorted.length === 0 ? '(none)' : sorted.join(', ');
   return {
     eligible: false,
-    reason: `player '${player}' not eligible for round ${currentRound.properties.round}. Eligible: ${list}`,
+    reason: `player '${player}' not eligible for round ${currentRoundNumber}. Eligible: ${list}`,
   };
 }
 

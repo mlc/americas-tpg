@@ -7,7 +7,7 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
-import type { RoundFile } from './round-domain.ts';
+import { endedAtOf, type RoundFile } from './round-domain.ts';
 import { applySimplestyle } from './simplestyle.ts';
 
 export const DEFAULT_ROUNDS_DIR = 'rounds';
@@ -76,7 +76,7 @@ export async function findActiveRound(
   // Invariant: an active round can only be the latest one — createRound refuses
   // to start a new round while any prior round is unended (R15).
   const latest = await findLatestRound(dir);
-  if (!latest || latest.file.properties.ended_at !== null) return null;
+  if (!latest || endedAtOf(latest.file) !== null) return null;
   return latest;
 }
 
@@ -175,27 +175,6 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
   if (obj.type !== 'FeatureCollection') {
     fail("type must be 'FeatureCollection'");
   }
-  const props = obj.properties;
-  if (!props || typeof props !== 'object') {
-    fail('missing top-level properties');
-  }
-  const propsObj = props as Record<string, unknown>;
-  if (!Number.isInteger(propsObj.round) || (propsObj.round as number) < 1) {
-    fail('properties.round must be a positive integer');
-  }
-  const filenameRound = parseRoundNumber(path);
-  if (filenameRound !== null && filenameRound !== propsObj.round) {
-    fail(
-      `properties.round (${propsObj.round}) does not match filename round (${filenameRound})`,
-    );
-  }
-  const endedAt = propsObj.ended_at;
-  if (endedAt !== null && typeof endedAt !== 'string') {
-    fail('properties.ended_at must be null or an ISO 8601 string');
-  }
-  if (typeof endedAt === 'string' && Number.isNaN(Date.parse(endedAt))) {
-    fail('properties.ended_at is not a valid ISO 8601 string');
-  }
   if (!Array.isArray(obj.features)) fail('features must be an array');
   const features = obj.features as unknown[];
   if (features.length === 0) {
@@ -215,8 +194,23 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
   const targetProps = targetObj.properties as
     | Record<string, unknown>
     | undefined;
-  if (targetProps && 'player' in targetProps) {
+  if (!targetProps || typeof targetProps !== 'object') {
+    fail('features[0] (target) must have a properties object');
+  }
+  if ('player' in targetProps) {
     fail('features[0] (target) must not have a player property');
+  }
+  if (!('ended_at' in targetProps)) {
+    fail(
+      'features[0] (target) must have properties.ended_at (null or ISO 8601 string)',
+    );
+  }
+  const endedAt = targetProps.ended_at;
+  if (endedAt !== null && typeof endedAt !== 'string') {
+    fail('features[0].properties.ended_at must be null or an ISO 8601 string');
+  }
+  if (typeof endedAt === 'string' && Number.isNaN(Date.parse(endedAt))) {
+    fail('features[0].properties.ended_at is not a valid ISO 8601 string');
   }
   for (let i = 1; i < features.length; i++) {
     const sub = features[i];

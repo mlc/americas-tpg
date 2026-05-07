@@ -13,12 +13,16 @@ import type {
 import { roundPath, writeRoundAtomic } from './round-file.ts';
 import { submitRound } from './submit-round.ts';
 
-const argentinaTarget: TargetFeature = {
-  type: 'Feature',
-  id: 'target',
-  geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-  properties: { location: 'Río Negro, Argentina' },
-};
+function makeArgentinaTarget(ended_at: string | null = null): TargetFeature {
+  return {
+    type: 'Feature',
+    id: 'target',
+    geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
+    properties: { location: 'Río Negro, Argentina', ended_at },
+  };
+}
+
+const argentinaTarget = makeArgentinaTarget();
 
 let dir: string;
 
@@ -39,14 +43,13 @@ function makeSubmission(player: string, distance: number): SubmissionFeature {
 }
 
 function makeRound(
-  round: number,
+  _round: number,
   ended_at: string | null,
   submissions: SubmissionFeature[] = [],
 ): RoundFile {
   return {
     type: 'FeatureCollection',
-    properties: { round, ended_at },
-    features: [argentinaTarget, ...submissions],
+    features: [makeArgentinaTarget(ended_at), ...submissions],
   };
 }
 
@@ -213,7 +216,10 @@ describe('endRound — R16 idempotent re-end', () => {
 
     // On-disk file's ended_at is still the original
     const onDisk = JSON.parse(await readFile(first.path, 'utf8'));
-    assert.equal(onDisk.properties.ended_at, '2026-05-07T00:00:00.000Z');
+    assert.equal(
+      onDisk.features[0].properties.ended_at,
+      '2026-05-07T00:00:00.000Z',
+    );
   });
 });
 
@@ -229,8 +235,9 @@ describe('endRound — persistence (R14)', () => {
 
     await endRound({ roundsDir: dir, now: fixedNow });
     const onDisk = JSON.parse(await readFile(roundPath(1, dir), 'utf8'));
-    assert.equal(typeof onDisk.properties.ended_at, 'string');
-    assert.equal(Number.isNaN(Date.parse(onDisk.properties.ended_at)), false);
+    const onDiskEndedAt = onDisk.features[0].properties.ended_at;
+    assert.equal(typeof onDiskEndedAt, 'string');
+    assert.equal(Number.isNaN(Date.parse(onDiskEndedAt)), false);
   });
 });
 

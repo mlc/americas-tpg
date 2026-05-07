@@ -101,20 +101,19 @@ export async function submitRound(
     missingMessage: 'no active round; run `yarn create-round` to start one',
   });
   const targetPath = entry.path;
+  const currentRoundNumber = entry.round;
 
   // Load previous round when needed for eligibility (round N >= 2).
   let prevRound: RoundFile | null = null;
-  if (currentRound.properties.round >= 2) {
-    const prevPath = roundPath(
-      currentRound.properties.round - 1,
-      deps.roundsDir,
-    );
+  if (currentRoundNumber >= 2) {
+    const prevPath = roundPath(currentRoundNumber - 1, deps.roundsDir);
     prevRound = await readRound(prevPath);
   }
 
   const eligibility = validateSubmissionEligibility({
     player,
     currentRound,
+    currentRoundNumber,
     prevRound,
   });
   if (!eligibility.eligible) {
@@ -158,7 +157,7 @@ export async function submitRound(
 
   return {
     path: targetPath,
-    round: currentRound.properties.round,
+    round: currentRoundNumber,
     player,
     distance: distanceKm,
     ...(location !== null ? { location } : {}),

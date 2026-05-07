@@ -3,6 +3,7 @@ import { isMain, parseRng } from './cli-helpers.ts';
 import { type GadmHandle, openGadm } from './gadm.ts';
 import { createRng, type RandomSource } from './rng.ts';
 import {
+  endedAtOf,
   formatLocation,
   formatTargetLine,
   type RoundFile,
@@ -45,7 +46,7 @@ export async function createRound(
   const { generateTarget, roundsDir } = deps;
 
   const latest = await findLatestRound(roundsDir);
-  if (latest && latest.file.properties.ended_at === null) {
+  if (latest && endedAtOf(latest.file) === null) {
     throw new Error(
       `cannot create new round: round ${latest.entry.round} (${latest.entry.path}) is still active. End it first with \`yarn end-round\`.`,
     );
@@ -57,7 +58,6 @@ export async function createRound(
 
   const file: RoundFile = {
     type: 'FeatureCollection',
-    properties: { round: nextRound, ended_at: null },
     features: [target],
   };
   await writeRoundAtomic(path, file);
@@ -89,7 +89,7 @@ export async function sampleTargetFromGadm(
       type: 'Feature',
       id: 'target',
       geometry: { type: 'Point', coordinates: position },
-      properties: { location },
+      properties: { location, ended_at: null },
     };
   }
   throw new Error(

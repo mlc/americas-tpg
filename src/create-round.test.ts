@@ -7,12 +7,16 @@ import { createRound } from './create-round.ts';
 import type { RoundFile, TargetFeature } from './round-domain.ts';
 import { roundPath, writeRoundAtomic } from './round-file.ts';
 
-const argentinaTarget: TargetFeature = {
-  type: 'Feature',
-  id: 'target',
-  geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-  properties: { location: 'Río Negro, Argentina' },
-};
+function makeArgentinaTarget(ended_at: string | null = null): TargetFeature {
+  return {
+    type: 'Feature',
+    id: 'target',
+    geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
+    properties: { location: 'Río Negro, Argentina', ended_at },
+  };
+}
+
+const argentinaTarget = makeArgentinaTarget();
 
 let dir: string;
 
@@ -25,21 +29,19 @@ afterEach(async () => {
 });
 
 function makeEndedRound(
-  round: number,
+  _round: number,
   endedAt = '2026-05-06T12:00:00Z',
 ): RoundFile {
   return {
     type: 'FeatureCollection',
-    properties: { round, ended_at: endedAt },
-    features: [argentinaTarget],
+    features: [makeArgentinaTarget(endedAt)],
   };
 }
 
-function makeOpenRound(round: number): RoundFile {
+function makeOpenRound(_round: number): RoundFile {
   return {
     type: 'FeatureCollection',
-    properties: { round, ended_at: null },
-    features: [argentinaTarget],
+    features: [makeArgentinaTarget(null)],
   };
 }
 
@@ -52,8 +54,10 @@ describe('createRound', () => {
 
     assert.equal(result.round, 1);
     assert.equal(result.path, join(dir, '001.geojson'));
-    assert.equal(result.file.properties.round, 1);
-    assert.equal(result.file.properties.ended_at, null);
+    assert.equal(
+      (result.file.features[0] as TargetFeature).properties.ended_at,
+      null,
+    );
     assert.equal(result.file.features[0].id, 'target');
     assert.deepEqual(
       result.file.features[0].geometry.coordinates,
@@ -65,7 +69,9 @@ describe('createRound', () => {
     );
 
     const onDisk = JSON.parse(await readFile(result.path, 'utf8'));
-    assert.equal(onDisk.properties.round, 1);
+    assert.equal(onDisk.type, 'FeatureCollection');
+    assert.equal(onDisk.properties, undefined);
+    assert.equal(onDisk.features[0].properties.ended_at, null);
   });
 
   test('existing ended round 001 → creates 002.geojson', async () => {
@@ -133,7 +139,9 @@ describe('createRound', () => {
     });
     assert.equal(second.round, 2);
     const original = JSON.parse(await readFile(first.path, 'utf8'));
-    assert.equal(original.properties.round, 1);
-    assert.equal(original.properties.ended_at, '2026-05-06T12:00:00Z');
+    assert.equal(
+      original.features[0].properties.ended_at,
+      '2026-05-06T12:00:00Z',
+    );
   });
 });

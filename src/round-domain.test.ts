@@ -14,12 +14,16 @@ import {
   validateSubmissionEligibility,
 } from './round-domain.ts';
 
-const target: TargetFeature = {
-  type: 'Feature',
-  id: 'target',
-  geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-  properties: { location: 'Río Negro, Argentina' },
-};
+function makeTarget(ended_at: string | null = null): TargetFeature {
+  return {
+    type: 'Feature',
+    id: 'target',
+    geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
+    properties: { location: 'Río Negro, Argentina', ended_at },
+  };
+}
+
+const target = makeTarget();
 
 function submission(
   player: string,
@@ -38,14 +42,13 @@ function submission(
 }
 
 function buildRound(
-  round: number,
+  _round: number,
   ended_at: string | null,
   subs: SubmissionFeature[],
 ): RoundFile {
   return {
     type: 'FeatureCollection',
-    properties: { round, ended_at },
-    features: [target, ...subs],
+    features: [makeTarget(ended_at), ...subs],
   };
 }
 
@@ -87,7 +90,7 @@ describe('formatTargetLine', () => {
       type: 'Feature',
       id: 'target',
       geometry: { type: 'Point', coordinates: [10.0, 20.0] },
-      properties: { location: 'Somewhere' },
+      properties: { location: 'Somewhere', ended_at: null },
     };
     assert.equal(
       formatTargetLine(positive),
@@ -175,6 +178,7 @@ describe('validateSubmissionEligibility', () => {
       validateSubmissionEligibility({
         player: 'alice',
         currentRound: r1,
+        currentRoundNumber: 1,
         prevRound: null,
       }),
       { eligible: true },
@@ -183,6 +187,7 @@ describe('validateSubmissionEligibility', () => {
       validateSubmissionEligibility({
         player: 'newcomer',
         currentRound: r1,
+        currentRoundNumber: 1,
         prevRound: null,
       }),
       { eligible: true },
@@ -199,6 +204,7 @@ describe('validateSubmissionEligibility', () => {
     const result = validateSubmissionEligibility({
       player: 'dan',
       currentRound: r2,
+      currentRoundNumber: 2,
       prevRound: r1,
     });
     assert.equal(result.eligible, false);
@@ -217,6 +223,7 @@ describe('validateSubmissionEligibility', () => {
       validateSubmissionEligibility({
         player: 'alice',
         currentRound: r2,
+        currentRoundNumber: 2,
         prevRound: r1,
       }),
       { eligible: true },
@@ -228,6 +235,7 @@ describe('validateSubmissionEligibility', () => {
     const result = validateSubmissionEligibility({
       player: 'alice',
       currentRound: r1,
+      currentRoundNumber: 1,
       prevRound: null,
     });
     assert.equal(result.eligible, false);
