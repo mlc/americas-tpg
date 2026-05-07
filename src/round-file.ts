@@ -1,5 +1,12 @@
-import { readdir, readFile, rename, unlink, writeFile } from 'node:fs/promises';
-import { basename, join } from 'node:path';
+import {
+  mkdir,
+  readdir,
+  readFile,
+  rename,
+  unlink,
+  writeFile,
+} from 'node:fs/promises';
+import { basename, dirname, join } from 'node:path';
 import type { RoundFile } from './round-domain.ts';
 
 export const DEFAULT_ROUNDS_DIR = 'rounds';
@@ -98,6 +105,7 @@ export async function writeRoundAtomic(
   path: string,
   file: RoundFile,
 ): Promise<void> {
+  await mkdir(dirname(path), { recursive: true });
   const tmp = `${path}.tmp`;
   const json = `${JSON.stringify(file, null, 2)}\n`;
   try {
