@@ -1,7 +1,7 @@
-import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { distance } from '@turf/distance';
 import type { Position } from 'geojson';
+import { isMain, parseRound } from './cli-helpers.ts';
 import { type GadmHandle, openGadm } from './gadm.ts';
 import {
   formatLocation,
@@ -12,8 +12,8 @@ import {
 } from './round-domain.ts';
 import {
   DEFAULT_ROUNDS_DIR,
-  findActiveRound,
   readRound,
+  resolveRound,
   roundPath,
   writeRoundAtomic,
 } from './round-file.ts';
@@ -86,20 +86,12 @@ export async function submitRound(
 
   const computeDistance = deps.computeDistance ?? defaultComputeDistance;
 
-  // Resolve target round.
-  let targetPath: string;
-  let currentRound: RoundFile;
-  if (deps.explicitRound !== undefined) {
-    targetPath = roundPath(deps.explicitRound, deps.roundsDir);
-    currentRound = await readRound(targetPath);
-  } else {
-    const active = await findActiveRound(deps.roundsDir);
-    if (!active) {
-      throw new Error('no active round; run `yarn create-round` to start one');
-    }
-    targetPath = active.entry.path;
-    currentRound = active.file;
-  }
+  const { entry, file: currentRound } = await resolveRound({
+    roundsDir: deps.roundsDir,
+    explicitRound: deps.explicitRound,
+    missingMessage: 'no active round; run `yarn create-round` to start one',
+  });
+  const targetPath = entry.path;
 
   // Load previous round when needed for eligibility (round N >= 2).
   let prevRound: RoundFile | null = null;
@@ -135,8 +127,8 @@ export async function submitRound(
     },
   };
 
-  // Append or replace by player (target is at index 0; never matches).
-  const features = currentRound.features as ReadonlyArray<RoundFeature>;
+  // target is at index 0 and never matches; start the loop at 1.
+  const features = currentRound.features;
   let existingIdx = -1;
   for (let i = 1; i < features.length; i++) {
     const f = features[i] as SubmissionFeature;
@@ -178,15 +170,6 @@ function fail(message: string): never {
   process.exit(1);
 }
 
-function parseRound(raw: string | undefined): number | undefined {
-  if (raw === undefined) return undefined;
-  const n = Number.parseInt(raw, 10);
-  if (!Number.isInteger(n) || n < 1 || String(n) !== raw.trim()) {
-    fail(`Invalid --round value: '${raw}'. Expected a positive integer.`);
-  }
-  return n;
-}
-
 function parseCoord(raw: string, label: string): number {
   const n = Number.parseFloat(raw);
   if (!Number.isFinite(n)) {
@@ -220,7 +203,7 @@ async function main(): Promise<void> {
   const [player, latRaw, lngRaw] = positionals;
   const lat = parseCoord(latRaw, 'lat');
   const lng = parseCoord(lngRaw, 'lng');
-  const explicitRound = parseRound(values.round);
+  const explicitRound = parseRound(values.round, fail);
   const roundsDir = values['rounds-dir'] ?? DEFAULT_ROUNDS_DIR;
 
   const gadm = await openGadm();
@@ -243,9 +226,6 @@ async function main(): Promise<void> {
   }
 }
 
-const isMainModule =
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href;
-if (isMainModule) {
+if (isMain(import.meta.url)) {
   await main();
 }

@@ -1,14 +1,9 @@
 import { constants as fsConstants } from 'node:fs';
 import { access } from 'node:fs/promises';
-import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
+import { isMain, parseRng } from './cli-helpers.ts';
 import { type GadmHandle, openGadm } from './gadm.ts';
-import {
-  createRng,
-  type RandomSource,
-  type RngName,
-  rngFactories,
-} from './rng.ts';
+import { createRng, type RandomSource } from './rng.ts';
 import {
   formatLocation,
   formatTargetLine,
@@ -17,14 +12,11 @@ import {
 } from './round-domain.ts';
 import {
   DEFAULT_ROUNDS_DIR,
-  findActiveRound,
-  listRoundFiles,
+  findLatestRound,
   roundPath,
   writeRoundAtomic,
 } from './round-file.ts';
 import { samplePosition } from './sampler.ts';
-
-const RNG_NAMES = Object.keys(rngFactories) as RngName[];
 
 const USAGE = `Usage: yarn create-round [--rng <crypto|math|random.org>] [--rounds-dir <dir>]
 
@@ -54,22 +46,17 @@ export async function createRound(
 ): Promise<CreateRoundResult> {
   const { generateTarget, roundsDir } = deps;
 
-  // R15: refuse if any prior round is unended.
-  const active = await findActiveRound(roundsDir);
-  if (active) {
+  const latest = await findLatestRound(roundsDir);
+  if (latest && latest.file.properties.ended_at === null) {
     throw new Error(
-      `cannot create new round: round ${active.entry.round} (${active.entry.path}) is still active. End it first with \`yarn end-round\`.`,
+      `cannot create new round: round ${latest.entry.round} (${latest.entry.path}) is still active. End it first with \`yarn end-round\`.`,
     );
   }
-
-  // Determine next round number from the highest existing index + 1.
-  const existing = await listRoundFiles(roundsDir);
-  const nextRound =
-    existing.length === 0 ? 1 : existing[existing.length - 1].round + 1;
+  const nextRound = latest ? latest.entry.round + 1 : 1;
   const path = roundPath(nextRound, roundsDir);
 
-  // R4 / AE8: refuse to overwrite an existing file at the resolved path.
-  // Defensive — listRoundFiles + nextRound already prevents normal collisions.
+  // Defensive overwrite guard — listRoundFiles + nextRound already prevents
+  // normal collisions; this catches genuine races and out-of-band file edits.
   try {
     await access(path, fsConstants.F_OK);
     throw new Error(
@@ -123,14 +110,6 @@ function fail(message: string): never {
   process.exit(1);
 }
 
-function parseRng(raw: string | undefined): RngName {
-  if (raw === undefined) return 'crypto';
-  if ((RNG_NAMES as string[]).includes(raw)) return raw as RngName;
-  fail(
-    `Invalid --rng value: '${raw}'. Expected one of: ${RNG_NAMES.join(', ')}.`,
-  );
-}
-
 async function main(): Promise<void> {
   const { values } = parseArgs({
     options: {
@@ -146,7 +125,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  const rngName = parseRng(values.rng);
+  const rngName = parseRng(values.rng, fail);
   const roundsDir = values['rounds-dir'] ?? DEFAULT_ROUNDS_DIR;
 
   const rng = createRng(rngName);
@@ -162,9 +141,6 @@ async function main(): Promise<void> {
   }
 }
 
-const isMainModule =
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href;
-if (isMainModule) {
+if (isMain(import.meta.url)) {
   await main();
 }

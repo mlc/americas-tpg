@@ -1,5 +1,5 @@
-import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
+import { isMain, parseRound } from './cli-helpers.ts';
 import {
   eligibleForNextRound,
   eliminationsForRound,
@@ -9,8 +9,8 @@ import {
 } from './round-domain.ts';
 import {
   DEFAULT_ROUNDS_DIR,
-  findActiveRound,
   readRound,
+  resolveRound,
   roundPath,
   writeRoundAtomic,
 } from './round-file.ts';
@@ -47,19 +47,12 @@ export interface EndRoundResult {
 }
 
 export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
-  let path: string;
-  let current: RoundFile;
-  if (deps.explicitRound !== undefined) {
-    path = roundPath(deps.explicitRound, deps.roundsDir);
-    current = await readRound(path);
-  } else {
-    const active = await findActiveRound(deps.roundsDir);
-    if (!active) {
-      throw new Error('no active round to end');
-    }
-    path = active.entry.path;
-    current = active.file;
-  }
+  const { entry, file: current } = await resolveRound({
+    roundsDir: deps.roundsDir,
+    explicitRound: deps.explicitRound,
+    missingMessage: 'no active round to end',
+  });
+  const path = entry.path;
 
   // Load previous round for DNS computation when N >= 2.
   let prev: RoundFile | null = null;
@@ -79,9 +72,7 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
     dnsSet = new Set();
   }
 
-  const nextEligible = new Set(
-    [...submittersCurrent].filter((p) => !eliminations.has(p)),
-  );
+  const nextEligible = eligibleForNextRound(current);
 
   const output = formatRoundOutput({
     round: current.properties.round,
@@ -176,15 +167,6 @@ function fail(message: string): never {
   process.exit(1);
 }
 
-function parseRound(raw: string | undefined): number | undefined {
-  if (raw === undefined) return undefined;
-  const n = Number.parseInt(raw, 10);
-  if (!Number.isInteger(n) || n < 1 || String(n) !== raw.trim()) {
-    fail(`Invalid --round value: '${raw}'. Expected a positive integer.`);
-  }
-  return n;
-}
-
 async function main(): Promise<void> {
   const { values } = parseArgs({
     options: {
@@ -200,16 +182,13 @@ async function main(): Promise<void> {
     return;
   }
 
-  const explicitRound = parseRound(values.round);
+  const explicitRound = parseRound(values.round, fail);
   const roundsDir = values['rounds-dir'] ?? DEFAULT_ROUNDS_DIR;
 
   const result = await endRound({ roundsDir, explicitRound });
   process.stdout.write(`${result.output}\n`);
 }
 
-const isMainModule =
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href;
-if (isMainModule) {
+if (isMain(import.meta.url)) {
   await main();
 }

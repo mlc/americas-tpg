@@ -64,7 +64,6 @@ describe('createRound', () => {
       'Río Negro, Argentina',
     );
 
-    // File on disk matches.
     const onDisk = JSON.parse(await readFile(result.path, 'utf8'));
     assert.equal(onDisk.properties.round, 1);
   });

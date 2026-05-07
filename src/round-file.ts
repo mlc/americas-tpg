@@ -71,13 +71,32 @@ export async function findLatestRound(
 export async function findActiveRound(
   dir: string = DEFAULT_ROUNDS_DIR,
 ): Promise<RoundLookup | null> {
-  const rounds = await listRoundFiles(dir);
-  for (let i = rounds.length - 1; i >= 0; i--) {
-    const entry = rounds[i];
-    const file = await readRound(entry.path);
-    if (file.properties.ended_at === null) return { entry, file };
+  // Invariant: an active round can only be the latest one — createRound refuses
+  // to start a new round while any prior round is unended (R15).
+  const latest = await findLatestRound(dir);
+  if (!latest || latest.file.properties.ended_at !== null) return null;
+  return latest;
+}
+
+export interface ResolveRoundOptions {
+  roundsDir: string;
+  explicitRound?: number;
+  missingMessage?: string;
+}
+
+export async function resolveRound(
+  opts: ResolveRoundOptions,
+): Promise<RoundLookup> {
+  if (opts.explicitRound !== undefined) {
+    const path = roundPath(opts.explicitRound, opts.roundsDir);
+    const file = await readRound(path);
+    return { entry: { round: opts.explicitRound, path }, file };
   }
-  return null;
+  const active = await findActiveRound(opts.roundsDir);
+  if (!active) {
+    throw new Error(opts.missingMessage ?? 'no active round');
+  }
+  return active;
 }
 
 export async function readRound(path: string): Promise<RoundFile> {

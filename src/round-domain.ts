@@ -1,4 +1,5 @@
 import type { Feature, Point } from 'geojson';
+import { formatCoords } from './format.ts';
 
 export const TIE_BUFFER_KM = 0.025;
 
@@ -21,18 +22,6 @@ export type SubmissionFeature = Feature<
   Point,
   { player: string; distance: number; location?: string }
 >;
-
-export function isTargetFeature(f: RoundFeature): f is TargetFeature {
-  return f.id === 'target';
-}
-
-export function targetOf(round: RoundFile): TargetFeature {
-  const target = round.features[0];
-  if (!target || !isTargetFeature(target)) {
-    throw new Error('round file has no target feature at features[0]');
-  }
-  return target;
-}
 
 export function submissionsOf(round: RoundFile): readonly SubmissionFeature[] {
   return round.features.slice(1) as SubmissionFeature[];
@@ -101,10 +90,7 @@ export function formatLocation(props: {
 }
 
 export function formatTargetLine(target: TargetFeature): string {
-  const [lon, lat] = target.geometry.coordinates;
-  const latStr = `${Math.abs(lat).toFixed(6)}°${lat >= 0 ? 'N' : 'S'}`;
-  const lonStr = `${Math.abs(lon).toFixed(6)}°${lon >= 0 ? 'E' : 'W'}`;
-  return `${latStr} ${lonStr}, ${target.properties.location}`;
+  return `${formatCoords(target.geometry.coordinates)}, ${target.properties.location}`;
 }
 
 export function formatStandings(round: RoundFile): string {

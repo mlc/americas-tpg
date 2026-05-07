@@ -32,10 +32,7 @@ export interface GadmHandle {
   close(): void;
 }
 
-interface ParsedFeature {
-  geometry: Polygon | MultiPolygon;
-  properties: GadmProperties;
-}
+type ParsedFeature = Feature<Polygon | MultiPolygon, GadmProperties>;
 
 function resolvePath(explicit?: string): string {
   return explicit ?? process.env.GADM_PATH ?? 'data/gadm.gpkg';
@@ -95,6 +92,7 @@ export async function openGadm(path?: string): Promise<GadmHandle> {
       return null;
     }
     const result: ParsedFeature = {
+      type: 'Feature',
       geometry: geom as Polygon | MultiPolygon,
       properties: readProps(parsed.properties as Record<string, unknown>),
     };
@@ -119,15 +117,10 @@ export async function openGadm(path?: string): Promise<GadmHandle> {
 
       for (const row of candidates) {
         const fid = Number(row.values.fid);
-        const parsed = parseFeature(fid, row);
-        if (!parsed) continue;
-        if (!booleanPointInPolygon(point, parsed.geometry)) continue;
-        const feature: Feature<Polygon | MultiPolygon, GadmProperties> = {
-          type: 'Feature',
-          geometry: parsed.geometry,
-          properties: parsed.properties,
-        };
-        if (parsed.properties.gid_0 === 'USA') {
+        const feature = parseFeature(fid, row);
+        if (!feature) continue;
+        if (!booleanPointInPolygon(point, feature.geometry)) continue;
+        if (feature.properties.gid_0 === 'USA') {
           return { kind: 'mainland-us', feature };
         }
         return { kind: 'accept', feature };
