@@ -578,7 +578,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"better-sqlite3@npm:^12.9.0":
+"better-sqlite3@npm:12.9.0":
   version: 12.9.0
   resolution: "better-sqlite3@npm:12.9.0"
   dependencies:
