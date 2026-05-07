@@ -28,6 +28,11 @@ CLI flags: `--count <N>` (default 1), `--geojson`, `--rng <crypto|math|random.or
 
 There is no test runner configured.
 
+## Conventions
+
+- **Pre-commit hook.** Husky + lint-staged runs `biome check --write` on staged files at commit time, so formatting/import-organize/safe lint fixes happen automatically. The hook activates via `yarn install` (`prepare: husky`). Don't add a separate "format the repo" step before committing — the hook handles it.
+- **Commit messages: terse.** One-line conventional-commit subjects (`feat(scope): …`, `fix(scope): …`, `chore(hooks): …`). No multi-paragraph bodies unless the change genuinely needs the explanation. Match the existing log style.
+
 ## Architecture
 
 Pipeline lives in `src/index.ts` and composes four pieces:
