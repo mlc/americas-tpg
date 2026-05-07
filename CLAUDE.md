@@ -32,6 +32,7 @@ There is no test runner configured.
 
 - **Pre-commit hook.** Husky + lint-staged runs `biome check --write` on staged files at commit time, so formatting/import-organize/safe lint fixes happen automatically. The hook activates via `yarn install` (`prepare: husky`). Don't add a separate "format the repo" step before committing — the hook handles it.
 - **Commit messages: terse.** One-line conventional-commit subjects (`feat(scope): …`, `fix(scope): …`, `chore(hooks): …`). No multi-paragraph bodies unless the change genuinely needs the explanation. Match the existing log style.
+- **Concurrency: not in scope.** The CLIs assume a single operator running commands serially. Race-condition findings (TOCTOU on round creation, concurrent `submit-round` writers losing updates, submit/end interleaving rolling back `ended_at`) are explicitly accepted as out-of-scope — if a user manages to run two commands at the same time, that's on them. Don't add locks, CAS, or `flag: 'wx'` exclusive opens. Don't surface concurrency findings during code review.
 
 ## Architecture
 
