@@ -18,22 +18,22 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.14",
-    "@tsconfig/node24": "^24.0.4",
-    "@types/geojson": "^7946.0.16",
+    "@biomejs/biome": "2.4.14",
+    "@tsconfig/node24": "24.0.4",
+    "@types/geojson": "7946.0.16",
     "@types/node": "24.12.2",
-    "husky": "^9.1.7",
-    "lint-staged": "^17.0.2",
-    "typescript": "^6.0.3"
+    "husky": "9.1.7",
+    "lint-staged": "17.0.2",
+    "typescript": "6.0.3"
   },
   "dependencies": {
-    "@ngageoint/geopackage": "^4.2.6",
-    "@turf/boolean-point-in-polygon": "^7.3.5",
-    "@turf/distance": "^7.3.5",
-    "geographiclib-dms": "^2.2.0"
+    "@ngageoint/geopackage": "4.2.6",
+    "@turf/boolean-point-in-polygon": "7.3.5",
+    "@turf/distance": "7.3.5",
+    "geographiclib-dms": "2.2.0"
   },
   "resolutions": {
-    "better-sqlite3": "^12.9.0"
+    "better-sqlite3": "12.9.0"
   },
   "lint-staged": {
     "*": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
