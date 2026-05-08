@@ -32,6 +32,7 @@ Two cooperating tools sharing the same sampler + GADM lookup pipeline:
 | `yarn create-round` | Start a new round of TPG. |
 | `yarn submit-round <player> <coord>...` | Record a player submission. |
 | `yarn end-round` | Close the active round and print standings. |
+| `yarn list-countries` | Print every non-USA country whose GADM bbox intersects the sampling band. |
 | `yarn test` | Run `node --test` over every `src/**/*.test.ts`. |
 | `yarn typecheck` | `tsc --noEmit` over `src/`. |
 | `yarn lint` | Biome lint. |

@@ -95,6 +95,68 @@ describe('openGadm.lookup — real GADM 4.10 fixture', {
   });
 });
 
+describe('openGadm.candidateCountries — real GADM 4.10 fixture', {
+  skip: !HAS_GADM,
+}, () => {
+  let gadm: GadmHandle;
+
+  before(async () => {
+    gadm = await openGadm();
+  });
+
+  after(() => {
+    gadm.close();
+  });
+
+  test('returns sorted, deduplicated (gid_0, name_0) pairs over the Americas band', () => {
+    const countries = gadm.candidateCountries({
+      minLon: -120,
+      minLat: -60,
+      maxLon: -30,
+      maxLat: 35,
+    });
+    const gids = countries.map((c) => c.gid_0);
+    assert.ok(countries.length > 20, 'expected dozens of countries');
+    assert.ok(gids.includes('ARG'));
+    assert.ok(gids.includes('BRA'));
+    assert.ok(gids.includes('USA'));
+    assert.ok(gids.includes('PRI'));
+    assert.ok(gids.includes('VIR'));
+    assert.equal(new Set(gids).size, gids.length, 'gid_0 should be unique');
+    const names = countries.map((c) => c.name_0);
+    const sorted = [...names].sort((a, b) => a.localeCompare(b));
+    assert.deepEqual(names, sorted, 'should be sorted by name_0');
+  });
+
+  test('antimeridian-wrap & out-of-band fringe countries are filtered out', () => {
+    const gids = gadm
+      .candidateCountries({
+        minLon: -120,
+        minLat: -60,
+        maxLon: -30,
+        maxLat: 35,
+      })
+      .map((c) => c.gid_0);
+    // FJI/KIR have features whose spatial-index bbox spans the antimeridian
+    // and intersects our band, but no actual coordinate inside it.
+    assert.ok(!gids.includes('FJI'), 'Fiji should be filtered out');
+    assert.ok(!gids.includes('KIR'), 'Kiribati should be filtered out');
+    // ATA's level-1 features are below -60° even though some spatial-index
+    // bboxes touch the boundary.
+    assert.ok(!gids.includes('ATA'), 'Antarctica should be filtered out');
+  });
+
+  test('a tight box around Buenos Aires returns only Argentina', () => {
+    const countries = gadm.candidateCountries({
+      minLon: -58.5,
+      minLat: -34.7,
+      maxLon: -58.3,
+      maxLat: -34.5,
+    });
+    assert.deepEqual(countries, [{ gid_0: 'ARG', name_0: 'Argentina' }]);
+  });
+});
+
 describe('openGadm.lookup — caching behaviour', { skip: !HAS_GADM }, () => {
   let gadm: GadmHandle;
 

@@ -27,12 +27,56 @@ export type LookupResult =
       feature: Feature<Polygon | MultiPolygon, GadmProperties>;
     };
 
+export interface BoundingBoxInput {
+  minLon: number;
+  minLat: number;
+  maxLon: number;
+  maxLat: number;
+}
+
+export interface CountryEntry {
+  gid_0: string;
+  name_0: string;
+}
+
 export interface GadmHandle {
   lookup(position: Position): LookupResult;
+  /**
+   * Unique `(GID_0, NAME_0)` pairs for countries with at least one feature
+   * polygon that has a vertex inside `box`. Sorted by `name_0`. This filters
+   * out fringe entries whose spatial-index bbox merely clips `box` (e.g.
+   * antimeridian-wrap polygons) without any actual coordinate inside it.
+   */
+  candidateCountries(box: BoundingBoxInput): CountryEntry[];
   close(): void;
 }
 
 type ParsedFeature = Feature<Polygon | MultiPolygon, GadmProperties>;
+
+// True if any polygon vertex lies inside `box`. Sufficient for the
+// candidate-country filter: at the sampling-box scale, no level-1 admin
+// unit can enclose the box without a vertex inside it.
+function hasVertexInBox(
+  geom: Polygon | MultiPolygon,
+  box: BoundingBoxInput,
+): boolean {
+  const polys = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+  for (const poly of polys) {
+    for (const ring of poly) {
+      for (const [lon, lat] of ring) {
+        if (
+          lon >= box.minLon &&
+          lon <= box.maxLon &&
+          lat >= box.minLat &&
+          lat <= box.maxLat
+        ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
 
 function resolvePath(explicit?: string): string {
   return explicit ?? process.env.GADM_PATH ?? 'data/gadm.gpkg';
@@ -126,6 +170,30 @@ export async function openGadm(path?: string): Promise<GadmHandle> {
         return { kind: 'accept', feature };
       }
       return { kind: 'ocean' };
+    },
+    candidateCountries(box: BoundingBoxInput): CountryEntry[] {
+      const bbox = new BoundingBox(
+        box.minLon,
+        box.maxLon,
+        box.minLat,
+        box.maxLat,
+      );
+      const accepted = new Map<string, string>();
+      for (const row of dao.fastQueryBoundingBox(
+        bbox,
+      ) as Iterable<RowFromQuery>) {
+        const gid_0 = String(row.values.GID_0 ?? '');
+        if (!gid_0 || accepted.has(gid_0)) continue;
+        const fid = Number(row.values.fid);
+        const feature = parseFeature(fid, row);
+        if (!feature) continue;
+        if (!hasVertexInBox(feature.geometry, box)) continue;
+        accepted.set(gid_0, feature.properties.name_0);
+      }
+      return Array.from(accepted, ([gid_0, name_0]) => ({
+        gid_0,
+        name_0,
+      })).sort((a, b) => a.name_0.localeCompare(b.name_0));
     },
     close(): void {
       gp.close();
