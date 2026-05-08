@@ -81,7 +81,7 @@ describe('formatTargetDiscord', () => {
   test('renders Discord markdown with round, location, and Google Maps link', () => {
     assert.equal(
       formatTargetDiscord(7, target),
-      '# Round 7, Río Negro, Argentina, [42.500000°S 67.500000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)',
+      '# Round 7, Río Negro, Argentina, [42.50000°S 67.50000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)',
     );
   });
 
@@ -94,7 +94,7 @@ describe('formatTargetDiscord', () => {
     };
     assert.equal(
       formatTargetDiscord(1, positive),
-      '# Round 1, Somewhere, [20.000000°N 10.000000°E](https://www.google.com/maps/search/?api=1&query=20%2C10)',
+      '# Round 1, Somewhere, [20.00000°N 10.00000°E](https://www.google.com/maps/search/?api=1&query=20%2C10)',
     );
   });
 });

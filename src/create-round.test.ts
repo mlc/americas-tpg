@@ -119,7 +119,7 @@ describe('createRound', () => {
     });
     assert.equal(
       result.targetLine,
-      '# Round 1, Río Negro, Argentina, [42.500000°S 67.500000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)',
+      '# Round 1, Río Negro, Argentina, [42.50000°S 67.50000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)',
     );
   });
 

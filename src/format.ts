@@ -9,8 +9,8 @@ export interface OutputProps {
 
 export function formatCoords(coords: Position): string {
   const [lon, lat] = coords;
-  const latStr = `${Math.abs(lat).toFixed(6)}°${lat >= 0 ? 'N' : 'S'}`;
-  const lonStr = `${Math.abs(lon).toFixed(6)}°${lon >= 0 ? 'E' : 'W'}`;
+  const latStr = `${Math.abs(lat).toFixed(5)}°${lat >= 0 ? 'N' : 'S'}`;
+  const lonStr = `${Math.abs(lon).toFixed(5)}°${lon >= 0 ? 'E' : 'W'}`;
   return `${latStr} ${lonStr}`;
 }
 

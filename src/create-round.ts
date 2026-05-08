@@ -72,12 +72,17 @@ export async function createRound(
 
 const MAX_SAMPLE_ATTEMPTS = 10_000;
 
+function round5(n: number): number {
+  return Math.round(n * 1e5) / 1e5;
+}
+
 export async function sampleTargetFromGadm(
   rng: RandomSource,
   gadm: GadmHandle,
 ): Promise<TargetFeature> {
   for (let attempt = 0; attempt < MAX_SAMPLE_ATTEMPTS; attempt++) {
-    const position = await samplePosition(rng);
+    const raw = await samplePosition(rng);
+    const position: [number, number] = [round5(raw[0]), round5(raw[1])];
     const lookup = gadm.lookup(position);
     if (lookup.kind !== 'accept') continue;
     const location = formatLocation({
