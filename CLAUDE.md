@@ -78,6 +78,14 @@ The on-disk format is plain RFC 7946 GeoJSON. **Do not add a top-level `properti
 - `features[1..]` are submissions: `properties.player`, `properties.distance` (km from target), optional `properties.location`, and simplestyle marker properties.
 - The round number is **derived from the filename only** (`NNN.geojson`); it does not appear inside the file. `validateRoundFile` and the round CLIs source it from `entry.round` (returned by `resolveRound`).
 
+### Coordinate precision (load-bearing)
+
+Sampled targets are rounded to **5 decimal places** (~1.1 m at the equator) by `round5` in `create-round.ts` *before* `gadm.lookup` runs, so the persisted coordinates and the polygon they were classified against agree byte-for-byte. `formatCoords` in `format.ts` uses `.toFixed(5)` for matching display precision. The two numbers must stay coupled — if you change one, change the other. Submitter coordinates are not rounded; only the sampled target is. The Google Maps `query=lat,lon` parameter in `formatTargetDiscord` uses the raw stored numbers, so `-42.5` stays `-42.5` rather than `-42.50000` — that's intentional.
+
+### `--force` ordering invariant
+
+In `validateSubmissionEligibility`, the early-returns are ordered: ended-round check first, then `force` short-circuit, then prior-round eligibility. `--force` is an operator escape hatch that admits ineligible (round-N-1 last-place / DNS) players but cannot reopen a closed round. The `'--force does not override an ended round'` test pins the order — don't reorder.
+
 ### GADM lookup performance
 
 `gadm.ts` is hot-path code and has two performance-driven choices that are easy to undo by accident:
