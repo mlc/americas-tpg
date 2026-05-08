@@ -67,6 +67,7 @@ export interface EligibilityCheck {
   currentRound: RoundFile;
   currentRoundNumber: number;
   prevRound: RoundFile | null;
+  force?: boolean;
 }
 
 export interface EligibilityResult {
@@ -79,6 +80,7 @@ export function validateSubmissionEligibility({
   currentRound,
   currentRoundNumber,
   prevRound,
+  force,
 }: EligibilityCheck): EligibilityResult {
   if (endedAtOf(currentRound) !== null) {
     return {
@@ -86,6 +88,7 @@ export function validateSubmissionEligibility({
       reason: `round ${currentRoundNumber} is ended; submissions are closed`,
     };
   }
+  if (force) return { eligible: true };
   if (prevRound === null) return { eligible: true };
   const eligible = eligibleForNextRound(prevRound);
   if (eligible.has(player)) return { eligible: true };

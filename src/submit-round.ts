@@ -34,6 +34,8 @@ accepted (e.g. "40.7128°N 74.0060°W", "40:42:46N 74:00:21W").
 Options:
       --round N         Target a specific round (default: latest unended round)
       --rounds-dir <d>  Rounds directory (default: rounds)
+      --force           Accept the submission even if the player is ineligible
+                        from the previous round (round-ended check still applies)
   -h, --help            Show this message
 `;
 
@@ -49,6 +51,7 @@ export interface SubmitRoundDeps {
   lng: number;
   roundsDir: string;
   explicitRound?: number;
+  force?: boolean;
   lookupLocation: LookupLocation;
   computeDistance?: ComputeDistanceKm;
 }
@@ -115,6 +118,7 @@ export async function submitRound(
     currentRound,
     currentRoundNumber,
     prevRound,
+    force: deps.force,
   });
   if (!eligibility.eligible) {
     throw new Error(eligibility.reason ?? 'ineligible');
@@ -193,6 +197,7 @@ async function main(): Promise<void> {
     options: {
       round: { type: 'string' },
       'rounds-dir': { type: 'string' },
+      force: { type: 'boolean', default: false },
       help: { type: 'boolean', short: 'h', default: false },
     },
     allowPositionals: true,
@@ -229,6 +234,7 @@ async function main(): Promise<void> {
       lng,
       roundsDir,
       explicitRound,
+      force: values.force,
       lookupLocation: makeGadmLookupLocation(gadm),
     });
     const locationPart = result.location ? `, ${result.location}` : '';
