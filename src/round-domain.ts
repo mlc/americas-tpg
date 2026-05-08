@@ -1,5 +1,6 @@
 import type { Feature, Point } from 'geojson';
 import { formatCoords } from './format.ts';
+import { mainCountryName } from './language.ts';
 
 export const TIE_BUFFER_KM = 0.025;
 
@@ -101,12 +102,14 @@ export function validateSubmissionEligibility({
 }
 
 export function formatLocation(props: {
+  gid_0?: string | null;
   name_0?: string | null;
   name_1?: string | null;
 }): string | null {
-  if (!props.name_0) return null;
-  if (props.name_1) return `${props.name_1}, ${props.name_0}`;
-  return props.name_0;
+  const country = mainCountryName(props.gid_0 ?? undefined) ?? props.name_0;
+  if (!country) return null;
+  if (props.name_1) return `${props.name_1}, ${country}`;
+  return country;
 }
 
 export function formatTargetDiscord(

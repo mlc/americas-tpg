@@ -86,6 +86,7 @@ export async function sampleTargetFromGadm(
     const lookup = gadm.lookup(position);
     if (lookup.kind !== 'accept') continue;
     const location = formatLocation({
+      gid_0: lookup.feature.properties.gid_0,
       name_0: lookup.feature.properties.name_0,
       name_1: lookup.feature.properties.name_1,
     });

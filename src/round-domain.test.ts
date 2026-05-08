@@ -75,6 +75,32 @@ describe('formatLocation', () => {
     assert.equal(formatLocation({ name_1: 'Río Negro' }), null);
     assert.equal(formatLocation({}), null);
   });
+
+  test('gid_0 with localized name → renders country in its main language', () => {
+    assert.equal(
+      formatLocation({ gid_0: 'BRA', name_0: 'Brazil', name_1: 'São Paulo' }),
+      'São Paulo, Brasil',
+    );
+    assert.equal(
+      formatLocation({ gid_0: 'HTI', name_0: 'Haiti', name_1: 'Ouest' }),
+      'Ouest, Ayiti',
+    );
+    assert.equal(
+      formatLocation({ gid_0: 'MEX', name_0: 'Mexico', name_1: 'Yucatán' }),
+      'Yucatán, México',
+    );
+  });
+
+  test('gid_0 not in table → falls back to name_0', () => {
+    assert.equal(
+      formatLocation({ gid_0: 'XYZ', name_0: 'Unknownland' }),
+      'Unknownland',
+    );
+  });
+
+  test('gid_0 with no name_0 → still localizes', () => {
+    assert.equal(formatLocation({ gid_0: 'BRA' }), 'Brasil');
+  });
 });
 
 describe('formatTargetDiscord', () => {
