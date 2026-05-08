@@ -5,7 +5,7 @@ import { createRng, type RandomSource } from './rng.ts';
 import {
   endedAtOf,
   formatLocation,
-  formatTargetLine,
+  formatTargetDiscord,
   type RoundFile,
   type TargetFeature,
 } from './round-domain.ts';
@@ -65,7 +65,7 @@ export async function createRound(
   return {
     path,
     round: nextRound,
-    targetLine: formatTargetLine(target),
+    targetLine: formatTargetDiscord(nextRound, target),
     file,
   };
 }

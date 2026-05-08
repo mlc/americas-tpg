@@ -106,8 +106,18 @@ export function formatLocation(props: {
   return props.name_0;
 }
 
-export function formatTargetLine(target: TargetFeature): string {
-  return `${formatCoords(target.geometry.coordinates)}, ${target.properties.location}`;
+export function formatTargetDiscord(
+  round: number,
+  target: TargetFeature,
+): string {
+  const [lon, lat] = target.geometry.coordinates;
+  const params = new URLSearchParams({
+    api: '1',
+    query: `${lat},${lon}`,
+  });
+  const url = `https://www.google.com/maps/search/?${params}`;
+  const coords = formatCoords(target.geometry.coordinates);
+  return `# Round ${round}, ${target.properties.location}, [${coords}](${url})`;
 }
 
 export function formatStandings(round: RoundFile): string {

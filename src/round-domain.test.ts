@@ -5,7 +5,7 @@ import {
   eliminationsForRound,
   formatLocation,
   formatStandings,
-  formatTargetLine,
+  formatTargetDiscord,
   type RoundFile,
   type SubmissionFeature,
   submitters,
@@ -77,15 +77,15 @@ describe('formatLocation', () => {
   });
 });
 
-describe('formatTargetLine', () => {
-  test('renders hemispheric notation matching formatHuman style', () => {
+describe('formatTargetDiscord', () => {
+  test('renders Discord markdown with round, location, and Google Maps link', () => {
     assert.equal(
-      formatTargetLine(target),
-      '42.500000°S 67.500000°W, Río Negro, Argentina',
+      formatTargetDiscord(7, target),
+      '# Round 7, Río Negro, Argentina, [42.500000°S 67.500000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)',
     );
   });
 
-  test('positive lat/lng renders N/E', () => {
+  test('positive lat/lng renders N/E and unsigned URL coords', () => {
     const positive: TargetFeature = {
       type: 'Feature',
       id: 'target',
@@ -93,8 +93,8 @@ describe('formatTargetLine', () => {
       properties: { location: 'Somewhere', ended_at: null },
     };
     assert.equal(
-      formatTargetLine(positive),
-      '20.000000°N 10.000000°E, Somewhere',
+      formatTargetDiscord(1, positive),
+      '# Round 1, Somewhere, [20.000000°N 10.000000°E](https://www.google.com/maps/search/?api=1&query=20%2C10)',
     );
   });
 });

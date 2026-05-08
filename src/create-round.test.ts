@@ -112,14 +112,14 @@ describe('createRound', () => {
     assert.equal(result.path, join(dir, '004.geojson'));
   });
 
-  test('returned targetLine matches formatTargetLine output', async () => {
+  test('returned targetLine is Discord markdown with round, location, and link', async () => {
     const result = await createRound({
       generateTarget: async () => argentinaTarget,
       roundsDir: dir,
     });
     assert.equal(
       result.targetLine,
-      '42.500000°S 67.500000°W, Río Negro, Argentina',
+      '# Round 1, Río Negro, Argentina, [42.500000°S 67.500000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)',
     );
   });
 
