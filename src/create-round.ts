@@ -1,6 +1,7 @@
 import { parseArgs } from 'node:util';
 import { isMain, parseRng } from './cli-helpers.ts';
 import { type GadmHandle, openGadm } from './gadm.ts';
+import { mainLanguageOf } from './language.ts';
 import { createRng, type RandomSource } from './rng.ts';
 import {
   endedAtOf,
@@ -91,11 +92,16 @@ export async function sampleTargetFromGadm(
       name_1: lookup.feature.properties.name_1,
     });
     if (location === null) continue;
+    const language = mainLanguageOf(lookup.feature);
     return {
       type: 'Feature',
       id: 'target',
       geometry: { type: 'Point', coordinates: position },
-      properties: { location, ended_at: null },
+      properties: {
+        location,
+        ended_at: null,
+        ...(language ? { language } : {}),
+      },
     };
   }
   throw new Error(

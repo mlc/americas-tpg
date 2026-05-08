@@ -123,6 +123,39 @@ describe('formatTargetDiscord', () => {
       '# Round 1, Somewhere, [20.00000°N 10.00000°E](https://www.google.com/maps/search/?api=1&query=20%2C10)',
     );
   });
+
+  test('translates "Round" per target.properties.language', () => {
+    const cases: Array<[string, string]> = [
+      ['es', 'Ronda'],
+      ['pt', 'Rodada'],
+      ['fr', 'Manche'],
+      ['nl', 'Ronde'],
+      ['ht', 'Tou'],
+      ['en', 'Round'],
+    ];
+    for (const [language, word] of cases) {
+      const feature: TargetFeature = {
+        type: 'Feature',
+        id: 'target',
+        geometry: { type: 'Point', coordinates: [10, 20] },
+        properties: { location: 'Somewhere', ended_at: null, language },
+      };
+      assert.match(
+        formatTargetDiscord(3, feature),
+        new RegExp(`^# ${word} 3,`),
+      );
+    }
+  });
+
+  test('unknown / missing language falls back to "Round"', () => {
+    const unknown: TargetFeature = {
+      type: 'Feature',
+      id: 'target',
+      geometry: { type: 'Point', coordinates: [10, 20] },
+      properties: { location: 'Somewhere', ended_at: null, language: 'xx' },
+    };
+    assert.match(formatTargetDiscord(3, unknown), /^# Round 3,/);
+  });
 });
 
 describe('submitters / eliminationsForRound / eligibleForNextRound', () => {

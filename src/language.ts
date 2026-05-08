@@ -141,3 +141,16 @@ export function mainCountryName(gid_0: string | undefined): string | undefined {
   if (!gid_0) return undefined;
   return GID0_TO_LOCAL_NAME[gid_0];
 }
+
+const ROUND_LABEL: Record<string, string> = {
+  en: 'Round',
+  es: 'Ronda',
+  pt: 'Rodada',
+  fr: 'Manche',
+  nl: 'Ronde',
+  ht: 'Tou',
+};
+
+export function roundLabel(language: string | undefined): string {
+  return (language && ROUND_LABEL[language]) ?? 'Round';
+}

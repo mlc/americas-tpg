@@ -1,6 +1,6 @@
 import type { Feature, Point } from 'geojson';
 import { formatCoords } from './format.ts';
-import { mainCountryName } from './language.ts';
+import { mainCountryName, roundLabel } from './language.ts';
 
 export const TIE_BUFFER_KM = 0.025;
 
@@ -22,7 +22,10 @@ export interface RoundFile {
 export type RoundFeature = TargetFeature | SubmissionFeature;
 
 export interface TargetFeature
-  extends Feature<Point, { location: string; ended_at: string | null }> {
+  extends Feature<
+    Point,
+    { location: string; ended_at: string | null; language?: string }
+  > {
   id: 'target';
 }
 
@@ -123,7 +126,8 @@ export function formatTargetDiscord(
   });
   const url = `https://www.google.com/maps/search/?${params}`;
   const coords = formatCoords(target.geometry.coordinates);
-  return `# Round ${round}, ${target.properties.location}, [${coords}](${url})`;
+  const word = roundLabel(target.properties.language);
+  return `# ${word} ${round}, ${target.properties.location}, [${coords}](${url})`;
 }
 
 export function formatStandings(round: RoundFile): string {
