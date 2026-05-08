@@ -3,15 +3,15 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, test } from 'node:test';
-import { createRound } from './create-round.ts';
-import { endRound } from './end-round.ts';
+import { createRound } from '../src/create-round.ts';
+import { endRound } from '../src/end-round.ts';
 import type {
   RoundFile,
   SubmissionFeature,
   TargetFeature,
-} from './round-domain.ts';
-import { roundPath, writeRoundAtomic } from './round-file.ts';
-import { submitRound } from './submit-round.ts';
+} from '../src/round-domain.ts';
+import { roundPath, writeRoundAtomic } from '../src/round-file.ts';
+import { submitRound } from '../src/submit-round.ts';
 
 function makeArgentinaTarget(ended_at: string | null = null): TargetFeature {
   return {

@@ -12,7 +12,7 @@ import {
   type TargetFeature,
   TIE_BUFFER_KM,
   validateSubmissionEligibility,
-} from './round-domain.ts';
+} from '../src/round-domain.ts';
 
 function makeTarget(ended_at: string | null = null): TargetFeature {
   return {

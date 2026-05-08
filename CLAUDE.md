@@ -22,7 +22,7 @@ Two cooperating tools sharing the same sampler + GADM lookup pipeline:
 - **Yarn 4 + Plug'n'Play.** There is no `node_modules`. Always run TS files via `yarn node <file>` or the scripts below — bare `node src/foo.ts` will not resolve dependencies.
 - **Imports use `.ts` extensions** (e.g. `./gadm.ts`) — that's `allowImportingTsExtensions`, not a typo.
 - **Biome** does both lint and format. Single quotes, 2-space indent, LF.
-- **Tests** run via Node's built-in test runner: `node --test 'src/**/*.test.ts'`. No external test framework.
+- **Tests** run via Node's built-in test runner: `node --test 'tests/**/*.test.ts'`. No external test framework.
 
 ## Commands
 
@@ -111,6 +111,7 @@ There is a deliberate type cast in `parseFeature` because `dao.fastQueryBounding
 
 ## Repo layout pointers
 
-- `src/` — all source. Tests are co-located as `*.test.ts`.
+- `src/` — all source.
+- `tests/` — `*.test.ts` files, one per source module. Tests import production code from `../src/<module>.ts`. Both directories are in `tsconfig.json`'s `include`.
 - `docs/plans/` — historical planning docs; read for context, not authoritative.
 - `.yarn/sdks/` — committed PnP editor SDKs. Regenerate after upgrading TypeScript with `yarn dlx @yarnpkg/sdks base`.

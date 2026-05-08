@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
-import { createRng, RNG_NAMES, rngFactories } from './rng.ts';
+import { createRng, RNG_NAMES, rngFactories } from '../src/rng.ts';
 
 describe('cryptoRandom', () => {
   test('returns numbers in [0, 1)', async () => {

@@ -12,7 +12,7 @@
     "end-round": "yarn node src/end-round.ts",
     "list-countries": "yarn node src/list-countries.ts",
     "typecheck": "tsc --noEmit",
-    "test": "yarn node --test 'src/**/*.test.ts'",
+    "test": "yarn node --test 'tests/**/*.test.ts'",
     "lint": "biome lint .",
     "format": "biome format --write .",
     "check": "biome check .",

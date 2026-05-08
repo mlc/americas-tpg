@@ -11,7 +11,7 @@ import {
   describe,
   test,
 } from 'node:test';
-import { type GadmHandle, openGadm } from './gadm.ts';
+import { type GadmHandle, openGadm } from '../src/gadm.ts';
 
 const GADM_PATH = process.env.GADM_PATH ?? 'data/gadm.gpkg';
 const HAS_GADM = existsSync(GADM_PATH);

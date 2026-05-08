@@ -6,7 +6,7 @@ import {
   mainLanguageOf,
   ROUND_LABEL,
   roundLabel,
-} from './language.ts';
+} from '../src/language.ts';
 
 describe('language tables — internal consistency', () => {
   test('GID0_TO_ISO639_1 and GID0_TO_LOCAL_NAME cover the same set of GIDs', () => {

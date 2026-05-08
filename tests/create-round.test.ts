@@ -3,9 +3,9 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, test } from 'node:test';
-import { createRound } from './create-round.ts';
-import type { RoundFile, TargetFeature } from './round-domain.ts';
-import { roundPath, writeRoundAtomic } from './round-file.ts';
+import { createRound } from '../src/create-round.ts';
+import type { RoundFile, TargetFeature } from '../src/round-domain.ts';
+import { roundPath, writeRoundAtomic } from '../src/round-file.ts';
 
 function makeArgentinaTarget(ended_at: string | null = null): TargetFeature {
   return {

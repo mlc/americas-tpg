@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, mock, test } from 'node:test';
-import { createRandomOrgRng } from './rng-random-org.ts';
+import { createRandomOrgRng } from '../src/rng-random-org.ts';
 
 afterEach(() => {
   mock.restoreAll();

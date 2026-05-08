@@ -8,14 +8,14 @@ import type {
   RoundFile,
   SubmissionFeature,
   TargetFeature,
-} from './round-domain.ts';
-import { roundPath, writeRoundAtomic } from './round-file.ts';
+} from '../src/round-domain.ts';
+import { roundPath, writeRoundAtomic } from '../src/round-file.ts';
 import {
   defaultComputeDistance,
   type LookupLocation,
   parseCoordArgs,
   submitRound,
-} from './submit-round.ts';
+} from '../src/submit-round.ts';
 
 function makeArgentinaTarget(ended_at: string | null = null): TargetFeature {
   return {

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
-import { decodeCoord } from './coords.ts';
+import { decodeCoord } from '../src/coords.ts';
 
 function approxEqual(actual: number, expected: number, eps = 1e-9): void {
   assert.ok(

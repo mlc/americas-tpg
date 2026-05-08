@@ -4,12 +4,12 @@ import type {
   RoundFile,
   SubmissionFeature,
   TargetFeature,
-} from './round-domain.ts';
+} from '../src/round-domain.ts';
 import {
   applySimplestyle,
   playerMarkerColor,
   SIMPLESTYLE,
-} from './simplestyle.ts';
+} from '../src/simplestyle.ts';
 
 const target: TargetFeature = {
   type: 'Feature',

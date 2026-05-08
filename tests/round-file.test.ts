@@ -3,7 +3,7 @@ import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, test } from 'node:test';
-import { endedAtOf, type RoundFile } from './round-domain.ts';
+import { endedAtOf, type RoundFile } from '../src/round-domain.ts';
 import {
   findActiveRound,
   findLatestRound,
@@ -12,7 +12,7 @@ import {
   readRound,
   roundPath,
   writeRoundAtomic,
-} from './round-file.ts';
+} from '../src/round-file.ts';
 
 function makeRoundFile(
   _round: number,
