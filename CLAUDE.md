@@ -56,7 +56,7 @@ Round CLIs share `--round N` and `--rounds-dir <dir>`; `create-round` also takes
 Pipeline lives in `src/index.ts` and composes four pieces:
 
 1. **`rng.ts` / `rng-random-org.ts`** — `RandomSource` abstraction with three implementations: `crypto` (Node `randomBytes`, 53-bit float), `math` (`Math.random`), and `random.org` (HTTPS, fetches 200-value chunks with a 15s timeout and buffers them). `next()` is async because `random.org` is.
-2. **`sampler.ts`** — `samplePosition(rng)` produces uniform-on-sphere samples by inverse-CDF on `sin(lat)` within a fixed bounding box (`lat ∈ [-60, 35]`, `lon ∈ [-120, -30]`). This box is rectangular and contains ocean + parts of the eastern Atlantic; non-Americas points are filtered out downstream by the GADM lookup, not by the sampler.
+2. **`sampler.ts`** — `samplePosition(rng)` produces uniform-on-sphere samples by inverse-CDF on `sin(lat)` within a fixed bounding box exported as `SAMPLING_BBOX` (`lat ∈ [-60, 35]`, `lon ∈ [-120, -30]`). This box is rectangular and contains ocean + parts of the eastern Atlantic; non-Americas points are filtered out downstream by the GADM lookup, not by the sampler. `SAMPLING_BBOX` is the single source of truth — re-use it (e.g., `list-countries.ts` does) rather than redeclaring the bounds.
 3. **`gadm.ts`** — opens `data/gadm.gpkg` (path overridable via `GADM_PATH` env var; file is gitignored, must be supplied locally) and exposes `lookup(position)` returning `{ kind: 'ocean' } | { kind: 'mainland-us', feature } | { kind: 'accept', feature }`. Mainland US is rejected by design; **Puerto Rico and the USVI come through as their own `GID_0` values (`PRI`, `VIR`) in GADM 4.10** — they are not children of `USA`, so rejecting `gid_0 === 'USA'` accepts them automatically. Don't "fix" that.
 4. **`format.ts`** — `formatHuman` (one line per point, `lat°N/S lon°E/W, level1, country`) and `formatGeoJson` (FeatureCollection). `OutputProps` intentionally renames GADM's `GID_0`/`GID_1` to lowercase `gid0`/`gid1`.
 
@@ -68,6 +68,7 @@ Pipeline lives in `src/index.ts` and composes four pieces:
 - **`round-file.ts`** — atomic read/write/listing of `rounds/NNN.geojson`. `writeRoundAtomic` runs the file through `applySimplestyle` before serializing — every write recomputes marker styling.
 - **`coords.ts`** — `decodeCoord(string)` parses one positional coordinate via `geographiclib-dms`. Accepts decimal, NESW, and DMS forms (`40.7128, -74.0060`, `40.7128°N 74.0060°W`, `40:42:46N 74:00:21W`, `40d42'46"N 74d00'21"W`).
 - **`simplestyle.ts`** — applies [simplestyle 1.1](https://github.com/mapbox/simplestyle-spec/blob/master/1.1.0/README.md) `marker-symbol` / `marker-color` to every feature on write. Target = star + black; players = circle + gold/silver/bronze for 1st/2nd/3rd, red for last (same tie rule), gray otherwise. Last beats podium.
+- **`language.ts`** — three hand-curated lookup tables for the 54 GADM countries reachable by the sampler: `GID0_TO_ISO639_1` (country → main language code), `GID0_TO_LOCAL_NAME` (country → name in its main language; e.g., `BRA → 'Brasil'`, `HTI → 'Ayiti'`), and `ROUND_LABEL` (language code → translation of "Round"; `es → 'Ronda'`, `pt → 'Rodada'`, `fr → 'Manche'`, `nl → 'Ronde'`, `ht → 'Tou'`). Used at create-round time to localize the target country name and the Discord "Round" header.
 - **`create-round.ts`** / **`submit-round.ts`** / **`end-round.ts`** — the three CLIs.
 
 ### Round file format (load-bearing)
@@ -75,7 +76,7 @@ Pipeline lives in `src/index.ts` and composes four pieces:
 The on-disk format is plain RFC 7946 GeoJSON. **Do not add a top-level `properties` foreign member** — strict GeoJSON validators reject it, and that bug has already cost us once.
 
 - Top level: `{ type: 'FeatureCollection', features: [...] }` only.
-- `features[0]` is the target: `id: 'target'`, point geometry, `properties.location` (string), `properties.ended_at` (`null` while open, ISO 8601 string once closed). The target is also stamped with simplestyle marker properties on every write.
+- `features[0]` is the target: `id: 'target'`, point geometry, `properties.location` (string), `properties.ended_at` (`null` while open, ISO 8601 string once closed), and an optional `properties.language` (ISO 639-1 string) for countries with a known main language. The target is also stamped with simplestyle marker properties on every write. `applySimplestyle` spreads `...feature.properties`, so unknown / future fields like `language` survive round-trips.
 - `features[1..]` are submissions: `properties.player`, `properties.distance` (km from target), optional `properties.location`, and simplestyle marker properties.
 - The round number is **derived from the filename only** (`NNN.geojson`); it does not appear inside the file. `validateRoundFile` and the round CLIs source it from `entry.round` (returned by `resolveRound`).
 
@@ -87,6 +88,10 @@ Sampled targets are rounded to **5 decimal places** (~1.1 m at the equator) by `
 
 In `validateSubmissionEligibility`, the early-returns are ordered: ended-round check first, then `force` short-circuit, then prior-round eligibility. `--force` is an operator escape hatch that admits ineligible (round-N-1 last-place / DNS) players but cannot reopen a closed round. The `'--force does not override an ended round'` test pins the order — don't reorder.
 
+### Localization (load-bearing)
+
+The three tables in `language.ts` are coupled by domain rules: `GID0_TO_ISO639_1` and `GID0_TO_LOCAL_NAME` must cover the same set of GIDs, and every language used as a value must appear as a key in `ROUND_LABEL`. `language.test.ts` asserts both invariants. **Adding a country means updating both GID-keyed maps; adding a language means also adding to `ROUND_LABEL`** — otherwise the test fails (and silent partial localization would otherwise sneak through). The Haitian Creole label `Tou` was a deliberate pick over `Wonn` / `Manch`; leave it unless told otherwise. Localization applies only to the target — submission locations stay in GADM English.
+
 ### GADM lookup performance
 
 `gadm.ts` is hot-path code and has two performance-driven choices that are easy to undo by accident:
@@ -95,6 +100,10 @@ In `validateSubmissionEligibility`, the early-returns are ordered: ended-round c
 - **Lazy geometry parsing with a per-fid cache.** `parseFeatureRowIntoGeoJSON` is the expensive step; we only call it when a feature is a real candidate, and we memoize the parsed result (or `null` for non-polygon rows) keyed by `fid`. Recent commit history calls out a ~53× speedup from this combination — preserve it.
 
 There is a deliberate type cast in `parseFeature` because `dao.fastQueryBoundingBox` returns rows that `dao.getRow` accepts at runtime but not per the declared `@ngageoint/geopackage` types. The runtime contract is load-bearing; the cast through `unknown` is intentional and commented in place.
+
+### `candidateCountries` and the vertex-in-box heuristic
+
+`gadm.ts` exposes a second query path alongside `lookup`: `candidateCountries(box)` enumerates `(GID_0, NAME_0)` pairs for countries with at least one feature polygon vertex inside `box`. Used by `yarn list-countries` to print countries reachable by the sampler. Vertex-in-box correctly drops antimeridian-wrap fringe entries (Fiji, Kiribati) and Antarctic features whose spatial-index bbox merely clips the band — but it's only correct *at the sampling-box scale*. With a small query box, a polygon could fully enclose the box without contributing any vertex inside it; if you reuse `candidateCountries` for tighter regions, switch to a real polygon-vs-box intersection. Cache impact is benign — `candidateCountries` shares the per-fid parse cache with `lookup` and only warms it.
 
 ## Data dependency
 
