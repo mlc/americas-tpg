@@ -1,6 +1,4 @@
-import type { Feature, Geometry } from 'geojson';
-
-const GID0_TO_ISO639_1: Record<string, string> = {
+export const GID0_TO_ISO639_1: Record<string, string> = {
   // English
   AIA: 'en',
   ATG: 'en',
@@ -63,10 +61,7 @@ const GID0_TO_ISO639_1: Record<string, string> = {
   SUR: 'nl',
 };
 
-export function mainLanguageOf(
-  feature: Feature<Geometry | null, { gid_0?: string }>,
-): string | undefined {
-  const gid_0 = feature.properties?.gid_0;
+export function mainLanguageOf(gid_0: string | undefined): string | undefined {
   if (!gid_0) return undefined;
   return GID0_TO_ISO639_1[gid_0];
 }
@@ -74,7 +69,7 @@ export function mainLanguageOf(
 // Country names rendered in the country's main language (per GID0_TO_ISO639_1).
 // Names match the GADM English spelling unless the country's main language
 // differs, in which case we use the local form.
-const GID0_TO_LOCAL_NAME: Record<string, string> = {
+export const GID0_TO_LOCAL_NAME: Record<string, string> = {
   // English
   AIA: 'Anguilla',
   ATG: 'Antigua and Barbuda',
@@ -142,7 +137,7 @@ export function mainCountryName(gid_0: string | undefined): string | undefined {
   return GID0_TO_LOCAL_NAME[gid_0];
 }
 
-const ROUND_LABEL: Record<string, string> = {
+export const ROUND_LABEL: Record<string, string> = {
   en: 'Round',
   es: 'Ronda',
   pt: 'Rodada',
@@ -152,5 +147,6 @@ const ROUND_LABEL: Record<string, string> = {
 };
 
 export function roundLabel(language: string | undefined): string {
-  return (language && ROUND_LABEL[language]) ?? 'Round';
+  if (!language) return 'Round';
+  return ROUND_LABEL[language] ?? 'Round';
 }

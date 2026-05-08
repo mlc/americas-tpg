@@ -92,7 +92,7 @@ export async function sampleTargetFromGadm(
       name_1: lookup.feature.properties.name_1,
     });
     if (location === null) continue;
-    const language = mainLanguageOf(lookup.feature);
+    const language = mainLanguageOf(lookup.feature.properties.gid_0);
     return {
       type: 'Feature',
       id: 'target',
