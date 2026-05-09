@@ -1,6 +1,8 @@
 import { parseArgs } from 'node:util';
 import type { Position } from 'geojson';
 import { isMain, parseRound } from './cli-helpers.ts';
+import { formatCoords } from './format.ts';
+import { openGadm } from './gadm.ts';
 import {
   isMorphiorDbError,
   type MorphiorClient,
@@ -27,6 +29,7 @@ import {
   roundPath,
   writeRoundAtomic,
 } from './round-file.ts';
+import { type LookupLocation, makeGadmLookupLocation } from './submit-round.ts';
 
 const USAGE = `Usage: yarn end-round [--round N] [--rounds-dir <dir>]
 
@@ -48,6 +51,10 @@ export interface EndRoundDeps {
   /** Optional MorphiorDB client. Defaults to a freshly-opened client against
    * the production endpoint. Tests inject a stub via this seam. */
   morphiorClient?: MorphiorClient;
+  /** Optional location lookup for rendering DNS could-have-sent example
+   * coords. Defaults to a GADM-backed lookup; the CLI opens GADM and closes
+   * it in a `finally`. Tests inject a stub via this seam to avoid GADM I/O. */
+  lookupLocation?: LookupLocation;
 }
 
 export interface EndRoundResult {
@@ -102,6 +109,9 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
     dnsSet = new Set();
   }
 
+  // Default to a null-lookup stub if not provided. The CLI opens GADM
+  // explicitly and passes a real lookup; tests inject their own stubs.
+  const lookupLocation = deps.lookupLocation ?? ((): null => null);
   const existingEndedAt = endedAtOf(current);
 
   if (existingEndedAt === null) {
@@ -159,6 +169,9 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
       eliminations: finalEliminations,
       dnsSet,
       nextEligible,
+      savedSet,
+      dnsChecks,
+      lookupLocation,
     });
     return {
       round,
@@ -191,6 +204,9 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
     eliminations: persistedEliminations,
     dnsSet,
     nextEligible,
+    savedSet,
+    dnsChecks,
+    lookupLocation,
   });
   return {
     round,
@@ -267,6 +283,9 @@ interface FormatInput {
   eliminations: ReadonlySet<string>;
   dnsSet: ReadonlySet<string>;
   nextEligible: ReadonlySet<string>;
+  savedSet: ReadonlySet<string>;
+  dnsChecks: readonly DnsCheck[];
+  lookupLocation: LookupLocation;
 }
 
 function formatRoundOutput(input: FormatInput): string {
@@ -293,6 +312,31 @@ function formatRoundOutput(input: FormatInput): string {
     }
   }
 
+  if (input.savedSet.size > 0) {
+    const honest = input.dnsChecks.find((c) => !c.couldHaveEscaped);
+    sections.push('');
+    sections.push('Saved by honest-DNS rule:');
+    const saved = [...input.savedSet].sort();
+    const trigger = honest
+      ? ` (triggered by ${honest.player}'s best historical at ${formatBestDistance(honest)})`
+      : '';
+    for (const name of saved) {
+      sections.push(`  ${name}${trigger}`);
+    }
+  }
+
+  if (input.dnsChecks.length > 0) {
+    sections.push('');
+    sections.push('DNS could-have-sent:');
+    for (const check of [...input.dnsChecks].sort((a, b) =>
+      a.player.localeCompare(b.player),
+    )) {
+      sections.push(
+        `  ${check.player}: ${formatDnsCheckDetail(check, input.lookupLocation)}`,
+      );
+    }
+  }
+
   sections.push('');
   if (input.nextEligible.size === 0) {
     sections.push('Game over: stalemate (no winner).');
@@ -305,6 +349,24 @@ function formatRoundOutput(input: FormatInput): string {
   }
 
   return sections.join('\n');
+}
+
+function formatBestDistance(check: DnsCheck): string {
+  if (check.bestDistanceKm === null) return 'no submission history available';
+  return `${check.bestDistanceKm.toFixed(3)} km`;
+}
+
+function formatDnsCheckDetail(
+  check: DnsCheck,
+  lookupLocation: LookupLocation,
+): string {
+  if (check.bestPoint === null || check.bestDistanceKm === null) {
+    return 'no submission history available';
+  }
+  const coords = formatCoords(check.bestPoint);
+  const region = lookupLocation(check.bestPoint);
+  const where = region ? `${coords}, ${region}` : coords;
+  return `${check.bestDistanceKm.toFixed(3)} km from target (${where})`;
 }
 
 function fail(message: string): never {
@@ -330,8 +392,17 @@ async function main(): Promise<void> {
   const explicitRound = parseRound(values.round, fail);
   const roundsDir = values['rounds-dir'] ?? DEFAULT_ROUNDS_DIR;
 
-  const result = await endRound({ roundsDir, explicitRound });
-  process.stdout.write(`${result.output}\n`);
+  const gadm = await openGadm();
+  try {
+    const result = await endRound({
+      roundsDir,
+      explicitRound,
+      lookupLocation: makeGadmLookupLocation(gadm),
+    });
+    process.stdout.write(`${result.output}\n`);
+  } finally {
+    gadm.close();
+  }
 }
 
 if (isMain(import.meta.url)) {

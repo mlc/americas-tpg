@@ -844,3 +844,175 @@ describe('endRound — honest-DNS save rule', () => {
     );
   });
 });
+
+describe('endRound — output formatting (U5)', () => {
+  const FAR_FROM_TARGET: [number, number] = [0, 0];
+
+  test('save fires: output names saved player + cites triggering DNS check', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRound(
+        1,
+        '2026-05-06T12:00:00Z',
+        withEliminated(
+          [
+            makeSubmission('alice', 5),
+            makeSubmission('dan', 200, FAR_FROM_TARGET),
+          ],
+          [],
+        ),
+      ),
+    );
+    await writeRoundAtomic(
+      roundPath(2, dir),
+      makeRound(2, null, [
+        makeSubmission('alice', 5),
+        makeSubmission('bob', 50),
+      ]),
+    );
+
+    const result = await endRound({
+      roundsDir: dir,
+      now: fixedNow,
+      morphiorClient: emptyMorphior(),
+      lookupLocation: () => 'Pacific Ocean',
+    });
+
+    assert.match(result.output, /Saved by honest-DNS rule:/);
+    assert.match(
+      result.output,
+      /bob \(triggered by dan's best historical at \d/,
+    );
+    assert.match(result.output, /DNS could-have-sent:/);
+    assert.match(result.output, /dan: \d+\.\d{3} km from target/);
+    assert.match(result.output, /Pacific Ocean/);
+  });
+
+  test('no save: DNS could-have-sent section still rendered', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRound(
+        1,
+        '2026-05-06T12:00:00Z',
+        withEliminated(
+          [
+            makeSubmission('alice', 5),
+            makeSubmission('carol', 30), // default coord = target → could escape
+            makeSubmission('dan', 100),
+          ],
+          ['dan'],
+        ),
+      ),
+    );
+    await writeRoundAtomic(
+      roundPath(2, dir),
+      makeRound(2, null, [
+        makeSubmission('alice', 5),
+        makeSubmission('bob', 50),
+      ]),
+    );
+
+    const result = await endRound({
+      roundsDir: dir,
+      now: fixedNow,
+      morphiorClient: emptyMorphior(),
+      lookupLocation: () => 'Río Negro, Argentina',
+    });
+
+    assert.doesNotMatch(result.output, /Saved by honest-DNS rule/);
+    assert.match(result.output, /DNS could-have-sent:/);
+    assert.match(result.output, /carol: 0\.000 km from target/);
+    assert.match(result.output, /Río Negro, Argentina/);
+  });
+
+  test('zero DNS: neither new section appears', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRound(1, null, [
+        makeSubmission('alice', 10),
+        makeSubmission('bob', 100),
+      ]),
+    );
+
+    const result = await endRound({
+      roundsDir: dir,
+      now: fixedNow,
+      morphiorClient: emptyMorphior(),
+    });
+
+    assert.doesNotMatch(result.output, /Saved by honest-DNS rule/);
+    assert.doesNotMatch(result.output, /DNS could-have-sent/);
+  });
+
+  test('null lookupLocation result: renders coords without region label', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRound(
+        1,
+        '2026-05-06T12:00:00Z',
+        withEliminated(
+          [makeSubmission('alice', 5), makeSubmission('carol', 30)],
+          [],
+        ),
+      ),
+    );
+    await writeRoundAtomic(
+      roundPath(2, dir),
+      makeRound(2, null, [makeSubmission('alice', 5)]),
+    );
+
+    const result = await endRound({
+      roundsDir: dir,
+      now: fixedNow,
+      morphiorClient: emptyMorphior(),
+      lookupLocation: () => null, // ocean / unresolved
+    });
+
+    // Coord line should NOT contain a comma after the coords (no region label).
+    assert.match(
+      result.output,
+      /carol: 0\.000 km from target \(\d+\.\d{5}°[NS] \d+\.\d{5}°[EW]\)/,
+    );
+  });
+
+  test('idempotent re-end: identical output text on second run', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRound(
+        1,
+        '2026-05-06T12:00:00Z',
+        withEliminated(
+          [
+            makeSubmission('alice', 5),
+            makeSubmission('dan', 200, FAR_FROM_TARGET),
+          ],
+          [],
+        ),
+      ),
+    );
+    await writeRoundAtomic(
+      roundPath(2, dir),
+      makeRound(2, null, [
+        makeSubmission('alice', 5),
+        makeSubmission('bob', 50),
+      ]),
+    );
+
+    const stubLookup = () => 'Pacific Ocean';
+    const first = await endRound({
+      roundsDir: dir,
+      now: fixedNow,
+      morphiorClient: emptyMorphior(),
+      lookupLocation: stubLookup,
+    });
+    const second = await endRound({
+      roundsDir: dir,
+      explicitRound: 2,
+      now: () => new Date('2026-05-07T01:00:00Z'),
+      morphiorClient: emptyMorphior(),
+      lookupLocation: stubLookup,
+    });
+
+    assert.equal(second.output, first.output);
+  });
+});
