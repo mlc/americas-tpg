@@ -28,8 +28,9 @@ Player names are normalized (NFC + zero-width strip + trim) but compared case-
 sensitively — 'Alice' and 'alice' are different players.
 
 The coordinate may be passed as one quoted string ("40.7128, -74.0060") or as
-separate positionals (40.7128 -74.0060). Decimal, NESW, and DMS forms are all
-accepted (e.g. "40.7128°N 74.0060°W", "40:42:46N 74:00:21W").
+separate positionals (40.7128 -74.0060). Decimal (US or European-comma form),
+NESW, and DMS forms are all accepted (e.g. "40.7128°N 74.0060°W",
+"40:42:46N 74:00:21W", "40,7128 -74,0060").
 
 Options:
       --round N         Target a specific round (default: latest unended round)

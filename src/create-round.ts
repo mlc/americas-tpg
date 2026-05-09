@@ -29,7 +29,7 @@ Options:
   -h, --help            Show this message
 `;
 
-export interface SampledTarget {
+interface SampledTarget {
   target: TargetFeature;
   language?: string;
 }

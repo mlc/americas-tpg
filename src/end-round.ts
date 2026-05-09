@@ -5,9 +5,9 @@ import {
   endedAtOf,
   formatStandings,
   type RoundFile,
-  type SubmissionFeature,
   submissionsOf,
   submitters,
+  targetOf,
 } from './round-domain.ts';
 import {
   DEFAULT_ROUNDS_DIR,
@@ -69,6 +69,11 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
 
   let dnsSet: ReadonlySet<string>;
   if (prev) {
+    if (endedAtOf(prev) === null) {
+      throw new Error(
+        `endRound: previous round ${round - 1} must be ended before round ${round} can be closed`,
+      );
+    }
     // Prev is ended → its submissions carry persisted `eliminated` flags.
     // DNS = previous round's survivors minus current round's submitters.
     const survivorsPrev = submissionsOf(prev)
@@ -97,21 +102,17 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
   if (existingEndedAt === null) {
     const now = deps.now ?? (() => new Date());
     const endedAt = now().toISOString();
-    const updatedFeatures = current.features.map((f, i) => {
-      if (i === 0) return f;
-      const sub = f as SubmissionFeature;
-      return {
-        ...sub,
-        properties: {
-          ...sub.properties,
-          eliminated: eliminations.has(sub.properties.player),
-        },
-      };
-    });
+    const updatedSubmissions = submissionsOf(current).map((sub) => ({
+      ...sub,
+      properties: {
+        ...sub.properties,
+        eliminated: eliminations.has(sub.properties.player),
+      },
+    }));
     const updated: RoundFile = {
       ...current,
       roundInfo: { ...current.roundInfo, endedAt },
-      features: updatedFeatures,
+      features: [targetOf(current), ...updatedSubmissions],
     };
     await writeRoundAtomic(path, updated);
     return {

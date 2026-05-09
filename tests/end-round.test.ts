@@ -12,6 +12,7 @@ import type {
 } from '../src/round-domain.ts';
 import { roundPath, writeRoundAtomic } from '../src/round-file.ts';
 import { submitRound } from '../src/submit-round.ts';
+import { withEliminated } from './test-helpers.ts';
 
 function makeArgentinaTarget(): TargetFeature {
   return {
@@ -40,18 +41,6 @@ function makeSubmission(player: string, distance: number): SubmissionFeature {
     geometry: { type: 'Point', coordinates: [0, 0] },
     properties: { player, distance },
   };
-}
-
-/** Stamp `eliminated: bool` on each submission — used for ended-round fixtures. */
-function withEliminated(
-  subs: SubmissionFeature[],
-  eliminatedPlayers: string[],
-): SubmissionFeature[] {
-  const e = new Set(eliminatedPlayers);
-  return subs.map((s) => ({
-    ...s,
-    properties: { ...s.properties, eliminated: e.has(s.properties.player) },
-  }));
 }
 
 function makeRound(

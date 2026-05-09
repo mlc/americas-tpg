@@ -12,6 +12,7 @@ import {
   TIE_BUFFER_KM,
   validateSubmissionEligibility,
 } from '../src/round-domain.ts';
+import { withEliminated } from './test-helpers.ts';
 
 function makeTarget(): TargetFeature {
   return {
@@ -36,18 +37,6 @@ function submission(
       ...(location ? { location } : {}),
     },
   };
-}
-
-/** Stamp `eliminated: bool` on each submission — used for ended-round fixtures. */
-function withEliminated(
-  subs: SubmissionFeature[],
-  eliminatedPlayers: string[],
-): SubmissionFeature[] {
-  const e = new Set(eliminatedPlayers);
-  return subs.map((s) => ({
-    ...s,
-    properties: { ...s.properties, eliminated: e.has(s.properties.player) },
-  }));
 }
 
 function buildRound(

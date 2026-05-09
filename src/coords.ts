@@ -23,7 +23,7 @@ export const decodeCoord = (coords: string): Point => {
   if (components.length !== 2) {
     throw new Error(`unable to parse ${coords}`);
   }
-  const normalized = components.map((c) => c.replace(',', '.')) as [
+  const normalized = components.map((c) => c.replaceAll(',', '.')) as [
     string,
     string,
   ];

@@ -33,7 +33,11 @@ export interface TargetFeature extends Feature<Point, { location: string }> {
 }
 
 export function targetOf(round: RoundFile): TargetFeature {
-  return round.features[0] as TargetFeature;
+  const target = round.features[0];
+  if (!target || target.id !== 'target') {
+    throw new Error('round file is missing target at features[0]');
+  }
+  return target;
 }
 
 export function endedAtOf(round: RoundFile): string | null {
@@ -99,11 +103,15 @@ export function validateSubmissionEligibility({
   }
   if (force) return { eligible: true };
   if (prevRound === null) return { eligible: true };
-  // Read each submission's persisted `eliminated` flag instead of recomputing
-  // from distances. The validator guarantees an ended round has the flag set
-  // on every submission, so `=== false` is enough — a `true` reading and an
-  // `undefined` reading both mean "not eligible," and undefined would only
-  // arise from a malformed file the validator would have already rejected.
+  // prevRound must be ended — only ended rounds carry the `eliminated` flag
+  // that the eligibility check trusts. Guard the precondition explicitly so
+  // an in-progress prev (which the file validator accepts as valid) doesn't
+  // silently look like "everyone eliminated."
+  if (endedAtOf(prevRound) === null) {
+    throw new Error(
+      `validateSubmissionEligibility: prevRound (round ${currentRoundNumber - 1}) must be ended`,
+    );
+  }
   const eligible = new Set(
     submissionsOf(prevRound)
       .filter((s) => s.properties.eliminated === false)

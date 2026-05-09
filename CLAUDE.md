@@ -33,7 +33,7 @@ Two cooperating tools sharing the same sampler + GADM lookup pipeline:
 | `yarn submit-round <player> <coord>...` | Record a player submission. |
 | `yarn end-round` | Close the active round and print standings. |
 | `yarn list-countries` | Print every non-USA country whose GADM bbox intersects the sampling band. |
-| `yarn test` | Run `node --test` over every `src/**/*.test.ts`. |
+| `yarn test` | Run `node --test` over every `tests/**/*.test.ts`. |
 | `yarn typecheck` | `tsc --noEmit` over `src/`. |
 | `yarn lint` | Biome lint. |
 | `yarn format` | Biome formatter, write fixes. |
@@ -64,7 +64,7 @@ Pipeline lives in `src/index.ts` and composes four pieces:
 
 ### TPG (round CLIs)
 
-- **`round-domain.ts`** — `RoundFile` / `TargetFeature` / `SubmissionFeature` types, the 25 m tie-buffer elimination logic (`eliminationsForRound`, `eligibleForNextRound`), eligibility rules, and rendering helpers.
+- **`round-domain.ts`** — `RoundFile` / `TargetFeature` / `SubmissionFeature` types, the 25 m tie-buffer elimination logic (`eliminationsForRound`), eligibility rules, and rendering helpers.
 - **`round-file.ts`** — atomic read/write/listing of `rounds/NNN.geojson`. `writeRoundAtomic` runs the file through `applySimplestyle` before serializing — every write recomputes marker styling.
 - **`coords.ts`** — `decodeCoord(string)` parses one positional coordinate via `geographiclib-dms`. Accepts decimal, NESW, and DMS forms (`40.7128, -74.0060`, `40.7128°N 74.0060°W`, `40:42:46N 74:00:21W`, `40d42'46"N 74d00'21"W`).
 - **`simplestyle.ts`** — applies [simplestyle 1.1](https://github.com/mapbox/simplestyle-spec/blob/master/1.1.0/README.md) `marker-symbol` / `marker-color` to every feature on write. Target = star + black; players = circle + gold/silver/bronze for 1st/2nd/3rd, red for last (same tie rule), gray otherwise. Last beats podium.
@@ -102,7 +102,24 @@ validators don't special-case it.
   levels.
 - `features[1..]` are submissions: `properties.player`,
   `properties.distance` (km from target), optional `properties.location`,
-  and simplestyle marker properties.
+  `properties.eliminated` (boolean — see invariant below), and simplestyle
+  marker properties.
+
+### `eliminated` flag invariant (load-bearing)
+
+Submission features carry `properties.eliminated: boolean` **iff** the
+round is ended. `validateRoundFile` rejects in-progress rounds whose
+submissions carry the field, and rejects ended rounds whose submissions
+are missing it (or whose value is non-boolean). `endRound` stamps the
+flag on every submission at the moment of closing, derived from
+`eliminationsForRound` against the same distances visible on disk.
+`validateSubmissionEligibility` and `endRound`'s DNS computation both
+**read the persisted flag** from the previous round instead of
+recomputing eliminations from distances, and both throw if handed an
+in-progress prev round (the precondition is guarded explicitly because
+the file validator alone considers an in-progress round well-formed).
+The function `eligibleForNextRound` was removed when this flag was
+introduced; there is no longer a recompute path on the consumer side.
 
 ### Coordinate precision (load-bearing)
 
