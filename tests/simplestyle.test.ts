@@ -15,7 +15,7 @@ const target: TargetFeature = {
   type: 'Feature',
   id: 'target',
   geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-  properties: { location: 'Río Negro, Argentina', ended_at: null },
+  properties: { location: 'Río Negro, Argentina' },
 };
 
 function submission(player: string, distance: number): SubmissionFeature {
@@ -29,6 +29,7 @@ function submission(player: string, distance: number): SubmissionFeature {
 function makeRound(subs: SubmissionFeature[]): RoundFile {
   return {
     type: 'FeatureCollection',
+    roundInfo: { number: 1, endedAt: null },
     features: [target, ...subs],
   };
 }
@@ -232,6 +233,18 @@ describe('applySimplestyle — color assignment by rank and last-place tie', () 
     const styled = applySimplestyle(makeRound([]));
     assert.equal(styled.features.length, 1);
     assert.equal(styleOf(styled.features[0])['marker-symbol'], 'star');
+  });
+});
+
+describe('applySimplestyle — roundInfo preservation', () => {
+  test('roundInfo deep-equals across the round-trip', () => {
+    const round: RoundFile = {
+      type: 'FeatureCollection',
+      roundInfo: { number: 7, endedAt: '2026-05-07T00:00:00Z', language: 'es' },
+      features: [target, submission('alice', 10)],
+    };
+    const styled = applySimplestyle(round);
+    assert.deepEqual(styled.roundInfo, round.roundInfo);
   });
 });
 

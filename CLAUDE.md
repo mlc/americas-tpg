@@ -73,12 +73,36 @@ Pipeline lives in `src/index.ts` and composes four pieces:
 
 ### Round file format (load-bearing)
 
-The on-disk format is plain RFC 7946 GeoJSON. **Do not add a top-level `properties` foreign member** — strict GeoJSON validators reject it, and that bug has already cost us once.
+The on-disk format is plain RFC 7946 GeoJSON plus one deliberate top-level
+foreign member, `roundInfo` (RFC 7946 §6.1 — foreign members MAY be used).
+**Do not add a top-level `properties` foreign member** — strict GeoJSON
+validators reject the specific name `properties` at the FeatureCollection
+level, and that bug has already cost us once. `roundInfo` is fine because
+validators don't special-case it.
 
-- Top level: `{ type: 'FeatureCollection', features: [...] }` only.
-- `features[0]` is the target: `id: 'target'`, point geometry, `properties.location` (string), `properties.ended_at` (`null` while open, ISO 8601 string once closed), and an optional `properties.language` (ISO 639-1 string) for countries with a known main language. The target is also stamped with simplestyle marker properties on every write. `applySimplestyle` spreads `...feature.properties`, so unknown / future fields like `language` survive round-trips.
-- `features[1..]` are submissions: `properties.player`, `properties.distance` (km from target), optional `properties.location`, and simplestyle marker properties.
-- The round number is **derived from the filename only** (`NNN.geojson`); it does not appear inside the file. `validateRoundFile` and the round CLIs source it from `entry.round` (returned by `resolveRound`).
+- Top level: `{ type: 'FeatureCollection', roundInfo, features: [...] }`.
+- `roundInfo` is an object with:
+  - `number` — positive integer round number. Also derivable from the
+    filename (`NNN.geojson`); `validateRoundFile` requires the two agree
+    and fails the read on mismatch.
+  - `endedAt` — `null` while the round is open, ISO 8601 string once
+    closed. Note the camelCase: this used to live on the target as
+    `ended_at`, and the rename is intentional.
+  - `language` — optional ISO 639-1 string for countries with a known main
+    language. Drives the "Round"/"Ronda"/"Rodada"/etc. translation in
+    `formatTargetDiscord` via `roundLabel` from `language.ts`.
+- `features[0]` is the target: `id: 'target'`, point geometry, and
+  `properties.location` (non-empty string) — *that's it for stable
+  fields*. Simplestyle marker properties are stamped on every write by
+  `applySimplestyle` and appear alongside `location`. There is no
+  per-target `ended_at` or `language` anymore — both moved to `roundInfo`.
+  `applySimplestyle` spreads both `...round` (preserving `roundInfo` and
+  any other top-level foreign members) and `...feature.properties` on the
+  way through, so unknown / future fields survive round-trips at both
+  levels.
+- `features[1..]` are submissions: `properties.player`,
+  `properties.distance` (km from target), optional `properties.location`,
+  and simplestyle marker properties.
 
 ### Coordinate precision (load-bearing)
 
@@ -90,7 +114,7 @@ In `validateSubmissionEligibility`, the early-returns are ordered: ended-round c
 
 ### Localization (load-bearing)
 
-The three tables in `language.ts` are coupled by domain rules: `GID0_TO_ISO639_1` and `GID0_TO_LOCAL_NAME` must cover the same set of GIDs, and every language used as a value must appear as a key in `ROUND_LABEL`. `language.test.ts` asserts both invariants. **Adding a country means updating both GID-keyed maps; adding a language means also adding to `ROUND_LABEL`** — otherwise the test fails (and silent partial localization would otherwise sneak through). The Haitian Creole label `Tou` was a deliberate pick over `Wonn` / `Manch`; leave it unless told otherwise. Localization applies only to the target — submission locations stay in GADM English.
+The three tables in `language.ts` are coupled by domain rules: `GID0_TO_ISO639_1` and `GID0_TO_LOCAL_NAME` must cover the same set of GIDs, and every language used as a value must appear as a key in `ROUND_LABEL`. `language.test.ts` asserts both invariants. **Adding a country means updating both GID-keyed maps; adding a language means also adding to `ROUND_LABEL`** — otherwise the test fails (and silent partial localization would otherwise sneak through). The Haitian Creole label `Tou` was a deliberate pick over `Wonn` / `Manch`; leave it unless told otherwise. Localization applies only to the target — submission locations stay in GADM English. The selected language is persisted as `roundInfo.language` on the round file (not on the target's properties), and `formatTargetDiscord` reads it from there.
 
 ### GADM lookup performance
 

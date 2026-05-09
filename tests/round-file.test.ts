@@ -15,17 +15,18 @@ import {
 } from '../src/round-file.ts';
 
 function makeRoundFile(
-  _round: number,
-  ended_at: string | null = null,
+  round: number,
+  endedAt: string | null = null,
 ): RoundFile {
   return {
     type: 'FeatureCollection',
+    roundInfo: { number: round, endedAt },
     features: [
       {
         type: 'Feature',
         id: 'target',
         geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-        properties: { location: 'Río Negro, Argentina', ended_at },
+        properties: { location: 'Río Negro, Argentina' },
       },
     ],
   };
@@ -113,6 +114,7 @@ describe('readRound', () => {
       path,
       JSON.stringify({
         type: 'FeatureCollection',
+        roundInfo: { number: 1, endedAt: null },
         features: [],
       }),
     );
@@ -137,7 +139,7 @@ describe('readRound', () => {
     await assert.rejects(readRound(path), /must not have a player property/);
   });
 
-  test('rejects target without ended_at property', async () => {
+  test('rejects FeatureCollection without roundInfo', async () => {
     const path = join(dir, '001.geojson');
     await writeFile(
       path,
@@ -153,14 +155,81 @@ describe('readRound', () => {
         ],
       }),
     );
-    await assert.rejects(readRound(path), /properties\.ended_at/);
+    await assert.rejects(readRound(path), /roundInfo must be an object/);
   });
 
-  test('rejects invalid ended_at string', async () => {
+  test('rejects roundInfo without endedAt', async () => {
+    const path = join(dir, '001.geojson');
+    await writeFile(
+      path,
+      JSON.stringify({
+        type: 'FeatureCollection',
+        roundInfo: { number: 1 },
+        features: [
+          {
+            type: 'Feature',
+            id: 'target',
+            geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
+            properties: { location: 'Río Negro, Argentina' },
+          },
+        ],
+      }),
+    );
+    await assert.rejects(readRound(path), /roundInfo.*endedAt/);
+  });
+
+  test('rejects invalid endedAt string', async () => {
     const path = join(dir, '001.geojson');
     const bad = makeRoundFile(1, 'not-a-date');
     await writeFile(path, JSON.stringify(bad));
     await assert.rejects(readRound(path), /ISO 8601/);
+  });
+
+  test('rejects roundInfo.number that disagrees with filename', async () => {
+    const path = join(dir, '001.geojson');
+    const bad = makeRoundFile(2);
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(readRound(path), /does not match filename/);
+  });
+
+  test('rejects roundInfo.language that is not a string', async () => {
+    const path = join(dir, '001.geojson');
+    await writeFile(
+      path,
+      JSON.stringify({
+        type: 'FeatureCollection',
+        roundInfo: { number: 1, endedAt: null, language: 42 },
+        features: [
+          {
+            type: 'Feature',
+            id: 'target',
+            geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
+            properties: { location: 'Río Negro, Argentina' },
+          },
+        ],
+      }),
+    );
+    await assert.rejects(readRound(path), /language must be a string/);
+  });
+
+  test('rejects target without location', async () => {
+    const path = join(dir, '001.geojson');
+    await writeFile(
+      path,
+      JSON.stringify({
+        type: 'FeatureCollection',
+        roundInfo: { number: 1, endedAt: null },
+        features: [
+          {
+            type: 'Feature',
+            id: 'target',
+            geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
+            properties: {},
+          },
+        ],
+      }),
+    );
+    await assert.rejects(readRound(path), /properties\.location/);
   });
 
   test('rejects submission without player or distance', async () => {
@@ -189,8 +258,10 @@ describe('writeRoundAtomic', () => {
     const parsed = JSON.parse(written);
     assert.equal(parsed.type, 'FeatureCollection');
     assert.equal(parsed.properties, undefined);
+    assert.equal(parsed.roundInfo.number, 1);
+    assert.equal(parsed.roundInfo.endedAt, null);
     assert.equal(parsed.features[0].id, 'target');
-    assert.equal(parsed.features[0].properties.ended_at, null);
+    assert.equal(parsed.features[0].properties.ended_at, undefined);
   });
 });
 

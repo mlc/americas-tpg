@@ -7,7 +7,6 @@ import {
   formatStandings,
   type RoundFile,
   submitters,
-  targetOf,
 } from './round-domain.ts';
 import {
   DEFAULT_ROUNDS_DIR,
@@ -20,7 +19,7 @@ import {
 const USAGE = `Usage: yarn end-round [--round N] [--rounds-dir <dir>]
 
 Closes the active round (or --round N if explicit). Computes eliminations, prints
-the standings + winner/stalemate banner, and stamps the round's ended_at marker.
+the standings + winner/stalemate banner, and stamps the round's endedAt marker.
 Re-running on an already-ended round prints the same output without mutating the
 round file.
 
@@ -89,16 +88,9 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
   if (existingEndedAt === null) {
     const now = deps.now ?? (() => new Date());
     const endedAt = now().toISOString();
-    const target = targetOf(current);
     const updated: RoundFile = {
       ...current,
-      features: [
-        {
-          ...target,
-          properties: { ...target.properties, ended_at: endedAt },
-        },
-        ...current.features.slice(1),
-      ],
+      roundInfo: { ...current.roundInfo, endedAt },
     };
     await writeRoundAtomic(path, updated);
     return {

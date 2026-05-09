@@ -175,6 +175,38 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
   if (obj.type !== 'FeatureCollection') {
     fail("type must be 'FeatureCollection'");
   }
+  const roundInfoRaw = obj.roundInfo;
+  if (!roundInfoRaw || typeof roundInfoRaw !== 'object') {
+    fail('roundInfo must be an object at the FeatureCollection top level');
+  }
+  const roundInfo = roundInfoRaw as Record<string, unknown>;
+  const number = roundInfo.number;
+  if (typeof number !== 'number' || !Number.isInteger(number) || number < 1) {
+    fail('roundInfo.number must be a positive integer');
+  }
+  const expectedRound = parseRoundNumber(path);
+  if (expectedRound !== null && expectedRound !== number) {
+    fail(
+      `roundInfo.number (${number}) does not match filename (${expectedRound})`,
+    );
+  }
+  if (!('endedAt' in roundInfo)) {
+    fail('roundInfo must have an endedAt property (null or ISO 8601 string)');
+  }
+  const endedAt = roundInfo.endedAt;
+  if (endedAt !== null && typeof endedAt !== 'string') {
+    fail('roundInfo.endedAt must be null or an ISO 8601 string');
+  }
+  if (typeof endedAt === 'string' && Number.isNaN(Date.parse(endedAt))) {
+    fail('roundInfo.endedAt is not a valid ISO 8601 string');
+  }
+  if (
+    'language' in roundInfo &&
+    roundInfo.language !== undefined &&
+    typeof roundInfo.language !== 'string'
+  ) {
+    fail('roundInfo.language must be a string when present');
+  }
   if (!Array.isArray(obj.features)) fail('features must be an array');
   const features = obj.features as unknown[];
   if (features.length === 0) {
@@ -200,17 +232,13 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
   if ('player' in targetProps) {
     fail('features[0] (target) must not have a player property');
   }
-  if (!('ended_at' in targetProps)) {
+  if (
+    typeof targetProps.location !== 'string' ||
+    targetProps.location.trim() === ''
+  ) {
     fail(
-      'features[0] (target) must have properties.ended_at (null or ISO 8601 string)',
+      'features[0] (target) must have properties.location (non-empty string)',
     );
-  }
-  const endedAt = targetProps.ended_at;
-  if (endedAt !== null && typeof endedAt !== 'string') {
-    fail('features[0].properties.ended_at must be null or an ISO 8601 string');
-  }
-  if (typeof endedAt === 'string' && Number.isNaN(Date.parse(endedAt))) {
-    fail('features[0].properties.ended_at is not a valid ISO 8601 string');
   }
   for (let i = 1; i < features.length; i++) {
     const sub = features[i];

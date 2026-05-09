@@ -14,18 +14,21 @@ export function normalizePlayerName(raw: string): string {
   return raw.normalize('NFC').replace(ZERO_WIDTH_RE, '').trim();
 }
 
+export interface RoundInfo {
+  number: number;
+  endedAt: string | null;
+  language?: string;
+}
+
 export interface RoundFile {
   type: 'FeatureCollection';
+  roundInfo: RoundInfo;
   features: ReadonlyArray<RoundFeature>;
 }
 
 export type RoundFeature = TargetFeature | SubmissionFeature;
 
-export interface TargetFeature
-  extends Feature<
-    Point,
-    { location: string; ended_at: string | null; language?: string }
-  > {
+export interface TargetFeature extends Feature<Point, { location: string }> {
   id: 'target';
 }
 
@@ -34,7 +37,7 @@ export function targetOf(round: RoundFile): TargetFeature {
 }
 
 export function endedAtOf(round: RoundFile): string | null {
-  return targetOf(round).properties.ended_at;
+  return round.roundInfo.endedAt;
 }
 
 export type SubmissionFeature = Feature<
@@ -115,10 +118,8 @@ export function formatLocation(props: {
   return country;
 }
 
-export function formatTargetDiscord(
-  round: number,
-  target: TargetFeature,
-): string {
+export function formatTargetDiscord(file: RoundFile): string {
+  const target = targetOf(file);
   const [lon, lat] = target.geometry.coordinates;
   const params = new URLSearchParams({
     api: '1',
@@ -126,8 +127,8 @@ export function formatTargetDiscord(
   });
   const url = `https://www.google.com/maps/search/?${params}`;
   const coords = formatCoords(target.geometry.coordinates);
-  const word = roundLabel(target.properties.language);
-  return `# ${word} ${round}, ${target.properties.location}, [${coords}](${url})`;
+  const word = roundLabel(file.roundInfo.language);
+  return `# ${word} ${file.roundInfo.number}, ${target.properties.location}, [${coords}](${url})`;
 }
 
 export function formatStandings(round: RoundFile): string {

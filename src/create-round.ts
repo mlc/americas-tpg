@@ -29,8 +29,13 @@ Options:
   -h, --help            Show this message
 `;
 
+export interface SampledTarget {
+  target: TargetFeature;
+  language?: string;
+}
+
 export interface CreateRoundDeps {
-  generateTarget: () => Promise<TargetFeature>;
+  generateTarget: () => Promise<SampledTarget>;
   roundsDir: string;
 }
 
@@ -55,10 +60,15 @@ export async function createRound(
   const nextRound = latest ? latest.entry.round + 1 : 1;
   const path = roundPath(nextRound, roundsDir);
 
-  const target = await generateTarget();
+  const { target, language } = await generateTarget();
 
   const file: RoundFile = {
     type: 'FeatureCollection',
+    roundInfo: {
+      number: nextRound,
+      endedAt: null,
+      ...(language ? { language } : {}),
+    },
     features: [target],
   };
   await writeRoundAtomic(path, file);
@@ -66,7 +76,7 @@ export async function createRound(
   return {
     path,
     round: nextRound,
-    targetLine: formatTargetDiscord(nextRound, target),
+    targetLine: formatTargetDiscord(file),
     file,
   };
 }
@@ -80,7 +90,7 @@ function round5(n: number): number {
 export async function sampleTargetFromGadm(
   rng: RandomSource,
   gadm: GadmHandle,
-): Promise<TargetFeature> {
+): Promise<SampledTarget> {
   for (let attempt = 0; attempt < MAX_SAMPLE_ATTEMPTS; attempt++) {
     const raw = await samplePosition(rng);
     const position: [number, number] = [round5(raw[0]), round5(raw[1])];
@@ -94,14 +104,13 @@ export async function sampleTargetFromGadm(
     if (location === null) continue;
     const language = mainLanguageOf(lookup.feature.properties.gid_0);
     return {
-      type: 'Feature',
-      id: 'target',
-      geometry: { type: 'Point', coordinates: position },
-      properties: {
-        location,
-        ended_at: null,
-        ...(language ? { language } : {}),
+      target: {
+        type: 'Feature',
+        id: 'target',
+        geometry: { type: 'Point', coordinates: position },
+        properties: { location },
       },
+      ...(language ? { language } : {}),
     };
   }
   throw new Error(

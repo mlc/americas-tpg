@@ -13,12 +13,12 @@ import type {
 import { roundPath, writeRoundAtomic } from '../src/round-file.ts';
 import { submitRound } from '../src/submit-round.ts';
 
-function makeArgentinaTarget(ended_at: string | null = null): TargetFeature {
+function makeArgentinaTarget(): TargetFeature {
   return {
     type: 'Feature',
     id: 'target',
     geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-    properties: { location: 'Río Negro, Argentina', ended_at },
+    properties: { location: 'Río Negro, Argentina' },
   };
 }
 
@@ -43,13 +43,14 @@ function makeSubmission(player: string, distance: number): SubmissionFeature {
 }
 
 function makeRound(
-  _round: number,
-  ended_at: string | null,
+  round: number,
+  endedAt: string | null,
   submissions: SubmissionFeature[] = [],
 ): RoundFile {
   return {
     type: 'FeatureCollection',
-    features: [makeArgentinaTarget(ended_at), ...submissions],
+    roundInfo: { number: round, endedAt },
+    features: [makeArgentinaTarget(), ...submissions],
   };
 }
 
@@ -187,7 +188,7 @@ describe('endRound — AE6 (stalemate cases)', () => {
 });
 
 describe('endRound — R16 idempotent re-end', () => {
-  test('re-running on an already-ended round prints same output; ended_at unchanged', async () => {
+  test('re-running on an already-ended round prints same output; endedAt unchanged', async () => {
     await writeRoundAtomic(
       roundPath(1, dir),
       makeRound(1, null, [
@@ -209,22 +210,19 @@ describe('endRound — R16 idempotent re-end', () => {
     });
 
     assert.equal(second.wasAlreadyEnded, true);
-    // ended_at unchanged from first run despite different "now"
+    // endedAt unchanged from first run despite different "now"
     assert.equal(second.endedAt, '2026-05-07T00:00:00.000Z');
     // Output is identical
     assert.equal(second.output, first.output);
 
-    // On-disk file's ended_at is still the original
+    // On-disk file's endedAt is still the original
     const onDisk = JSON.parse(await readFile(first.path, 'utf8'));
-    assert.equal(
-      onDisk.features[0].properties.ended_at,
-      '2026-05-07T00:00:00.000Z',
-    );
+    assert.equal(onDisk.roundInfo.endedAt, '2026-05-07T00:00:00.000Z');
   });
 });
 
 describe('endRound — persistence (R14)', () => {
-  test('ended_at is set to a parseable ISO 8601 string after first run', async () => {
+  test('endedAt is set to a parseable ISO 8601 string after first run', async () => {
     await writeRoundAtomic(
       roundPath(1, dir),
       makeRound(1, null, [
@@ -235,7 +233,7 @@ describe('endRound — persistence (R14)', () => {
 
     await endRound({ roundsDir: dir, now: fixedNow });
     const onDisk = JSON.parse(await readFile(roundPath(1, dir), 'utf8'));
-    const onDiskEndedAt = onDisk.features[0].properties.ended_at;
+    const onDiskEndedAt = onDisk.roundInfo.endedAt;
     assert.equal(typeof onDiskEndedAt, 'string');
     assert.equal(Number.isNaN(Date.parse(onDiskEndedAt)), false);
   });
@@ -260,7 +258,7 @@ describe('endRound — error paths', () => {
 describe('endRound — integration with create + submit', () => {
   test('AE1 end-to-end: createRound (stub) → 3 submissions → endRound', async () => {
     await createRound({
-      generateTarget: async () => argentinaTarget,
+      generateTarget: async () => ({ target: argentinaTarget }),
       roundsDir: dir,
     });
 

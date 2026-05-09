@@ -14,16 +14,14 @@ import {
   validateSubmissionEligibility,
 } from '../src/round-domain.ts';
 
-function makeTarget(ended_at: string | null = null): TargetFeature {
+function makeTarget(): TargetFeature {
   return {
     type: 'Feature',
     id: 'target',
     geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-    properties: { location: 'Río Negro, Argentina', ended_at },
+    properties: { location: 'Río Negro, Argentina' },
   };
 }
-
-const target = makeTarget();
 
 function submission(
   player: string,
@@ -42,13 +40,19 @@ function submission(
 }
 
 function buildRound(
-  _round: number,
-  ended_at: string | null,
+  round: number,
+  endedAt: string | null,
   subs: SubmissionFeature[],
+  language?: string,
 ): RoundFile {
   return {
     type: 'FeatureCollection',
-    features: [makeTarget(ended_at), ...subs],
+    roundInfo: {
+      number: round,
+      endedAt,
+      ...(language ? { language } : {}),
+    },
+    features: [makeTarget(), ...subs],
   };
 }
 
@@ -106,25 +110,31 @@ describe('formatLocation', () => {
 describe('formatTargetDiscord', () => {
   test('renders Discord markdown with round, location, and Google Maps link', () => {
     assert.equal(
-      formatTargetDiscord(7, target),
+      formatTargetDiscord(buildRound(7, null, [])),
       '# Round 7, Río Negro, Argentina, [42.50000°S 67.50000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)',
     );
   });
 
   test('positive lat/lng renders N/E and unsigned URL coords', () => {
-    const positive: TargetFeature = {
-      type: 'Feature',
-      id: 'target',
-      geometry: { type: 'Point', coordinates: [10.0, 20.0] },
-      properties: { location: 'Somewhere', ended_at: null },
+    const positive: RoundFile = {
+      type: 'FeatureCollection',
+      roundInfo: { number: 1, endedAt: null },
+      features: [
+        {
+          type: 'Feature',
+          id: 'target',
+          geometry: { type: 'Point', coordinates: [10.0, 20.0] },
+          properties: { location: 'Somewhere' },
+        },
+      ],
     };
     assert.equal(
-      formatTargetDiscord(1, positive),
+      formatTargetDiscord(positive),
       '# Round 1, Somewhere, [20.00000°N 10.00000°E](https://www.google.com/maps/search/?api=1&query=20%2C10)',
     );
   });
 
-  test('translates "Round" per target.properties.language', () => {
+  test('translates "Round" per roundInfo.language', () => {
     const cases: Array<[string, string]> = [
       ['es', 'Ronda'],
       ['pt', 'Rodada'],
@@ -134,27 +144,19 @@ describe('formatTargetDiscord', () => {
       ['en', 'Round'],
     ];
     for (const [language, word] of cases) {
-      const feature: TargetFeature = {
-        type: 'Feature',
-        id: 'target',
-        geometry: { type: 'Point', coordinates: [10, 20] },
-        properties: { location: 'Somewhere', ended_at: null, language },
-      };
       assert.match(
-        formatTargetDiscord(3, feature),
+        formatTargetDiscord(buildRound(3, null, [], language)),
         new RegExp(`^# ${word} 3,`),
       );
     }
   });
 
   test('unknown / missing language falls back to "Round"', () => {
-    const unknown: TargetFeature = {
-      type: 'Feature',
-      id: 'target',
-      geometry: { type: 'Point', coordinates: [10, 20] },
-      properties: { location: 'Somewhere', ended_at: null, language: 'xx' },
-    };
-    assert.match(formatTargetDiscord(3, unknown), /^# Round 3,/);
+    assert.match(
+      formatTargetDiscord(buildRound(3, null, [], 'xx')),
+      /^# Round 3,/,
+    );
+    assert.match(formatTargetDiscord(buildRound(3, null, [])), /^# Round 3,/);
   });
 });
 

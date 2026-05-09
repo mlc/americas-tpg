@@ -17,12 +17,12 @@ import {
   submitRound,
 } from '../src/submit-round.ts';
 
-function makeArgentinaTarget(ended_at: string | null = null): TargetFeature {
+function makeArgentinaTarget(): TargetFeature {
   return {
     type: 'Feature',
     id: 'target',
     geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-    properties: { location: 'Río Negro, Argentina', ended_at },
+    properties: { location: 'Río Negro, Argentina' },
   };
 }
 
@@ -37,13 +37,14 @@ afterEach(async () => {
 });
 
 function makeRound(
-  _round: number,
-  ended_at: string | null,
+  round: number,
+  endedAt: string | null,
   submissions: SubmissionFeature[] = [],
 ): RoundFile {
   return {
     type: 'FeatureCollection',
-    features: [makeArgentinaTarget(ended_at), ...submissions],
+    roundInfo: { number: round, endedAt },
+    features: [makeArgentinaTarget(), ...submissions],
   };
 }
 
