@@ -47,6 +47,39 @@ describe('decodeCoord — decimal forms', () => {
   });
 });
 
+describe('decodeCoord — comma forms', () => {
+  test('comma-separated lat,lng', () => {
+    const p = decodeCoord('40,7128, -74,0060');
+    assert.equal(p.type, 'Point');
+    approxEqual(p.coordinates[0], -74.006);
+    approxEqual(p.coordinates[1], 40.7128);
+  });
+
+  test('space-separated lat lng', () => {
+    const p = decodeCoord('40,7128 -74,0060');
+    approxEqual(p.coordinates[0], -74.006);
+    approxEqual(p.coordinates[1], 40.7128);
+  });
+
+  test('comma without surrounding space', () => {
+    const p = decodeCoord('40,7128,-74,0060');
+    approxEqual(p.coordinates[0], -74.006);
+    approxEqual(p.coordinates[1], 40.7128);
+  });
+
+  test('extra whitespace around input is tolerated', () => {
+    const p = decodeCoord('   40,7128 ,  -74,0060   ');
+    approxEqual(p.coordinates[0], -74.006);
+    approxEqual(p.coordinates[1], 40.7128);
+  });
+
+  test('negative southern/western decimals', () => {
+    const p = decodeCoord('-42,5, -67,5');
+    approxEqual(p.coordinates[0], -67.5);
+    approxEqual(p.coordinates[1], -42.5);
+  });
+});
+
 describe('decodeCoord — hemisphere suffixes', () => {
   test('NESW with degree symbol', () => {
     const p = decodeCoord('40.7128°N 74.0060°W');
@@ -75,6 +108,45 @@ describe('decodeCoord — hemisphere suffixes', () => {
   test('space between number and hemisphere is collapsed before parsing', () => {
     // The leading-space-before-N/E/S/W replacement is what makes this work.
     const p = decodeCoord('40.7128 N 74.0060 W');
+    approxEqual(p.coordinates[0], -74.006);
+    approxEqual(p.coordinates[1], 40.7128);
+  });
+});
+
+describe('decodeCoord — hemisphere suffixes with commas', () => {
+  test('NESW with degree symbol', () => {
+    const p = decodeCoord('40,7128°N 74,0060°W');
+    approxEqual(p.coordinates[0], -74.006);
+    approxEqual(p.coordinates[1], 40.7128);
+  });
+
+  test('NESW without degree symbol', () => {
+    const p = decodeCoord('40,7128N 74,0060W');
+    approxEqual(p.coordinates[0], -74.006);
+    approxEqual(p.coordinates[1], 40.7128);
+  });
+
+  test('southern/western hemisphere via S/W', () => {
+    const p = decodeCoord('42,5S 67,5W');
+    approxEqual(p.coordinates[0], -67.5);
+    approxEqual(p.coordinates[1], -42.5);
+  });
+
+  test('southern/western hemisphere via S/W and comma between', () => {
+    const p = decodeCoord('42,5S, 67,5W');
+    approxEqual(p.coordinates[0], -67.5);
+    approxEqual(p.coordinates[1], -42.5);
+  });
+
+  test('lowercase hemisphere letters are accepted (regex is /i)', () => {
+    const p = decodeCoord('42,5s 67,5w');
+    approxEqual(p.coordinates[0], -67.5);
+    approxEqual(p.coordinates[1], -42.5);
+  });
+
+  test('space between number and hemisphere is collapsed before parsing', () => {
+    // The leading-space-before-N/E/S/W replacement is what makes this work.
+    const p = decodeCoord('40,7128 N 74,0060 W');
     approxEqual(p.coordinates[0], -74.006);
     approxEqual(p.coordinates[1], 40.7128);
   });
