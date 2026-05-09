@@ -1,4 +1,5 @@
-import type { Feature, Point } from 'geojson';
+import { distance } from '@turf/distance';
+import type { Feature, Point, Position } from 'geojson';
 import { formatCoords } from './format.ts';
 import { mainCountryName, roundLabel } from './language.ts';
 
@@ -73,6 +74,66 @@ export function eliminationsForRound(round: RoundFile): ReadonlySet<string> {
       .filter((s) => max - s.properties.distance < TIE_BUFFER_KM)
       .map((s) => s.properties.player),
   );
+}
+
+/**
+ * Persisted record describing the rule's evaluation of one DNS player.
+ * Lives at `roundInfo.dnsChecks[i]` on ended rounds; the validator enforces
+ * presence-iff-ended and the field-shape invariants documented in
+ * CLAUDE.md.
+ */
+export interface DnsCheck {
+  player: string;
+  bestPoint: Position | null;
+  bestDistanceKm: number | null;
+  couldHaveEscaped: boolean;
+  morphiorDbStatus: 'ok' | 'notFound' | 'ambiguous' | 'unavailable';
+  /** Non-negative integer when status === 'ok'; null otherwise. Distinguishes
+   * "ok with N submissions" from "ok with zero submissions" without overloading
+   * `notFound` for a Discord ID that simply has no data. */
+  morphiorDbSubmissionCount: number | null;
+}
+
+export interface DnsCheckEvaluation {
+  bestPoint: Position | null;
+  bestDistanceKm: number | null;
+  couldHaveEscaped: boolean;
+}
+
+/**
+ * Pure rule evaluator. Given a DNS player's pool of historical submission
+ * points and the current round's worst real-submission distance, decide
+ * whether the player could have escaped elimination.
+ *
+ * Empty `points` → `couldHaveEscaped: true` (anti-ghost: a player with no
+ * history available anywhere never triggers a save). Non-empty: the closest
+ * historical point to the target sets `bestDistanceKm`. The escape predicate
+ * is `bestDistanceKm < currentMaxKm − TIE_BUFFER_KM` — strict `<`, mirroring
+ * `eliminationsForRound`'s `max − distance < TIE_BUFFER_KM` so the boundary
+ * semantics align exactly.
+ */
+export function evaluateDnsCheck(
+  target: Position,
+  points: readonly Position[],
+  currentMaxKm: number,
+): DnsCheckEvaluation {
+  if (points.length === 0) {
+    return { bestPoint: null, bestDistanceKm: null, couldHaveEscaped: true };
+  }
+  let bestPoint = points[0];
+  let bestDistanceKm = distance(target, bestPoint, { units: 'kilometers' });
+  for (let i = 1; i < points.length; i++) {
+    const d = distance(target, points[i], { units: 'kilometers' });
+    if (d < bestDistanceKm) {
+      bestDistanceKm = d;
+      bestPoint = points[i];
+    }
+  }
+  return {
+    bestPoint,
+    bestDistanceKm,
+    couldHaveEscaped: bestDistanceKm < currentMaxKm - TIE_BUFFER_KM,
+  };
 }
 
 export interface EligibilityCheck {
