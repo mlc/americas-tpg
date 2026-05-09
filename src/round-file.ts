@@ -240,6 +240,7 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
       'features[0] (target) must have properties.location (non-empty string)',
     );
   }
+  const isEnded = endedAt !== null;
   for (let i = 1; i < features.length; i++) {
     const sub = features[i];
     if (!sub || typeof sub !== 'object') {
@@ -267,6 +268,18 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
       !Number.isFinite(subProps.distance)
     ) {
       fail(`features[${i}] must have properties.distance (finite number)`);
+    }
+    // `eliminated` is a closed-round property: present iff the round is ended.
+    if (isEnded) {
+      if (typeof subProps.eliminated !== 'boolean') {
+        fail(
+          `features[${i}] of an ended round must have properties.eliminated (boolean)`,
+        );
+      }
+    } else if ('eliminated' in subProps) {
+      fail(
+        `features[${i}] is on an in-progress round and must not have properties.eliminated`,
+      );
     }
   }
   return data as RoundFile;

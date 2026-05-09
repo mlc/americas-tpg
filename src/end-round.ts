@@ -1,11 +1,12 @@
 import { parseArgs } from 'node:util';
 import { isMain, parseRound } from './cli-helpers.ts';
 import {
-  eligibleForNextRound,
   eliminationsForRound,
   endedAtOf,
   formatStandings,
   type RoundFile,
+  type SubmissionFeature,
+  submissionsOf,
   submitters,
 } from './round-domain.ts';
 import {
@@ -68,13 +69,21 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
 
   let dnsSet: ReadonlySet<string>;
   if (prev) {
-    const eligPrev = eligibleForNextRound(prev);
-    dnsSet = new Set([...eligPrev].filter((p) => !submittersCurrent.has(p)));
+    // Prev is ended → its submissions carry persisted `eliminated` flags.
+    // DNS = previous round's survivors minus current round's submitters.
+    const survivorsPrev = submissionsOf(prev)
+      .filter((s) => s.properties.eliminated === false)
+      .map((s) => s.properties.player);
+    dnsSet = new Set(survivorsPrev.filter((p) => !submittersCurrent.has(p)));
   } else {
     dnsSet = new Set();
   }
 
-  const nextEligible = eligibleForNextRound(current);
+  // Current round is being closed *now* and has not yet been written with
+  // `eliminated` flags, so derive from the freshly computed eliminations set.
+  const nextEligible = new Set(
+    submitters(current).filter((p) => !eliminations.has(p)),
+  );
 
   const output = formatRoundOutput({
     round,
@@ -88,9 +97,21 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
   if (existingEndedAt === null) {
     const now = deps.now ?? (() => new Date());
     const endedAt = now().toISOString();
+    const updatedFeatures = current.features.map((f, i) => {
+      if (i === 0) return f;
+      const sub = f as SubmissionFeature;
+      return {
+        ...sub,
+        properties: {
+          ...sub.properties,
+          eliminated: eliminations.has(sub.properties.player),
+        },
+      };
+    });
     const updated: RoundFile = {
       ...current,
       roundInfo: { ...current.roundInfo, endedAt },
+      features: updatedFeatures,
     };
     await writeRoundAtomic(path, updated);
     return {

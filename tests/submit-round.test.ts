@@ -64,6 +64,18 @@ function makeSubmission(
   };
 }
 
+/** Stamp `eliminated: bool` on each submission — used for ended-round fixtures. */
+function withEliminated(
+  subs: SubmissionFeature[],
+  eliminatedPlayers: string[],
+): SubmissionFeature[] {
+  const e = new Set(eliminatedPlayers);
+  return subs.map((s) => ({
+    ...s,
+    properties: { ...s.properties, eliminated: e.has(s.properties.player) },
+  }));
+}
+
 function constantDistance(km: number) {
   return (_target: Position, _submission: Position) => km;
 }
@@ -107,11 +119,18 @@ describe('submitRound — round 1 open enrollment (R6 / AE1 setup)', () => {
 
 describe('submitRound — eligibility (R7 / AE3)', () => {
   test('round-1 last-place rejected when submitting in round 2', async () => {
-    const r1 = makeRound(1, '2026-05-06T12:00:00Z', [
-      makeSubmission('alice', 10),
-      makeSubmission('bob', 20),
-      makeSubmission('dan', 30), // last
-    ]);
+    const r1 = makeRound(
+      1,
+      '2026-05-06T12:00:00Z',
+      withEliminated(
+        [
+          makeSubmission('alice', 10),
+          makeSubmission('bob', 20),
+          makeSubmission('dan', 30), // last
+        ],
+        ['dan'],
+      ),
+    );
     await writeRoundAtomic(roundPath(1, dir), r1);
     await writeRoundAtomic(roundPath(2, dir), makeRound(2, null));
 
@@ -129,10 +148,14 @@ describe('submitRound — eligibility (R7 / AE3)', () => {
   });
 
   test('round-1 non-submitter rejected in round 2', async () => {
-    const r1 = makeRound(1, '2026-05-06T12:00:00Z', [
-      makeSubmission('alice', 10),
-      makeSubmission('bob', 20),
-    ]);
+    const r1 = makeRound(
+      1,
+      '2026-05-06T12:00:00Z',
+      withEliminated(
+        [makeSubmission('alice', 10), makeSubmission('bob', 20)],
+        ['bob'],
+      ),
+    );
     await writeRoundAtomic(roundPath(1, dir), r1);
     await writeRoundAtomic(roundPath(2, dir), makeRound(2, null));
 
@@ -150,11 +173,18 @@ describe('submitRound — eligibility (R7 / AE3)', () => {
   });
 
   test('round-1 surviving player accepted in round 2', async () => {
-    const r1 = makeRound(1, '2026-05-06T12:00:00Z', [
-      makeSubmission('alice', 10),
-      makeSubmission('bob', 20),
-      makeSubmission('dan', 30),
-    ]);
+    const r1 = makeRound(
+      1,
+      '2026-05-06T12:00:00Z',
+      withEliminated(
+        [
+          makeSubmission('alice', 10),
+          makeSubmission('bob', 20),
+          makeSubmission('dan', 30),
+        ],
+        ['dan'],
+      ),
+    );
     await writeRoundAtomic(roundPath(1, dir), r1);
     await writeRoundAtomic(roundPath(2, dir), makeRound(2, null));
 
@@ -171,11 +201,18 @@ describe('submitRound — eligibility (R7 / AE3)', () => {
   });
 
   test('--force admits an otherwise-ineligible player', async () => {
-    const r1 = makeRound(1, '2026-05-06T12:00:00Z', [
-      makeSubmission('alice', 10),
-      makeSubmission('bob', 20),
-      makeSubmission('dan', 30), // last → normally eliminated
-    ]);
+    const r1 = makeRound(
+      1,
+      '2026-05-06T12:00:00Z',
+      withEliminated(
+        [
+          makeSubmission('alice', 10),
+          makeSubmission('bob', 20),
+          makeSubmission('dan', 30), // last → normally eliminated
+        ],
+        ['dan'],
+      ),
+    );
     await writeRoundAtomic(roundPath(1, dir), r1);
     await writeRoundAtomic(roundPath(2, dir), makeRound(2, null));
 
@@ -191,6 +228,48 @@ describe('submitRound — eligibility (R7 / AE3)', () => {
     assert.equal(result.round, 2);
     assert.equal(result.player, 'dan');
     assert.equal(result.distance, 10);
+  });
+
+  test('eligibility trusts persisted `eliminated` field, not recomputed distances', async () => {
+    // dan is the actual farthest (distance 30), but we persist alice as the
+    // eliminated player. The eligibility check must trust the file: alice
+    // should be rejected, dan should be accepted.
+    const r1 = makeRound(
+      1,
+      '2026-05-06T12:00:00Z',
+      withEliminated(
+        [
+          makeSubmission('alice', 10),
+          makeSubmission('bob', 20),
+          makeSubmission('dan', 30),
+        ],
+        ['alice'],
+      ),
+    );
+    await writeRoundAtomic(roundPath(1, dir), r1);
+    await writeRoundAtomic(roundPath(2, dir), makeRound(2, null));
+
+    await assert.rejects(
+      submitRound({
+        player: 'alice',
+        lat: 0,
+        lng: 0,
+        roundsDir: dir,
+        lookupLocation: constantLocation(null),
+        computeDistance: constantDistance(10),
+      }),
+      /not eligible for round 2/,
+    );
+
+    const result = await submitRound({
+      player: 'dan',
+      lat: 0,
+      lng: 0,
+      roundsDir: dir,
+      lookupLocation: constantLocation(null),
+      computeDistance: constantDistance(10),
+    });
+    assert.equal(result.player, 'dan');
   });
 
   test('--force does not override an ended round', async () => {

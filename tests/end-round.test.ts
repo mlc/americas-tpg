@@ -42,6 +42,18 @@ function makeSubmission(player: string, distance: number): SubmissionFeature {
   };
 }
 
+/** Stamp `eliminated: bool` on each submission — used for ended-round fixtures. */
+function withEliminated(
+  subs: SubmissionFeature[],
+  eliminatedPlayers: string[],
+): SubmissionFeature[] {
+  const e = new Set(eliminatedPlayers);
+  return subs.map((s) => ({
+    ...s,
+    properties: { ...s.properties, eliminated: e.has(s.properties.player) },
+  }));
+}
+
 function makeRound(
   round: number,
   endedAt: string | null,
@@ -83,12 +95,19 @@ describe('endRound — AE2 (round 2 with one DNS)', () => {
   test('eliminates farther of submitters + carol (DNS)', async () => {
     await writeRoundAtomic(
       roundPath(1, dir),
-      makeRound(1, '2026-05-06T12:00:00Z', [
-        makeSubmission('alice', 10),
-        makeSubmission('bob', 20),
-        makeSubmission('carol', 30),
-        makeSubmission('dan', 100),
-      ]),
+      makeRound(
+        1,
+        '2026-05-06T12:00:00Z',
+        withEliminated(
+          [
+            makeSubmission('alice', 10),
+            makeSubmission('bob', 20),
+            makeSubmission('carol', 30),
+            makeSubmission('dan', 100),
+          ],
+          ['dan'],
+        ),
+      ),
     );
     // Round 1 eligible-for-next = {alice, bob, carol}. dan was last.
     // Round 2: alice and bob submit; carol does not.
@@ -164,11 +183,18 @@ describe('endRound — AE6 (stalemate cases)', () => {
   test('round N>=2 with sole submitter who is also "last" → stalemate', async () => {
     await writeRoundAtomic(
       roundPath(1, dir),
-      makeRound(1, '2026-05-06T12:00:00Z', [
-        makeSubmission('alice', 10),
-        makeSubmission('bob', 20),
-        makeSubmission('dan', 30),
-      ]),
+      makeRound(
+        1,
+        '2026-05-06T12:00:00Z',
+        withEliminated(
+          [
+            makeSubmission('alice', 10),
+            makeSubmission('bob', 20),
+            makeSubmission('dan', 30),
+          ],
+          ['dan'],
+        ),
+      ),
     );
     // Round 1 eligible-for-next = {alice, bob}. dan last.
     // Round 2: only alice submits.
@@ -236,6 +262,59 @@ describe('endRound — persistence (R14)', () => {
     const onDiskEndedAt = onDisk.roundInfo.endedAt;
     assert.equal(typeof onDiskEndedAt, 'string');
     assert.equal(Number.isNaN(Date.parse(onDiskEndedAt)), false);
+  });
+
+  test('writes eliminated: true/false on every submission', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRound(1, null, [
+        makeSubmission('alice', 10),
+        makeSubmission('bob', 20),
+        makeSubmission('carol', 30),
+      ]),
+    );
+
+    await endRound({ roundsDir: dir, now: fixedNow });
+    const onDisk = JSON.parse(await readFile(roundPath(1, dir), 'utf8'));
+    const byPlayer = new Map<string, boolean>(
+      onDisk.features
+        .slice(1)
+        .map((f: { properties: { player: string; eliminated: boolean } }) => [
+          f.properties.player,
+          f.properties.eliminated,
+        ]),
+    );
+    assert.equal(byPlayer.get('alice'), false);
+    assert.equal(byPlayer.get('bob'), false);
+    assert.equal(byPlayer.get('carol'), true);
+  });
+
+  test('re-end on an already-ended round preserves eliminated booleans', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRound(1, null, [
+        makeSubmission('alice', 10),
+        makeSubmission('bob', 20),
+        makeSubmission('carol', 30),
+      ]),
+    );
+    await endRound({ roundsDir: dir, now: fixedNow });
+    const first = JSON.parse(await readFile(roundPath(1, dir), 'utf8'));
+
+    await endRound({
+      roundsDir: dir,
+      explicitRound: 1,
+      now: () => new Date('2026-05-07T01:00:00Z'),
+    });
+    const second = JSON.parse(await readFile(roundPath(1, dir), 'utf8'));
+
+    type Sub = { properties: { player: string; eliminated: boolean } };
+    const flagsOf = (parsed: { features: Sub[] }) =>
+      parsed.features
+        .slice(1)
+        .map((f) => `${f.properties.player}=${f.properties.eliminated}`)
+        .sort();
+    assert.deepEqual(flagsOf(second), flagsOf(first));
   });
 });
 

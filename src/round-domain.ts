@@ -42,7 +42,14 @@ export function endedAtOf(round: RoundFile): string | null {
 
 export type SubmissionFeature = Feature<
   Point,
-  { player: string; distance: number; location?: string }
+  {
+    player: string;
+    distance: number;
+    location?: string;
+    // Stamped on every submission when the round is ended (via end-round).
+    // Absent on in-progress rounds. The validator enforces both directions.
+    eliminated?: boolean;
+  }
 > & { id?: never };
 
 export function submissionsOf(round: RoundFile): readonly SubmissionFeature[] {
@@ -62,11 +69,6 @@ export function eliminationsForRound(round: RoundFile): ReadonlySet<string> {
       .filter((s) => max - s.properties.distance < TIE_BUFFER_KM)
       .map((s) => s.properties.player),
   );
-}
-
-export function eligibleForNextRound(round: RoundFile): ReadonlySet<string> {
-  const eliminated = eliminationsForRound(round);
-  return new Set(submitters(round).filter((p) => !eliminated.has(p)));
 }
 
 export interface EligibilityCheck {
@@ -97,7 +99,16 @@ export function validateSubmissionEligibility({
   }
   if (force) return { eligible: true };
   if (prevRound === null) return { eligible: true };
-  const eligible = eligibleForNextRound(prevRound);
+  // Read each submission's persisted `eliminated` flag instead of recomputing
+  // from distances. The validator guarantees an ended round has the flag set
+  // on every submission, so `=== false` is enough — a `true` reading and an
+  // `undefined` reading both mean "not eligible," and undefined would only
+  // arise from a malformed file the validator would have already rejected.
+  const eligible = new Set(
+    submissionsOf(prevRound)
+      .filter((s) => s.properties.eliminated === false)
+      .map((s) => s.properties.player),
+  );
   if (eligible.has(player)) return { eligible: true };
   const sorted = [...eligible].sort();
   const list = sorted.length === 0 ? '(none)' : sorted.join(', ');

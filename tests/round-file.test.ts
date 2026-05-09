@@ -243,6 +243,75 @@ describe('readRound', () => {
     await writeFile(path, JSON.stringify(bad));
     await assert.rejects(readRound(path), /properties.player/);
   });
+
+  test('rejects in-progress round whose submission carries `eliminated`', async () => {
+    const path = join(dir, '001.geojson');
+    const bad = makeRoundFile(1, null) as RoundFile & { features: unknown[] };
+    bad.features.push({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [0, 0] },
+      properties: { player: 'alice', distance: 5, eliminated: false },
+    });
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(
+      readRound(path),
+      /in-progress round and must not have properties.eliminated/,
+    );
+  });
+
+  test('rejects ended round whose submission is missing `eliminated`', async () => {
+    const path = join(dir, '001.geojson');
+    const bad = makeRoundFile(1, '2026-05-06T12:00:00Z') as RoundFile & {
+      features: unknown[];
+    };
+    bad.features.push({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [0, 0] },
+      properties: { player: 'alice', distance: 5 }, // no eliminated
+    });
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(
+      readRound(path),
+      /ended round must have properties.eliminated/,
+    );
+  });
+
+  test('rejects ended round whose `eliminated` is not a boolean', async () => {
+    const path = join(dir, '001.geojson');
+    const bad = makeRoundFile(1, '2026-05-06T12:00:00Z') as RoundFile & {
+      features: unknown[];
+    };
+    bad.features.push({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [0, 0] },
+      properties: { player: 'alice', distance: 5, eliminated: 'yes' },
+    });
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(
+      readRound(path),
+      /ended round must have properties.eliminated/,
+    );
+  });
+
+  test('accepts an ended round whose every submission has `eliminated: boolean`', async () => {
+    const path = join(dir, '001.geojson');
+    const ok = makeRoundFile(1, '2026-05-06T12:00:00Z') as RoundFile & {
+      features: unknown[];
+    };
+    ok.features.push({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [0, 0] },
+      properties: { player: 'alice', distance: 5, eliminated: false },
+    });
+    ok.features.push({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [0, 0] },
+      properties: { player: 'bob', distance: 99, eliminated: true },
+    });
+    await writeFile(path, JSON.stringify(ok));
+    const round = await readRound(path);
+    assert.equal(round.features.length, 3);
+  });
 });
 
 describe('writeRoundAtomic', () => {

@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 import {
-  eligibleForNextRound,
   eliminationsForRound,
   formatLocation,
   formatStandings,
@@ -37,6 +36,18 @@ function submission(
       ...(location ? { location } : {}),
     },
   };
+}
+
+/** Stamp `eliminated: bool` on each submission — used for ended-round fixtures. */
+function withEliminated(
+  subs: SubmissionFeature[],
+  eliminatedPlayers: string[],
+): SubmissionFeature[] {
+  const e = new Set(eliminatedPlayers);
+  return subs.map((s) => ({
+    ...s,
+    properties: { ...s.properties, eliminated: e.has(s.properties.player) },
+  }));
 }
 
 function buildRound(
@@ -160,7 +171,7 @@ describe('formatTargetDiscord', () => {
   });
 });
 
-describe('submitters / eliminationsForRound / eligibleForNextRound', () => {
+describe('submitters / eliminationsForRound', () => {
   test('submitters returns player names in feature order', () => {
     const round = buildRound(1, null, [
       submission('alice', 10),
@@ -221,15 +232,6 @@ describe('submitters / eliminationsForRound / eligibleForNextRound', () => {
       'carol',
     ]);
   });
-
-  test('eligibleForNextRound: submitters minus eliminations (AE1 setup)', () => {
-    const round = buildRound(1, null, [
-      submission('alice', 10),
-      submission('bob', 20),
-      submission('carol', 30),
-    ]);
-    assert.deepEqual([...eligibleForNextRound(round)].sort(), ['alice', 'bob']);
-  });
 });
 
 describe('validateSubmissionEligibility', () => {
@@ -256,11 +258,14 @@ describe('validateSubmissionEligibility', () => {
   });
 
   test('round 2 with player not in eligible-set → ineligible (R7 / AE3)', () => {
-    const r1 = buildRound(1, '2026-05-06T12:00:00Z', [
-      submission('alice', 10),
-      submission('bob', 20),
-      submission('dan', 30),
-    ]);
+    const r1 = buildRound(
+      1,
+      '2026-05-06T12:00:00Z',
+      withEliminated(
+        [submission('alice', 10), submission('bob', 20), submission('dan', 30)],
+        ['dan'],
+      ),
+    );
     const r2 = buildRound(2, null, []);
     const result = validateSubmissionEligibility({
       player: 'dan',
@@ -274,11 +279,14 @@ describe('validateSubmissionEligibility', () => {
   });
 
   test('round 2 with surviving player → eligible', () => {
-    const r1 = buildRound(1, '2026-05-06T12:00:00Z', [
-      submission('alice', 10),
-      submission('bob', 20),
-      submission('dan', 30),
-    ]);
+    const r1 = buildRound(
+      1,
+      '2026-05-06T12:00:00Z',
+      withEliminated(
+        [submission('alice', 10), submission('bob', 20), submission('dan', 30)],
+        ['dan'],
+      ),
+    );
     const r2 = buildRound(2, null, []);
     assert.deepEqual(
       validateSubmissionEligibility({
@@ -288,6 +296,41 @@ describe('validateSubmissionEligibility', () => {
         prevRound: r1,
       }),
       { eligible: true },
+    );
+  });
+
+  test('eligibility consults persisted `eliminated` field, not recomputed distances', () => {
+    // The "true" farthest is dan (distance 30), but we mark alice eliminated
+    // and dan a survivor. validateSubmissionEligibility should trust the
+    // persisted booleans.
+    const r1 = buildRound(
+      1,
+      '2026-05-06T12:00:00Z',
+      withEliminated(
+        [submission('alice', 10), submission('bob', 20), submission('dan', 30)],
+        ['alice'],
+      ),
+    );
+    const r2 = buildRound(2, null, []);
+    assert.equal(
+      validateSubmissionEligibility({
+        player: 'alice',
+        currentRound: r2,
+        currentRoundNumber: 2,
+        prevRound: r1,
+      }).eligible,
+      false,
+      'alice was persisted as eliminated → ineligible regardless of distance',
+    );
+    assert.equal(
+      validateSubmissionEligibility({
+        player: 'dan',
+        currentRound: r2,
+        currentRoundNumber: 2,
+        prevRound: r1,
+      }).eligible,
+      true,
+      'dan was persisted as survivor → eligible regardless of distance',
     );
   });
 
