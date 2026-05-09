@@ -2,7 +2,9 @@
 
 A small TypeScript CLI that draws uniformly distributed random points within an
 Americas-shaped lat/lon band and resolves each one to its country and first
-administrative subdivision via the GADM 4.10 geopackage.
+administrative subdivision via the GADM 4.10 geopackage. Mainland USA and South
+Georgia/SSI are excluded from selection — the southern boundary is conceptually
+the Antarctic Convergence.
 
 It also implements **TPG**, a turn-based geo-guessing game built on top of the
 same sampler: each round picks a random Americas target, players submit a
@@ -22,6 +24,7 @@ last surviving player wins.
 | Command | What it does |
 | --- | --- |
 | `yarn start` | Sample random Americas points (`src/index.ts`). |
+| `yarn list-countries` | Print every non-excluded country reachable by the sampler. |
 | `yarn create-round` | Start a new round of TPG. |
 | `yarn submit-round` | Submit a player's coordinate guess to the active round. |
 | `yarn end-round` | Close the active round, compute eliminations, and print standings. |
@@ -52,22 +55,25 @@ yarn start --rng random.org     # use random.org as the entropy source
 ## TPG
 
 Round files are written to `rounds/NNN.geojson` (override with `--rounds-dir`).
-The on-disk format is plain RFC 7946 GeoJSON: a `FeatureCollection` whose first
-feature is the target (carrying `ended_at` and the location label) and whose
-remaining features are player submissions.
+The on-disk format is plain RFC 7946 GeoJSON: a `FeatureCollection` carrying a
+`roundInfo` foreign member (`number`, `endedAt`, optional `language`) whose
+first feature is the target (with the location label) and whose remaining
+features are player submissions.
 
 ```sh
 # Round 1: pick a target
 yarn create-round
 
 # Each player submits a coordinate.
-# The coordinate may be a single quoted string or two positionals; decimal,
-# NESW, and DMS forms are all accepted.
+# The coordinate may be a single quoted string or two positionals; decimal
+# (with `.` or `,` as the decimal separator), NESW, and DMS forms are all
+# accepted.
 yarn submit-round alice "40.7128, -74.0060"
 yarn submit-round bob   "40°42'46\"N 74°00'21\"W"
 yarn submit-round carol 19.43 -99.13
+yarn submit-round dani  "40,7128 -74,0060"
 
-# Close the round, print standings, and stamp ended_at on the target.
+# Close the round, print standings, and stamp endedAt on roundInfo.
 yarn end-round
 
 # Then start round 2; only players who survived round 1 may submit.
