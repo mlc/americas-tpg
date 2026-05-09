@@ -270,7 +270,7 @@ The same `endRound` function path covers both first-run (full rule evaluation, M
 - Edge case: multiple DNS, all sore losers → no save; all recorded as `couldHaveEscaped: true`.
 - Edge case: zero DNS → `dnsChecks: []` persisted; behavior identical to pre-rule.
 - Edge case: DNS with empty history (no prior in-game rounds; MorphiorDB returns `[]`) → `couldHaveEscaped: true`; no save; `morphiorDbStatus: 'ok'`.
-- Edge case: DNS player resolves to no MorphiorDB match (`findPlayer` null) → `morphiorDbStatus: 'notFound'`; local-only history used.
+- Edge case: DNS player resolves to no MorphiorDB match (zero exact matches) → `morphiorDbStatus: 'notFound'`; local-only history used.
 - Edge case: DNS player resolves ambiguously in MorphiorDB → `morphiorDbStatus: 'ambiguous'`; local-only history used.
 - Error path: MorphiorDB throws `MorphiorDbError` → degraded to local-only; `morphiorDbStatus: 'unavailable'`; round still closes; one stderr warning printed.
 - Idempotency: re-end on a saved round → output identical, MorphiorDB stub call counter is zero on the second run, `eliminated` flags unchanged on disk.
@@ -396,6 +396,14 @@ The same `endRound` function path covers both first-run (full rule evaluation, M
   The plan reframes elimination from a pure "farthest distance" rule to "elimination depends on plausibility of intent." Players will see "saved by honest-DNS" lines in end-round output and the operator will need to explain a richer judgment model than the original game contract. The plan does not say whether this shift is owned (called out and embraced), hidden (operator-only), or finessed in player-facing wording. Add a one-paragraph framing decision to the plan body before implementation.
 
   <!-- dedup-key: section="problem frame key technical decisions" title="identity shift to intent inference unacknowledged" evidence="the new rule asks whether a dns player ever had a realistic chance judged from their submission history and only counts the actual last-place" -->
+
+### From 2026-05-09 code review
+
+- **MorphiorDB outage during round-close locks an unfair "denied save" via re-end determinism** — `src/end-round.ts` rule pipeline (P2, adversarial, confidence 100)
+
+  For a new-this-game player whose only history lives in MorphiorDB, a transport error during round-close → `mdbPoints = []`, local history empty → anti-ghost guard fires → `couldHaveEscaped: true` → no save. Re-end is deterministic, so re-running `end-round` after MorphiorDB recovers won't reopen the decision; the dnsCheck is frozen on disk. Combines with the open anti-ghost cohort question above. Two structural paths to consider: (a) record `bestPoint: null` + `morphiorDbStatus: 'unavailable'` and treat that pair as "rule abstained, not honest-DNS" so the save decision falls back to standard rules rather than the anti-ghost branch; or (b) allow an explicit re-evaluation flag for ended rounds when MorphiorDB recovers. Both warrant their own design pass alongside the cohort-fairness deferral.
+
+  <!-- dedup-key: section="src end round ts rule pipeline" title="morphiordb outage during round close locks unfair denied save via re end determinism" evidence="for a new this game player whose only history lives in morphiordb a transport error during round close yields no save and re end propagates the bad outcome" -->
 
 ---
 

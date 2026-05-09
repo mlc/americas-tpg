@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, test } from 'node:test';
 import type { Position } from 'geojson';
 import { createRound } from '../src/create-round.ts';
 import { endRound } from '../src/end-round.ts';
-import type { MorphiorClient } from '../src/morphiordb.ts';
+import { type MorphiorClient, MorphiorDbError } from '../src/morphiordb.ts';
 import type {
   DnsCheck,
   RoundFile,
@@ -490,10 +490,10 @@ describe('endRound — honest-DNS save rule', () => {
     assert.equal(result.dnsChecks.length, 1);
     assert.equal(result.dnsChecks[0].player, 'carol');
     assert.equal(result.dnsChecks[0].couldHaveEscaped, true);
-    assert.equal(result.dnsChecks[0].morphiorDbStatus, 'notFound');
+    assert.equal(result.dnsChecks[0].morphiorDbStatus, 'noMatch');
     assert.equal(result.dnsChecks[0].morphiorDbSubmissionCount, null);
-    // bestPoint exists because carol has local history (her round 1 submission).
-    assert.deepEqual(result.dnsChecks[0].bestPoint, ARGENTINA_TARGET_COORDS);
+    // best.point exists because carol has local history (her round 1 submission).
+    assert.deepEqual(result.dnsChecks[0].best?.point, ARGENTINA_TARGET_COORDS);
   });
 
   test('one DNS, far-from-target history → couldHaveEscaped:false (honest), save fires for last-place submitter', async () => {
@@ -535,8 +535,8 @@ describe('endRound — honest-DNS save rule', () => {
     assert.equal(result.dnsChecks.length, 1);
     assert.equal(result.dnsChecks[0].player, 'dan');
     assert.equal(result.dnsChecks[0].couldHaveEscaped, false);
-    assert.ok(result.dnsChecks[0].bestDistanceKm !== null);
-    assert.ok(result.dnsChecks[0].bestDistanceKm > 50);
+    assert.ok(result.dnsChecks[0].best !== null);
+    assert.ok(result.dnsChecks[0].best.distanceKm > 50);
   });
 
   test('eliminated flag on disk reflects post-rule state (saved player is false)', async () => {
@@ -609,9 +609,9 @@ describe('endRound — honest-DNS save rule', () => {
     const check = onDisk.roundInfo.dnsChecks[0];
     assert.equal(check.player, 'dan');
     assert.equal(check.couldHaveEscaped, false);
-    assert.deepEqual(check.bestPoint, FAR_FROM_TARGET);
-    assert.equal(typeof check.bestDistanceKm, 'number');
-    assert.equal(check.morphiorDbStatus, 'notFound');
+    assert.deepEqual(check.best.point, FAR_FROM_TARGET);
+    assert.equal(typeof check.best.distanceKm, 'number');
+    assert.equal(check.morphiorDbStatus, 'noMatch');
     assert.equal(check.morphiorDbSubmissionCount, null);
   });
 
@@ -678,12 +678,7 @@ describe('endRound — honest-DNS save rule', () => {
   test('MorphiorDB unavailable → status:unavailable; round closes with local-only history', async () => {
     const failingMorphior: MorphiorClient = {
       findPlayers: async () => {
-        const err = new Error('boom') as Error & {
-          kind: 'transport';
-        };
-        err.name = 'MorphiorDbError';
-        err.kind = 'transport';
-        throw err;
+        throw new MorphiorDbError('transport', 'boom');
       },
       fetchSubmissions: async () => [],
     };
@@ -721,7 +716,7 @@ describe('endRound — honest-DNS save rule', () => {
     assert.equal(result.dnsChecks[0].couldHaveEscaped, false);
   });
 
-  test('MorphiorDB returns ambiguous match → status:ambiguous; falls back to local history', async () => {
+  test('MorphiorDB returns ambiguous match → status:noMatch; falls back to local history', async () => {
     const ambiguous: MorphiorClient = {
       findPlayers: async () => [
         {
@@ -766,8 +761,105 @@ describe('endRound — honest-DNS save rule', () => {
       now: fixedNow,
       morphiorClient: ambiguous,
     });
-    assert.equal(result.dnsChecks[0].morphiorDbStatus, 'ambiguous');
+    assert.equal(result.dnsChecks[0].morphiorDbStatus, 'noMatch');
     assert.equal(result.dnsChecks[0].morphiorDbSubmissionCount, null);
+  });
+
+  test('MorphiorDB ok happy path: returns one match + populated submissions; rule consumes them', async () => {
+    // dan has no in-game prior round, but MorphiorDB has 2 historical points,
+    // one near the target. Rule should find the near point and let dan escape.
+    const okMorphior: MorphiorClient = {
+      findPlayers: async () => [
+        {
+          discord_id: '1',
+          canonical_name: 'dan',
+          name: 'Dan',
+          aliases: ['dan'],
+        },
+      ],
+      fetchSubmissions: async () => [
+        FAR_FROM_TARGET, // ~8500 km from Argentina target
+        ARGENTINA_TARGET_COORDS, // 0 km from target
+      ],
+    };
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRound(
+        1,
+        '2026-05-06T12:00:00Z',
+        withEliminated(
+          [
+            makeSubmission('alice', 5),
+            makeSubmission('bob', 20),
+            makeSubmission('dan', 30),
+          ],
+          [],
+        ),
+      ),
+    );
+    await writeRoundAtomic(
+      roundPath(2, dir),
+      makeRound(2, null, [
+        makeSubmission('alice', 5),
+        makeSubmission('bob', 50),
+      ]),
+    );
+    const result = await endRound({
+      roundsDir: dir,
+      now: fixedNow,
+      morphiorClient: okMorphior,
+    });
+    assert.equal(result.dnsChecks[0].player, 'dan');
+    assert.equal(result.dnsChecks[0].morphiorDbStatus, 'ok');
+    assert.equal(result.dnsChecks[0].morphiorDbSubmissionCount, 2);
+    // Closest point in MorphiorDB is the at-target coord.
+    assert.deepEqual(result.dnsChecks[0].best?.point, ARGENTINA_TARGET_COORDS);
+    // dan's bestDistance ~0 km < 50 km cutoff → could have escaped → no save.
+    assert.equal(result.dnsChecks[0].couldHaveEscaped, true);
+    assert.equal(result.savedSet.size, 0);
+  });
+
+  test('on-disk marker-color reflects post-rule state (saved player NOT red)', async () => {
+    // Regression for code-review finding: applySimplestyle previously used
+    // eliminationsForRound (distance-derived) and painted the saved player
+    // red despite eliminated:false on disk.
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRound(
+        1,
+        '2026-05-06T12:00:00Z',
+        withEliminated(
+          [
+            makeSubmission('alice', 5),
+            makeSubmission('dan', 200, FAR_FROM_TARGET),
+          ],
+          [],
+        ),
+      ),
+    );
+    await writeRoundAtomic(
+      roundPath(2, dir),
+      makeRound(2, null, [
+        makeSubmission('alice', 5),
+        makeSubmission('bob', 50),
+      ]),
+    );
+    const result = await endRound({
+      roundsDir: dir,
+      now: fixedNow,
+      morphiorClient: emptyMorphior(),
+    });
+    assert.deepEqual([...result.savedSet].sort(), ['bob']);
+    const onDisk = JSON.parse(await readFile(result.path, 'utf8'));
+    const subs = onDisk.features.slice(1) as Array<{
+      properties: { player: string; 'marker-color': string };
+    }>;
+    const colorFor = (player: string) =>
+      subs.find((s) => s.properties.player === player)?.properties[
+        'marker-color'
+      ];
+    // bob was saved by the rule; he must NOT be painted red.
+    assert.notEqual(colorFor('bob'), '#ff0000');
   });
 
   test('re-end: reads persisted dnsChecks, no MorphiorDB call', async () => {

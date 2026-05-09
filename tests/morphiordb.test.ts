@@ -122,6 +122,26 @@ describe('openMorphiorClient — findPlayers', () => {
     assert.equal(called, false);
   });
 
+  test('matches NFD-vs-NFC equivalent player names (Café variants)', async () => {
+    // 'Café' typed in MorphiorDB as decomposed (e + combining-acute) should
+    // match a query of 'Café' typed as precomposed (single é codepoint).
+    const NFD = 'Café'; // e + U+0301 combining acute
+    const NFC = 'Café';
+    const client = makeClient(() =>
+      jsonResponse([
+        {
+          discord_id: '42',
+          canonical_name: NFD,
+          name: NFD,
+          aliases: [NFD],
+        },
+      ]),
+    );
+    const result = await client.findPlayers(NFC);
+    assert.equal(result.length, 1);
+    assert.equal(result[0].discord_id, '42');
+  });
+
   test('drops player rows whose schema is malformed', async () => {
     const client = makeClient(() =>
       jsonResponse([
@@ -236,6 +256,28 @@ describe('openMorphiorClient — error mapping', () => {
     });
   });
 
+  test('200 response whose body read throws → MorphiorDbError(transport)', async () => {
+    // Regression: previously the body read on the ok branch was unguarded;
+    // a mid-stream connection reset surfaced as a plain TypeError that
+    // escaped the catch in evaluateDnsForPlayer and crashed endRound.
+    const client = makeClient(() => {
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.error(new TypeError('underlying connection was closed'));
+        },
+      });
+      return new Response(stream, {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    });
+    await assert.rejects(client.findPlayers('Anza'), (err: unknown) => {
+      assert.ok(isMorphiorDbError(err));
+      assert.equal(err.kind, 'transport');
+      return true;
+    });
+  });
+
   test('AbortSignal.timeout error → MorphiorDbError(timeout)', async () => {
     const client = makeClient(() => {
       const err = new Error('aborted');
@@ -251,6 +293,23 @@ describe('openMorphiorClient — error mapping', () => {
 });
 
 describe('isMorphiorDbError', () => {
+  test('rejects plain Error with a string `.kind` property', () => {
+    // Regression test: the previous structural-typing predicate accepted any
+    // Error with a string .kind property; the class-based check is exclusive.
+    const fake = new Error('not from us') as Error & { kind?: string };
+    fake.kind = 'transport';
+    assert.equal(isMorphiorDbError(fake), false);
+  });
+
+  test('rejects an Error whose `name` says MorphiorDbError but is not a MorphiorDbError instance', () => {
+    // Same regression: a third-party error rebranding via .name should still
+    // not pass the instance check.
+    const fake = new Error('not from us') as Error & { kind?: string };
+    fake.name = 'MorphiorDbError';
+    fake.kind = 'parse';
+    assert.equal(isMorphiorDbError(fake), false);
+  });
+
   test('returns false for plain Errors and non-errors', () => {
     assert.equal(isMorphiorDbError(new Error('plain')), false);
     assert.equal(isMorphiorDbError(null), false);

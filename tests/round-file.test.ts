@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, test } from 'node:test';
 import {
+  type DnsCheck,
   endedAtOf,
   type RoundFile,
   type SubmissionFeature,
@@ -380,8 +381,7 @@ describe('readRound', () => {
           {
             player: 'dan',
             couldHaveEscaped: false,
-            bestPoint: [0, 0],
-            bestDistanceKm: 100,
+            best: { point: [0, 0], distanceKm: 100 },
             // missing morphiorDbStatus, morphiorDbSubmissionCount
           },
         ],
@@ -399,25 +399,28 @@ describe('readRound', () => {
     await assert.rejects(readRound(path), /morphiorDbStatus must be one of/);
   });
 
-  test('rejects dnsChecks item with bestPoint/bestDistanceKm disagreement', async () => {
+  test('rejects dnsChecks item with malformed `best.point`', async () => {
     const path = join(dir, '001.geojson');
     const bad = makeRoundFile(1, '2026-05-06T12:00:00Z') as RoundFile & {
       roundInfo: { dnsChecks: unknown[] };
     };
+    // Deliberately malformed fixture; bypass DnsCheck typing for the bad shape.
     bad.roundInfo.dnsChecks = [
       {
         player: 'dan',
         couldHaveEscaped: true,
-        bestPoint: null,
-        bestDistanceKm: 50, // populated while bestPoint is null
-        morphiorDbStatus: 'notFound',
+        best: {
+          point: 'not an array',
+          distanceKm: 50,
+        } as unknown as DnsCheck['best'],
+        morphiorDbStatus: 'noMatch',
         morphiorDbSubmissionCount: null,
       },
     ];
     await writeFile(path, JSON.stringify(bad));
     await assert.rejects(
       readRound(path),
-      /bestDistanceKm and bestPoint must agree/,
+      /best\.point must be a \[lon, lat\] array/,
     );
   });
 
@@ -430,8 +433,7 @@ describe('readRound', () => {
       {
         player: 'dan',
         couldHaveEscaped: false,
-        bestPoint: [0, 0],
-        bestDistanceKm: 100,
+        best: { point: [0, 0], distanceKm: 100 },
         morphiorDbStatus: 'ok',
         morphiorDbSubmissionCount: null, // must be a non-negative integer
       },
@@ -452,9 +454,8 @@ describe('readRound', () => {
       {
         player: 'dan',
         couldHaveEscaped: true,
-        bestPoint: null,
-        bestDistanceKm: null,
-        morphiorDbStatus: 'notFound',
+        best: null,
+        morphiorDbStatus: 'noMatch',
         morphiorDbSubmissionCount: 5, // must be null when status !== 'ok'
       },
     ];
@@ -478,16 +479,14 @@ describe('readRound', () => {
     const okItem1 = {
       player: 'dan',
       couldHaveEscaped: false,
-      bestPoint: [0, 0] as [number, number],
-      bestDistanceKm: 8500,
+      best: { point: [0, 0] as [number, number], distanceKm: 8500 },
       morphiorDbStatus: 'ok' as const,
       morphiorDbSubmissionCount: 3,
     };
     const okItem2 = {
       player: 'eve',
       couldHaveEscaped: true,
-      bestPoint: null,
-      bestDistanceKm: null,
+      best: null,
       morphiorDbStatus: 'unavailable' as const,
       morphiorDbSubmissionCount: null,
     };

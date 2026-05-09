@@ -366,10 +366,9 @@ describe('evaluateDnsCheck', () => {
   // to reason about with the tiny-Earth approximation @turf/distance gives.
   const TARGET: [number, number] = [0, 0];
 
-  test('empty points → bestPoint null + couldHaveEscaped true (anti-ghost)', () => {
+  test('empty points → best null + couldHaveEscaped true (anti-ghost)', () => {
     const result = evaluateDnsCheck(TARGET, [], 100);
-    assert.equal(result.bestPoint, null);
-    assert.equal(result.bestDistanceKm, null);
+    assert.equal(result.best, null);
     assert.equal(result.couldHaveEscaped, true);
   });
 
@@ -377,8 +376,9 @@ describe('evaluateDnsCheck', () => {
     // Point ~111 km away (1 degree latitude at the equator).
     const result = evaluateDnsCheck(TARGET, [[0, 1]], 50);
     assert.equal(result.couldHaveEscaped, false);
-    assert.deepEqual(result.bestPoint, [0, 1]);
-    assert.ok(result.bestDistanceKm !== null && result.bestDistanceKm > 100);
+    assert.ok(result.best !== null);
+    assert.deepEqual(result.best.point, [0, 1]);
+    assert.ok(result.best.distanceKm > 100);
   });
 
   test('bestDistance just under (currentMax − TIE_BUFFER_KM) → couldHaveEscaped true', () => {
@@ -391,8 +391,8 @@ describe('evaluateDnsCheck', () => {
     // Pick currentMax = bestDistance + TIE_BUFFER_KM exactly; strict < says false.
     const point: [number, number] = [0, 0.5]; // ~55.6 km
     const evalResult = evaluateDnsCheck(TARGET, [point], 0);
-    const bestKm = evalResult.bestDistanceKm;
-    assert.ok(bestKm !== null);
+    assert.ok(evalResult.best !== null);
+    const bestKm = evalResult.best.distanceKm;
     const result = evaluateDnsCheck(TARGET, [point], bestKm + TIE_BUFFER_KM);
     assert.equal(result.couldHaveEscaped, false);
   });
@@ -400,8 +400,8 @@ describe('evaluateDnsCheck', () => {
   test('bestDistance just under the boundary (boundary − ε) → couldHaveEscaped true', () => {
     const point: [number, number] = [0, 0.5];
     const evalResult = evaluateDnsCheck(TARGET, [point], 0);
-    const bestKm = evalResult.bestDistanceKm;
-    assert.ok(bestKm !== null);
+    assert.ok(evalResult.best !== null);
+    const bestKm = evalResult.best.distanceKm;
     // currentMax = bestKm + TIE_BUFFER_KM + epsilon → bestKm < currentMax − buffer.
     const result = evaluateDnsCheck(
       TARGET,
@@ -411,12 +411,13 @@ describe('evaluateDnsCheck', () => {
     assert.equal(result.couldHaveEscaped, true);
   });
 
-  test('bestPoint reports the closest point when multiple are provided', () => {
+  test('best.point reports the closest point when multiple are provided', () => {
     const far: [number, number] = [10, 10];
     const close: [number, number] = [0, 0.001];
     const result = evaluateDnsCheck(TARGET, [far, close, far], 100);
-    assert.deepEqual(result.bestPoint, close);
-    assert.ok(result.bestDistanceKm !== null && result.bestDistanceKm < 1);
+    assert.ok(result.best !== null);
+    assert.deepEqual(result.best.point, close);
+    assert.ok(result.best.distanceKm < 1);
     assert.equal(result.couldHaveEscaped, true);
   });
 

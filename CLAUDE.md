@@ -131,13 +131,17 @@ actual last-place submitter(s) are spared instead. The rule's per-DNS
 findings persist as `roundInfo.dnsChecks` (an array of `DnsCheck` items
 defined in `round-domain.ts`):
 
-- Each item carries `player`, `couldHaveEscaped` (boolean), `bestPoint`
-  (`[lon, lat]` or null), `bestDistanceKm` (finite number or null),
-  `morphiorDbStatus` (`ok | notFound | ambiguous | unavailable`), and
+- Each item carries `player`, `couldHaveEscaped` (boolean), `best`
+  (`{ point: [lon, lat]; distanceKm: number } | null` — bundled so the
+  type system enforces "both populated or both null"),
+  `morphiorDbStatus` (`ok | noMatch | unavailable`), and
   `morphiorDbSubmissionCount` (non-negative integer when status is `ok`,
-  null otherwise).
-- `bestPoint` and `bestDistanceKm` agree: both null (no history available
-  anywhere) or both populated.
+  null otherwise — reflects the count of submission rows the parser kept
+  with finite lat/lon, not the raw API row count, so a malformed-row drop
+  is invisible at this level).
+- `noMatch` covers both "zero exact matches" and "ambiguous (multiple
+  exact matches)" — both fall back to local-only history, so the rule
+  sees them identically; the audit trail records them under one label.
 - The escape predicate is `bestDistanceKm < currentMaxKm − TIE_BUFFER_KM`
   — strict `<`, mirroring `eliminationsForRound`'s tie-buffer math so the
   boundary aligns exactly.
