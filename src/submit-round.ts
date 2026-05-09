@@ -3,9 +3,12 @@ import { distance } from '@turf/distance';
 import type { Position } from 'geojson';
 import { isMain, parseRound } from './cli-helpers.ts';
 import { decodeCoord } from './coords.ts';
-import { type GadmHandle, openGadm } from './gadm.ts';
 import {
-  formatLocation,
+  type LookupLocation,
+  makeGadmLookupLocation,
+  openGadm,
+} from './gadm.ts';
+import {
   normalizePlayerName,
   type RoundFeature,
   type RoundFile,
@@ -13,6 +16,10 @@ import {
   submissionsOf,
   validateSubmissionEligibility,
 } from './round-domain.ts';
+
+export type { LookupLocation } from './gadm.ts';
+export { makeGadmLookupLocation } from './gadm.ts';
+
 import {
   DEFAULT_ROUNDS_DIR,
   readRound,
@@ -40,7 +47,6 @@ Options:
   -h, --help            Show this message
 `;
 
-export type LookupLocation = (position: Position) => string | null;
 export type ComputeDistanceKm = (
   target: Position,
   submission: Position,
@@ -69,17 +75,6 @@ export interface SubmitRoundResult {
 
 export const defaultComputeDistance: ComputeDistanceKm = (target, submission) =>
   distance(target, submission, { units: 'kilometers' });
-
-export function makeGadmLookupLocation(gadm: GadmHandle): LookupLocation {
-  return (position) => {
-    const result = gadm.lookup(position);
-    if (result.kind === 'ocean') return null;
-    return formatLocation({
-      name_0: result.feature.properties.name_0,
-      name_1: result.feature.properties.name_1,
-    });
-  };
-}
 
 export async function submitRound(
   deps: SubmitRoundDeps,

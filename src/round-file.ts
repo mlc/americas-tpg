@@ -7,7 +7,8 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
-import { endedAtOf, type RoundFile } from './round-domain.ts';
+import type { Position } from 'geojson';
+import { endedAtOf, type RoundFile, submissionsOf } from './round-domain.ts';
 import { applySimplestyle } from './simplestyle.ts';
 
 export const DEFAULT_ROUNDS_DIR = 'rounds';
@@ -78,6 +79,41 @@ export async function findActiveRound(
   const latest = await findLatestRound(dir);
   if (!latest || endedAtOf(latest.file) !== null) return null;
   return latest;
+}
+
+/**
+ * Collect every submission point a named player has on disk across the
+ * game's ended rounds. In-progress rounds are skipped (they're not history
+ * yet); `excludeRound` skips the round currently closing so the round being
+ * ended doesn't bias its own DNS check.
+ *
+ * Returns one `[lon, lat]` per matching submission feature, in
+ * round-then-feature order. Duplicates are kept; min-distance-style
+ * consumers don't care.
+ *
+ * Player-name comparison is byte-exact, post-NFC — matching the
+ * `normalizePlayerName` identity model used elsewhere.
+ */
+export async function listSubmissionsForPlayer(
+  player: string,
+  dir: string = DEFAULT_ROUNDS_DIR,
+  opts: { excludeRound?: number } = {},
+): Promise<Position[]> {
+  const rounds = await listRoundFiles(dir);
+  const points: Position[] = [];
+  for (const entry of rounds) {
+    if (opts.excludeRound !== undefined && entry.round === opts.excludeRound) {
+      continue;
+    }
+    const round = await readRound(entry.path);
+    if (endedAtOf(round) === null) continue;
+    for (const sub of submissionsOf(round)) {
+      if (sub.properties.player === player) {
+        points.push(sub.geometry.coordinates);
+      }
+    }
+  }
+  return points;
 }
 
 export interface ResolveRoundOptions {
@@ -207,6 +243,7 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
   ) {
     fail('roundInfo.language must be a string when present');
   }
+  validateRoundInfoDnsChecks(roundInfo, endedAt !== null, fail);
   if (!Array.isArray(obj.features)) fail('features must be an array');
   const features = obj.features as unknown[];
   if (features.length === 0) {
@@ -283,4 +320,87 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
     }
   }
   return data as RoundFile;
+}
+
+const VALID_MORPHIOR_STATUSES = new Set(['ok', 'noMatch', 'unavailable']);
+
+function validateRoundInfoDnsChecks(
+  roundInfo: Record<string, unknown>,
+  isEnded: boolean,
+  fail: (msg: string) => never,
+): void {
+  if (!isEnded) {
+    if ('dnsChecks' in roundInfo) {
+      fail(
+        'roundInfo.dnsChecks must not be present on in-progress rounds (endedAt: null)',
+      );
+    }
+    return;
+  }
+  if (!('dnsChecks' in roundInfo)) {
+    fail('roundInfo.dnsChecks is required on ended rounds');
+  }
+  const checks = roundInfo.dnsChecks;
+  if (!Array.isArray(checks)) {
+    fail('roundInfo.dnsChecks must be an array');
+  }
+  checks.forEach((entry, idx) => {
+    if (!entry || typeof entry !== 'object') {
+      fail(`roundInfo.dnsChecks[${idx}] must be an object`);
+    }
+    const e = entry as Record<string, unknown>;
+    if (typeof e.player !== 'string' || e.player.trim() === '') {
+      fail(`roundInfo.dnsChecks[${idx}].player must be a non-empty string`);
+    }
+    if (typeof e.couldHaveEscaped !== 'boolean') {
+      fail(`roundInfo.dnsChecks[${idx}].couldHaveEscaped must be a boolean`);
+    }
+    const best = e.best;
+    if (best !== null) {
+      if (!best || typeof best !== 'object') {
+        fail(`roundInfo.dnsChecks[${idx}].best must be an object or null`);
+      }
+      const bestObj = best as Record<string, unknown>;
+      const point = bestObj.point;
+      const distanceKm = bestObj.distanceKm;
+      const pointOk =
+        Array.isArray(point) &&
+        point.length >= 2 &&
+        typeof point[0] === 'number' &&
+        Number.isFinite(point[0]) &&
+        typeof point[1] === 'number' &&
+        Number.isFinite(point[1]);
+      if (!pointOk) {
+        fail(
+          `roundInfo.dnsChecks[${idx}].best.point must be a [lon, lat] array of finite numbers`,
+        );
+      }
+      if (typeof distanceKm !== 'number' || !Number.isFinite(distanceKm)) {
+        fail(
+          `roundInfo.dnsChecks[${idx}].best.distanceKm must be a finite number`,
+        );
+      }
+    }
+    if (
+      typeof e.morphiorDbStatus !== 'string' ||
+      !VALID_MORPHIOR_STATUSES.has(e.morphiorDbStatus)
+    ) {
+      fail(
+        `roundInfo.dnsChecks[${idx}].morphiorDbStatus must be one of ok | notFound | ambiguous | unavailable`,
+      );
+    }
+    const count = e.morphiorDbSubmissionCount;
+    const isOk = e.morphiorDbStatus === 'ok';
+    if (isOk) {
+      if (typeof count !== 'number' || !Number.isInteger(count) || count < 0) {
+        fail(
+          `roundInfo.dnsChecks[${idx}].morphiorDbSubmissionCount must be a non-negative integer when morphiorDbStatus === 'ok'`,
+        );
+      }
+    } else if (count !== null) {
+      fail(
+        `roundInfo.dnsChecks[${idx}].morphiorDbSubmissionCount must be null when morphiorDbStatus !== 'ok'`,
+      );
+    }
+  });
 }

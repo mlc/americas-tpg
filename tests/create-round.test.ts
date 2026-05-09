@@ -34,7 +34,7 @@ function makeEndedRound(
 ): RoundFile {
   return {
     type: 'FeatureCollection',
-    roundInfo: { number: round, endedAt },
+    roundInfo: { number: round, endedAt, dnsChecks: [] },
     features: [makeArgentinaTarget()],
   };
 }

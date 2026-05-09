@@ -44,7 +44,11 @@ function makeRound(
 ): RoundFile {
   return {
     type: 'FeatureCollection',
-    roundInfo: { number: round, endedAt },
+    roundInfo: {
+      number: round,
+      endedAt,
+      ...(endedAt !== null ? { dnsChecks: [] } : {}),
+    },
     features: [makeArgentinaTarget(), ...submissions],
   };
 }

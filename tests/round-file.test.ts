@@ -3,16 +3,23 @@ import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, test } from 'node:test';
-import { endedAtOf, type RoundFile } from '../src/round-domain.ts';
+import {
+  type DnsCheck,
+  endedAtOf,
+  type RoundFile,
+  type SubmissionFeature,
+} from '../src/round-domain.ts';
 import {
   findActiveRound,
   findLatestRound,
   listRoundFiles,
+  listSubmissionsForPlayer,
   parseRoundNumber,
   readRound,
   roundPath,
   writeRoundAtomic,
 } from '../src/round-file.ts';
+import { withEliminated } from './test-helpers.ts';
 
 function makeRoundFile(
   round: number,
@@ -20,7 +27,11 @@ function makeRoundFile(
 ): RoundFile {
   return {
     type: 'FeatureCollection',
-    roundInfo: { number: round, endedAt },
+    roundInfo: {
+      number: round,
+      endedAt,
+      ...(endedAt !== null ? { dnsChecks: [] } : {}),
+    },
     features: [
       {
         type: 'Feature',
@@ -312,6 +323,193 @@ describe('readRound', () => {
     const round = await readRound(path);
     assert.equal(round.features.length, 3);
   });
+
+  // dnsChecks invariant tests (U6).
+  test('rejects in-progress round whose roundInfo carries `dnsChecks`', async () => {
+    const path = join(dir, '001.geojson');
+    const bad = makeRoundFile(1, null) as RoundFile & {
+      roundInfo: { dnsChecks?: unknown };
+    };
+    bad.roundInfo.dnsChecks = [];
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(
+      readRound(path),
+      /must not be present on in-progress rounds/,
+    );
+  });
+
+  test('rejects ended round missing `dnsChecks`', async () => {
+    const path = join(dir, '001.geojson');
+    await writeFile(
+      path,
+      JSON.stringify({
+        type: 'FeatureCollection',
+        roundInfo: { number: 1, endedAt: '2026-05-06T12:00:00Z' },
+        features: [
+          {
+            type: 'Feature',
+            id: 'target',
+            geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
+            properties: { location: 'Río Negro, Argentina' },
+          },
+        ],
+      }),
+    );
+    await assert.rejects(readRound(path), /dnsChecks is required on ended/);
+  });
+
+  test('rejects ended round whose `dnsChecks` is not an array', async () => {
+    const path = join(dir, '001.geojson');
+    const bad = makeRoundFile(1, '2026-05-06T12:00:00Z') as RoundFile & {
+      roundInfo: { dnsChecks: unknown };
+    };
+    // biome-ignore lint/suspicious/noExplicitAny: deliberately invalid fixture
+    (bad.roundInfo as any).dnsChecks = { not: 'an array' };
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(readRound(path), /dnsChecks must be an array/);
+  });
+
+  test('rejects dnsChecks item missing required field', async () => {
+    const path = join(dir, '001.geojson');
+    // Bypass DnsCheck typing — fixture is deliberately malformed.
+    const bad = {
+      type: 'FeatureCollection',
+      roundInfo: {
+        number: 1,
+        endedAt: '2026-05-06T12:00:00Z',
+        dnsChecks: [
+          {
+            player: 'dan',
+            couldHaveEscaped: false,
+            best: { point: [0, 0], distanceKm: 100 },
+            // missing morphiorDbStatus, morphiorDbSubmissionCount
+          },
+        ],
+      },
+      features: [
+        {
+          type: 'Feature',
+          id: 'target',
+          geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
+          properties: { location: 'Río Negro, Argentina' },
+        },
+      ],
+    };
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(readRound(path), /morphiorDbStatus must be one of/);
+  });
+
+  test('rejects dnsChecks item with malformed `best.point`', async () => {
+    const path = join(dir, '001.geojson');
+    const bad = makeRoundFile(1, '2026-05-06T12:00:00Z') as RoundFile & {
+      roundInfo: { dnsChecks: unknown[] };
+    };
+    // Deliberately malformed fixture; bypass DnsCheck typing for the bad shape.
+    bad.roundInfo.dnsChecks = [
+      {
+        player: 'dan',
+        couldHaveEscaped: true,
+        best: {
+          point: 'not an array',
+          distanceKm: 50,
+        } as unknown as DnsCheck['best'],
+        morphiorDbStatus: 'noMatch',
+        morphiorDbSubmissionCount: null,
+      },
+    ];
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(
+      readRound(path),
+      /best\.point must be a \[lon, lat\] array/,
+    );
+  });
+
+  test('rejects dnsChecks item with `ok` status but null submission count', async () => {
+    const path = join(dir, '001.geojson');
+    const bad = makeRoundFile(1, '2026-05-06T12:00:00Z') as RoundFile & {
+      roundInfo: { dnsChecks: unknown[] };
+    };
+    bad.roundInfo.dnsChecks = [
+      {
+        player: 'dan',
+        couldHaveEscaped: false,
+        best: { point: [0, 0], distanceKm: 100 },
+        morphiorDbStatus: 'ok',
+        morphiorDbSubmissionCount: null, // must be a non-negative integer
+      },
+    ];
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(
+      readRound(path),
+      /morphiorDbSubmissionCount must be a non-negative integer/,
+    );
+  });
+
+  test('rejects dnsChecks item with non-`ok` status but populated count', async () => {
+    const path = join(dir, '001.geojson');
+    const bad = makeRoundFile(1, '2026-05-06T12:00:00Z') as RoundFile & {
+      roundInfo: { dnsChecks: unknown[] };
+    };
+    bad.roundInfo.dnsChecks = [
+      {
+        player: 'dan',
+        couldHaveEscaped: true,
+        best: null,
+        morphiorDbStatus: 'noMatch',
+        morphiorDbSubmissionCount: 5, // must be null when status !== 'ok'
+      },
+    ];
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(
+      readRound(path),
+      /morphiorDbSubmissionCount must be null/,
+    );
+  });
+
+  test('accepts ended round with empty dnsChecks (zero-DNS round)', async () => {
+    const path = join(dir, '001.geojson');
+    const ok = makeRoundFile(1, '2026-05-06T12:00:00Z');
+    await writeFile(path, JSON.stringify(ok));
+    const round = await readRound(path);
+    assert.deepEqual(round.roundInfo.dnsChecks, []);
+  });
+
+  test('accepts ended round with multiple dnsChecks items', async () => {
+    const path = join(dir, '001.geojson');
+    const okItem1 = {
+      player: 'dan',
+      couldHaveEscaped: false,
+      best: { point: [0, 0] as [number, number], distanceKm: 8500 },
+      morphiorDbStatus: 'ok' as const,
+      morphiorDbSubmissionCount: 3,
+    };
+    const okItem2 = {
+      player: 'eve',
+      couldHaveEscaped: true,
+      best: null,
+      morphiorDbStatus: 'unavailable' as const,
+      morphiorDbSubmissionCount: null,
+    };
+    const ok = {
+      type: 'FeatureCollection',
+      roundInfo: {
+        number: 1,
+        endedAt: '2026-05-06T12:00:00Z',
+        dnsChecks: [okItem1, okItem2],
+      },
+      features: [
+        {
+          type: 'Feature',
+          id: 'target',
+          geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
+          properties: { location: 'Río Negro, Argentina' },
+        },
+      ],
+    };
+    await writeFile(path, JSON.stringify(ok));
+    const round = await readRound(path);
+    assert.equal(round.roundInfo.dnsChecks?.length, 2);
+  });
 });
 
 describe('writeRoundAtomic', () => {
@@ -361,5 +559,172 @@ describe('findActiveRound / findLatestRound', () => {
     const active = await findActiveRound(dir);
     assert.equal(active?.entry.round, 2);
     assert.equal(active && endedAtOf(active.file), null);
+  });
+});
+
+function makeSubmission(
+  player: string,
+  coords: [number, number],
+): SubmissionFeature {
+  return {
+    type: 'Feature',
+    geometry: { type: 'Point', coordinates: coords },
+    properties: { player, distance: 0 },
+  };
+}
+
+function makeRoundWithSubmissions(
+  round: number,
+  endedAt: string | null,
+  subs: SubmissionFeature[],
+  eliminated: string[] = [],
+): RoundFile {
+  const stamped = endedAt ? withEliminated(subs, eliminated) : subs;
+  return {
+    type: 'FeatureCollection',
+    roundInfo: {
+      number: round,
+      endedAt,
+      ...(endedAt !== null ? { dnsChecks: [] } : {}),
+    },
+    features: [
+      {
+        type: 'Feature',
+        id: 'target',
+        geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
+        properties: { location: 'Río Negro, Argentina' },
+      },
+      ...stamped,
+    ],
+  };
+}
+
+describe('listSubmissionsForPlayer', () => {
+  test('empty rounds dir → []', async () => {
+    assert.deepEqual(await listSubmissionsForPlayer('alice', dir), []);
+  });
+
+  test('player with no historical submissions → []', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRoundWithSubmissions(
+        1,
+        '2026-05-06T12:00:00Z',
+        [makeSubmission('bob', [10, 20])],
+        ['bob'],
+      ),
+    );
+    assert.deepEqual(await listSubmissionsForPlayer('alice', dir), []);
+  });
+
+  test('player submitted in two ended rounds → both points in round-then-feature order', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRoundWithSubmissions(
+        1,
+        '2026-05-06T12:00:00Z',
+        [makeSubmission('alice', [10, 20]), makeSubmission('bob', [11, 21])],
+        ['bob'],
+      ),
+    );
+    await writeRoundAtomic(
+      roundPath(2, dir),
+      makeRoundWithSubmissions(
+        2,
+        '2026-05-06T13:00:00Z',
+        [makeSubmission('alice', [12, 22])],
+        ['alice'],
+      ),
+    );
+
+    assert.deepEqual(await listSubmissionsForPlayer('alice', dir), [
+      [10, 20],
+      [12, 22],
+    ]);
+  });
+
+  test('excludeRound filters out the named round', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRoundWithSubmissions(
+        1,
+        '2026-05-06T12:00:00Z',
+        [makeSubmission('alice', [10, 20])],
+        ['alice'],
+      ),
+    );
+    await writeRoundAtomic(
+      roundPath(2, dir),
+      makeRoundWithSubmissions(
+        2,
+        '2026-05-06T13:00:00Z',
+        [makeSubmission('alice', [12, 22])],
+        ['alice'],
+      ),
+    );
+
+    assert.deepEqual(
+      await listSubmissionsForPlayer('alice', dir, { excludeRound: 2 }),
+      [[10, 20]],
+    );
+  });
+
+  test('in-progress rounds are excluded from history', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRoundWithSubmissions(
+        1,
+        '2026-05-06T12:00:00Z',
+        [makeSubmission('alice', [10, 20])],
+        ['alice'],
+      ),
+    );
+    await writeRoundAtomic(
+      roundPath(2, dir),
+      makeRoundWithSubmissions(2, null, [makeSubmission('alice', [99, 99])]),
+    );
+
+    assert.deepEqual(await listSubmissionsForPlayer('alice', dir), [[10, 20]]);
+  });
+
+  test('duplicate submissions across rounds appear twice (caller dedupes if desired)', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRoundWithSubmissions(
+        1,
+        '2026-05-06T12:00:00Z',
+        [makeSubmission('alice', [5, 5])],
+        ['alice'],
+      ),
+    );
+    await writeRoundAtomic(
+      roundPath(2, dir),
+      makeRoundWithSubmissions(
+        2,
+        '2026-05-06T13:00:00Z',
+        [makeSubmission('alice', [5, 5])],
+        ['alice'],
+      ),
+    );
+
+    assert.deepEqual(await listSubmissionsForPlayer('alice', dir), [
+      [5, 5],
+      [5, 5],
+    ]);
+  });
+
+  test('player-name comparison is byte-exact (case-sensitive)', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRoundWithSubmissions(
+        1,
+        '2026-05-06T12:00:00Z',
+        [makeSubmission('Alice', [10, 20])],
+        ['Alice'],
+      ),
+    );
+
+    assert.deepEqual(await listSubmissionsForPlayer('alice', dir), []);
+    assert.deepEqual(await listSubmissionsForPlayer('Alice', dir), [[10, 20]]);
   });
 });
