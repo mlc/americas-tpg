@@ -1,14 +1,11 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, mock, test } from 'node:test';
 import { createRandomOrgRng } from '../src/rng-random-org.ts';
+import { mockGlobalFetch, statusResponse } from './test-helpers.ts';
 
 afterEach(() => {
   mock.restoreAll();
 });
-
-function stubFetch(impl: typeof globalThis.fetch) {
-  return mock.method(globalThis, 'fetch', impl);
-}
 
 function bodyOf(values: number[]): string {
   return `${values.map((v) => v.toFixed(20)).join('\n')}\n`;
@@ -16,8 +13,8 @@ function bodyOf(values: number[]): string {
 
 describe('createRandomOrgRng — happy path', () => {
   test('first next() fetches once and returns the first value', async () => {
-    const fetchMock = stubFetch(
-      async () => new Response(bodyOf([0.1, 0.2, 0.3])),
+    const fetchMock = mockGlobalFetch(
+      () => new Response(bodyOf([0.1, 0.2, 0.3])),
     );
     const rng = createRandomOrgRng();
     assert.equal(await rng.next(), 0.1);
@@ -25,8 +22,8 @@ describe('createRandomOrgRng — happy path', () => {
   });
 
   test('subsequent next() calls drain the buffer without re-fetching', async () => {
-    const fetchMock = stubFetch(
-      async () => new Response(bodyOf([0.1, 0.2, 0.3])),
+    const fetchMock = mockGlobalFetch(
+      () => new Response(bodyOf([0.1, 0.2, 0.3])),
     );
     const rng = createRandomOrgRng();
     assert.equal(await rng.next(), 0.1);
@@ -38,7 +35,7 @@ describe('createRandomOrgRng — happy path', () => {
   test('refetches when the buffer empties', async () => {
     const responses = [bodyOf([0.5]), bodyOf([0.7, 0.8])];
     let i = 0;
-    const fetchMock = stubFetch(async () => new Response(responses[i++]));
+    const fetchMock = mockGlobalFetch(() => new Response(responses[i++]));
     const rng = createRandomOrgRng();
     assert.equal(await rng.next(), 0.5);
     assert.equal(fetchMock.mock.callCount(), 1);
@@ -49,7 +46,7 @@ describe('createRandomOrgRng — happy path', () => {
   });
 
   test('hits the configured endpoint with the expected query parameters', async () => {
-    const fetchMock = stubFetch(async () => new Response(bodyOf([0.42])));
+    const fetchMock = mockGlobalFetch(() => new Response(bodyOf([0.42])));
     await createRandomOrgRng().next();
     const url = String(fetchMock.mock.calls[0].arguments[0]);
     assert.match(url, /^https:\/\/www\.random\.org\/decimal-fractions\//);
@@ -61,12 +58,10 @@ describe('createRandomOrgRng — happy path', () => {
 
 describe('createRandomOrgRng — error handling', () => {
   test('non-2xx response → descriptive error including status', async () => {
-    stubFetch(
-      async () =>
-        new Response('rate limited bro', {
-          status: 503,
-          statusText: 'Service Unavailable',
-        }),
+    mockGlobalFetch(() =>
+      statusResponse(503, 'rate limited bro', {
+        statusText: 'Service Unavailable',
+      }),
     );
     await assert.rejects(
       createRandomOrgRng().next(),
@@ -75,17 +70,17 @@ describe('createRandomOrgRng — error handling', () => {
   });
 
   test('empty body → unparseable error', async () => {
-    stubFetch(async () => new Response('   \n  \n'));
+    mockGlobalFetch(() => new Response('   \n  \n'));
     await assert.rejects(createRandomOrgRng().next(), /unparseable response/);
   });
 
   test('non-numeric body → unparseable error', async () => {
-    stubFetch(async () => new Response('not-a-number\nalso-bad\n'));
+    mockGlobalFetch(() => new Response('not-a-number\nalso-bad\n'));
     await assert.rejects(createRandomOrgRng().next(), /unparseable response/);
   });
 
   test('TimeoutError surfaces as a "timed out" error', async () => {
-    stubFetch(async () => {
+    mockGlobalFetch(() => {
       const err = new Error('aborted');
       err.name = 'TimeoutError';
       throw err;
@@ -97,7 +92,7 @@ describe('createRandomOrgRng — error handling', () => {
   });
 
   test('other transport failures are wrapped with "(transport)"', async () => {
-    stubFetch(async () => {
+    mockGlobalFetch(() => {
       throw new Error('ECONNREFUSED');
     });
     await assert.rejects(

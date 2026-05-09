@@ -5,6 +5,7 @@ import {
   type MorphiorClientOptions,
   openMorphiorClient,
 } from '../src/morphiordb.ts';
+import { jsonResponse, makeFetchStub, statusResponse } from './test-helpers.ts';
 
 const ANZA = {
   discord_id: '986253216096342107',
@@ -20,23 +21,6 @@ const TENDER = {
   aliases: ['TENDERMAN96 | xo mobile 100%', 'tenderman96'],
 };
 
-function jsonResponse(value: unknown, init: ResponseInit = {}): Response {
-  return new Response(JSON.stringify(value), {
-    status: 200,
-    headers: { 'content-type': 'application/json' },
-    ...init,
-  });
-}
-
-function statusResponse(status: number, body = ''): Response {
-  return new Response(body, { status });
-}
-
-function stubFetch(handler: (url: string) => Response): typeof fetch {
-  return async (input) =>
-    handler(typeof input === 'string' ? input : String(input));
-}
-
 function makeClient(
   handler: (url: string) => Response,
   overrides: MorphiorClientOptions = {},
@@ -44,7 +28,7 @@ function makeClient(
   return openMorphiorClient({
     baseUrl: 'https://example.test/api',
     timeoutMs: 1_000,
-    fetchImpl: stubFetch(handler),
+    fetchImpl: makeFetchStub(handler),
     ...overrides,
   });
 }
