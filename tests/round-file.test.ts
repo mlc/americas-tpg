@@ -26,7 +26,11 @@ function makeRoundFile(
 ): RoundFile {
   return {
     type: 'FeatureCollection',
-    roundInfo: { number: round, endedAt },
+    roundInfo: {
+      number: round,
+      endedAt,
+      ...(endedAt !== null ? { dnsChecks: [] } : {}),
+    },
     features: [
       {
         type: 'Feature',
@@ -318,6 +322,195 @@ describe('readRound', () => {
     const round = await readRound(path);
     assert.equal(round.features.length, 3);
   });
+
+  // dnsChecks invariant tests (U6).
+  test('rejects in-progress round whose roundInfo carries `dnsChecks`', async () => {
+    const path = join(dir, '001.geojson');
+    const bad = makeRoundFile(1, null) as RoundFile & {
+      roundInfo: { dnsChecks?: unknown };
+    };
+    bad.roundInfo.dnsChecks = [];
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(
+      readRound(path),
+      /must not be present on in-progress rounds/,
+    );
+  });
+
+  test('rejects ended round missing `dnsChecks`', async () => {
+    const path = join(dir, '001.geojson');
+    await writeFile(
+      path,
+      JSON.stringify({
+        type: 'FeatureCollection',
+        roundInfo: { number: 1, endedAt: '2026-05-06T12:00:00Z' },
+        features: [
+          {
+            type: 'Feature',
+            id: 'target',
+            geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
+            properties: { location: 'Río Negro, Argentina' },
+          },
+        ],
+      }),
+    );
+    await assert.rejects(readRound(path), /dnsChecks is required on ended/);
+  });
+
+  test('rejects ended round whose `dnsChecks` is not an array', async () => {
+    const path = join(dir, '001.geojson');
+    const bad = makeRoundFile(1, '2026-05-06T12:00:00Z') as RoundFile & {
+      roundInfo: { dnsChecks: unknown };
+    };
+    // biome-ignore lint/suspicious/noExplicitAny: deliberately invalid fixture
+    (bad.roundInfo as any).dnsChecks = { not: 'an array' };
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(readRound(path), /dnsChecks must be an array/);
+  });
+
+  test('rejects dnsChecks item missing required field', async () => {
+    const path = join(dir, '001.geojson');
+    // Bypass DnsCheck typing — fixture is deliberately malformed.
+    const bad = {
+      type: 'FeatureCollection',
+      roundInfo: {
+        number: 1,
+        endedAt: '2026-05-06T12:00:00Z',
+        dnsChecks: [
+          {
+            player: 'dan',
+            couldHaveEscaped: false,
+            bestPoint: [0, 0],
+            bestDistanceKm: 100,
+            // missing morphiorDbStatus, morphiorDbSubmissionCount
+          },
+        ],
+      },
+      features: [
+        {
+          type: 'Feature',
+          id: 'target',
+          geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
+          properties: { location: 'Río Negro, Argentina' },
+        },
+      ],
+    };
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(readRound(path), /morphiorDbStatus must be one of/);
+  });
+
+  test('rejects dnsChecks item with bestPoint/bestDistanceKm disagreement', async () => {
+    const path = join(dir, '001.geojson');
+    const bad = makeRoundFile(1, '2026-05-06T12:00:00Z') as RoundFile & {
+      roundInfo: { dnsChecks: unknown[] };
+    };
+    bad.roundInfo.dnsChecks = [
+      {
+        player: 'dan',
+        couldHaveEscaped: true,
+        bestPoint: null,
+        bestDistanceKm: 50, // populated while bestPoint is null
+        morphiorDbStatus: 'notFound',
+        morphiorDbSubmissionCount: null,
+      },
+    ];
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(
+      readRound(path),
+      /bestDistanceKm and bestPoint must agree/,
+    );
+  });
+
+  test('rejects dnsChecks item with `ok` status but null submission count', async () => {
+    const path = join(dir, '001.geojson');
+    const bad = makeRoundFile(1, '2026-05-06T12:00:00Z') as RoundFile & {
+      roundInfo: { dnsChecks: unknown[] };
+    };
+    bad.roundInfo.dnsChecks = [
+      {
+        player: 'dan',
+        couldHaveEscaped: false,
+        bestPoint: [0, 0],
+        bestDistanceKm: 100,
+        morphiorDbStatus: 'ok',
+        morphiorDbSubmissionCount: null, // must be a non-negative integer
+      },
+    ];
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(
+      readRound(path),
+      /morphiorDbSubmissionCount must be a non-negative integer/,
+    );
+  });
+
+  test('rejects dnsChecks item with non-`ok` status but populated count', async () => {
+    const path = join(dir, '001.geojson');
+    const bad = makeRoundFile(1, '2026-05-06T12:00:00Z') as RoundFile & {
+      roundInfo: { dnsChecks: unknown[] };
+    };
+    bad.roundInfo.dnsChecks = [
+      {
+        player: 'dan',
+        couldHaveEscaped: true,
+        bestPoint: null,
+        bestDistanceKm: null,
+        morphiorDbStatus: 'notFound',
+        morphiorDbSubmissionCount: 5, // must be null when status !== 'ok'
+      },
+    ];
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(
+      readRound(path),
+      /morphiorDbSubmissionCount must be null/,
+    );
+  });
+
+  test('accepts ended round with empty dnsChecks (zero-DNS round)', async () => {
+    const path = join(dir, '001.geojson');
+    const ok = makeRoundFile(1, '2026-05-06T12:00:00Z');
+    await writeFile(path, JSON.stringify(ok));
+    const round = await readRound(path);
+    assert.deepEqual(round.roundInfo.dnsChecks, []);
+  });
+
+  test('accepts ended round with multiple dnsChecks items', async () => {
+    const path = join(dir, '001.geojson');
+    const okItem1 = {
+      player: 'dan',
+      couldHaveEscaped: false,
+      bestPoint: [0, 0] as [number, number],
+      bestDistanceKm: 8500,
+      morphiorDbStatus: 'ok' as const,
+      morphiorDbSubmissionCount: 3,
+    };
+    const okItem2 = {
+      player: 'eve',
+      couldHaveEscaped: true,
+      bestPoint: null,
+      bestDistanceKm: null,
+      morphiorDbStatus: 'unavailable' as const,
+      morphiorDbSubmissionCount: null,
+    };
+    const ok = {
+      type: 'FeatureCollection',
+      roundInfo: {
+        number: 1,
+        endedAt: '2026-05-06T12:00:00Z',
+        dnsChecks: [okItem1, okItem2],
+      },
+      features: [
+        {
+          type: 'Feature',
+          id: 'target',
+          geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
+          properties: { location: 'Río Negro, Argentina' },
+        },
+      ],
+    };
+    await writeFile(path, JSON.stringify(ok));
+    const round = await readRound(path);
+    assert.equal(round.roundInfo.dnsChecks?.length, 2);
+  });
 });
 
 describe('writeRoundAtomic', () => {
@@ -390,7 +583,11 @@ function makeRoundWithSubmissions(
   const stamped = endedAt ? withEliminated(subs, eliminated) : subs;
   return {
     type: 'FeatureCollection',
-    roundInfo: { number: round, endedAt },
+    roundInfo: {
+      number: round,
+      endedAt,
+      ...(endedAt !== null ? { dnsChecks: [] } : {}),
+    },
     features: [
       {
         type: 'Feature',

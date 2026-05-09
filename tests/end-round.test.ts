@@ -8,6 +8,7 @@ import { createRound } from '../src/create-round.ts';
 import { endRound } from '../src/end-round.ts';
 import type { MorphiorClient } from '../src/morphiordb.ts';
 import type {
+  DnsCheck,
   RoundFile,
   SubmissionFeature,
   TargetFeature,
@@ -72,10 +73,15 @@ function makeRound(
   round: number,
   endedAt: string | null,
   submissions: SubmissionFeature[] = [],
+  dnsChecks: DnsCheck[] = [],
 ): RoundFile {
   return {
     type: 'FeatureCollection',
-    roundInfo: { number: round, endedAt },
+    roundInfo: {
+      number: round,
+      endedAt,
+      ...(endedAt !== null ? { dnsChecks } : {}),
+    },
     features: [makeArgentinaTarget(), ...submissions],
   };
 }

@@ -243,6 +243,7 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
   ) {
     fail('roundInfo.language must be a string when present');
   }
+  validateRoundInfoDnsChecks(roundInfo, endedAt !== null, fail);
   if (!Array.isArray(obj.features)) fail('features must be an array');
   const features = obj.features as unknown[];
   if (features.length === 0) {
@@ -319,4 +320,94 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
     }
   }
   return data as RoundFile;
+}
+
+const VALID_MORPHIOR_STATUSES = new Set([
+  'ok',
+  'notFound',
+  'ambiguous',
+  'unavailable',
+]);
+
+function validateRoundInfoDnsChecks(
+  roundInfo: Record<string, unknown>,
+  isEnded: boolean,
+  fail: (msg: string) => never,
+): void {
+  if (!isEnded) {
+    if ('dnsChecks' in roundInfo) {
+      fail(
+        'roundInfo.dnsChecks must not be present on in-progress rounds (endedAt: null)',
+      );
+    }
+    return;
+  }
+  if (!('dnsChecks' in roundInfo)) {
+    fail('roundInfo.dnsChecks is required on ended rounds');
+  }
+  const checks = roundInfo.dnsChecks;
+  if (!Array.isArray(checks)) {
+    fail('roundInfo.dnsChecks must be an array');
+  }
+  checks.forEach((entry, idx) => {
+    if (!entry || typeof entry !== 'object') {
+      fail(`roundInfo.dnsChecks[${idx}] must be an object`);
+    }
+    const e = entry as Record<string, unknown>;
+    if (typeof e.player !== 'string' || e.player.trim() === '') {
+      fail(`roundInfo.dnsChecks[${idx}].player must be a non-empty string`);
+    }
+    if (typeof e.couldHaveEscaped !== 'boolean') {
+      fail(`roundInfo.dnsChecks[${idx}].couldHaveEscaped must be a boolean`);
+    }
+    const bestDistanceKm = e.bestDistanceKm;
+    const bestPoint = e.bestPoint;
+    const bestDistOk =
+      bestDistanceKm === null ||
+      (typeof bestDistanceKm === 'number' && Number.isFinite(bestDistanceKm));
+    if (!bestDistOk) {
+      fail(
+        `roundInfo.dnsChecks[${idx}].bestDistanceKm must be a finite number or null`,
+      );
+    }
+    const bestPointOk =
+      bestPoint === null ||
+      (Array.isArray(bestPoint) &&
+        bestPoint.length >= 2 &&
+        typeof bestPoint[0] === 'number' &&
+        Number.isFinite(bestPoint[0]) &&
+        typeof bestPoint[1] === 'number' &&
+        Number.isFinite(bestPoint[1]));
+    if (!bestPointOk) {
+      fail(
+        `roundInfo.dnsChecks[${idx}].bestPoint must be a [lon, lat] array of finite numbers or null`,
+      );
+    }
+    if ((bestDistanceKm === null) !== (bestPoint === null)) {
+      fail(
+        `roundInfo.dnsChecks[${idx}]: bestDistanceKm and bestPoint must agree (both null or both populated)`,
+      );
+    }
+    if (
+      typeof e.morphiorDbStatus !== 'string' ||
+      !VALID_MORPHIOR_STATUSES.has(e.morphiorDbStatus)
+    ) {
+      fail(
+        `roundInfo.dnsChecks[${idx}].morphiorDbStatus must be one of ok | notFound | ambiguous | unavailable`,
+      );
+    }
+    const count = e.morphiorDbSubmissionCount;
+    const isOk = e.morphiorDbStatus === 'ok';
+    if (isOk) {
+      if (typeof count !== 'number' || !Number.isInteger(count) || count < 0) {
+        fail(
+          `roundInfo.dnsChecks[${idx}].morphiorDbSubmissionCount must be a non-negative integer when morphiorDbStatus === 'ok'`,
+        );
+      }
+    } else if (count !== null) {
+      fail(
+        `roundInfo.dnsChecks[${idx}].morphiorDbSubmissionCount must be null when morphiorDbStatus !== 'ok'`,
+      );
+    }
+  });
 }

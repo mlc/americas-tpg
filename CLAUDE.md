@@ -121,6 +121,45 @@ the file validator alone considers an in-progress round well-formed).
 The function `eligibleForNextRound` was removed when this flag was
 introduced; there is no longer a recompute path on the consumer side.
 
+### Honest-DNS save rule (load-bearing)
+
+`endRound` runs an anti-griefing rule on top of standard elimination:
+when a did-not-submit player could not realistically have escaped
+elimination — judged from their submission history in this game's prior
+rounds plus the MorphiorDB API at `https://tpg.marsmathis.com/api` — the
+actual last-place submitter(s) are spared instead. The rule's per-DNS
+findings persist as `roundInfo.dnsChecks` (an array of `DnsCheck` items
+defined in `round-domain.ts`):
+
+- Each item carries `player`, `couldHaveEscaped` (boolean), `bestPoint`
+  (`[lon, lat]` or null), `bestDistanceKm` (finite number or null),
+  `morphiorDbStatus` (`ok | notFound | ambiguous | unavailable`), and
+  `morphiorDbSubmissionCount` (non-negative integer when status is `ok`,
+  null otherwise).
+- `bestPoint` and `bestDistanceKm` agree: both null (no history available
+  anywhere) or both populated.
+- The escape predicate is `bestDistanceKm < currentMaxKm − TIE_BUFFER_KM`
+  — strict `<`, mirroring `eliminationsForRound`'s tie-buffer math so the
+  boundary aligns exactly.
+- Anti-ghost: a player with zero historical submissions across both
+  sources is treated as `couldHaveEscaped: true` and never triggers a
+  save (prevents new accounts from gaming the rule by ducking rounds
+  before establishing history).
+- Save logic is binary across multiple DNS: any single honest-DNS player
+  triggers saving the actual last-place submitter(s); multiple honest-DNS
+  do not compound — only one save event per round.
+- MorphiorDB unavailability degrades gracefully to local-only history;
+  the per-DNS check records `morphiorDbStatus: 'unavailable'` and the
+  round closes normally.
+
+`validateRoundFile` enforces presence-iff-ended on `roundInfo.dnsChecks`:
+in-progress rounds (`endedAt: null`) MUST NOT carry the field; ended
+rounds MUST carry it as an array (possibly empty). `endRound`'s re-end
+branch reads `roundInfo.dnsChecks` from disk and computes the saved-set
+as `eliminationsForRound(current)` minus `eliminationsFromFlags(current)`
+without re-querying MorphiorDB — re-end is deterministic and produces
+identical output text.
+
 ### Coordinate precision (load-bearing)
 
 Sampled targets are rounded to **5 decimal places** (~1.1 m at the equator) by `round5` in `create-round.ts` *before* `gadm.lookup` runs, so the persisted coordinates and the polygon they were classified against agree byte-for-byte. `formatCoords` in `format.ts` uses `.toFixed(5)` for matching display precision. The two numbers must stay coupled — if you change one, change the other. Submitter coordinates are not rounded; only the sampled target is. The Google Maps `query=lat,lon` parameter in `formatTargetDiscord` uses the raw stored numbers, so `-42.5` stays `-42.5` rather than `-42.50000` — that's intentional.
