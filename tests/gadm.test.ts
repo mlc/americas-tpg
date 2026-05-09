@@ -57,11 +57,18 @@ describe('openGadm.lookup — real GADM 4.10 fixture', {
     assert.deepEqual(gadm.lookup([-90, 0]), { kind: 'ocean' });
   });
 
-  test('Kansas point → mainland-us', () => {
+  test('Kansas point → rejected (USA)', () => {
     const result = gadm.lookup([-99, 39]);
-    assert.equal(result.kind, 'mainland-us');
-    if (result.kind !== 'mainland-us') return;
+    assert.equal(result.kind, 'rejected');
+    if (result.kind !== 'rejected') return;
     assert.equal(result.feature.properties.gid_0, 'USA');
+  });
+
+  test('South Georgia point → rejected (SGS)', () => {
+    const result = gadm.lookup([-36.5, -54.28]);
+    assert.equal(result.kind, 'rejected');
+    if (result.kind !== 'rejected') return;
+    assert.equal(result.feature.properties.gid_0, 'SGS');
   });
 
   test('Argentina point → accept with country/level1 populated', () => {
@@ -73,7 +80,7 @@ describe('openGadm.lookup — real GADM 4.10 fixture', {
     assert.ok(result.feature.properties.name_1.length > 0);
   });
 
-  test('Puerto Rico is accepted as its own country (gid_0=PRI), not mainland-us', () => {
+  test('Puerto Rico is accepted as its own country (gid_0=PRI), not rejected', () => {
     const result = gadm.lookup([-66.1, 18.4]);
     assert.equal(result.kind, 'accept');
     if (result.kind !== 'accept') return;
@@ -122,6 +129,9 @@ describe('openGadm.candidateCountries — real GADM 4.10 fixture', {
     assert.ok(gids.includes('USA'));
     assert.ok(gids.includes('PRI'));
     assert.ok(gids.includes('VIR'));
+    // SGS is enumerated by candidateCountries (it has vertices in the band);
+    // list-countries.ts filters it out via REJECTED_GIDS, just like USA.
+    assert.ok(gids.includes('SGS'));
     assert.equal(new Set(gids).size, gids.length, 'gid_0 should be unique');
     const names = countries.map((c) => c.name_0);
     const sorted = [...names].sort((a, b) => a.localeCompare(b));

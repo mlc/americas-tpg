@@ -1,14 +1,15 @@
 import { parseArgs } from 'node:util';
 import { isMain } from './cli-helpers.ts';
-import { openGadm } from './gadm.ts';
+import { openGadm, REJECTED_GIDS } from './gadm.ts';
 import { SAMPLING_BBOX } from './sampler.ts';
 
 const USAGE = `Usage: yarn list-countries
 
 Prints every country (GID_0  NAME_0) whose GADM bounding box intersects the
-sampler's Americas-shaped band, excluding mainland USA. The list is potentially
-over-inclusive at the margins: bbox intersection is a necessary but not
-sufficient condition for a sampled point to actually land in the country.
+sampler's Americas-shaped band, excluding mainland USA and South Georgia/SSI.
+The list is potentially over-inclusive at the margins: bbox intersection is a
+necessary but not sufficient condition for a sampled point to actually land in
+the country.
 
 Options:
   -h, --help  Show this message
@@ -36,7 +37,7 @@ async function main(): Promise<void> {
   try {
     const countries = gadm
       .candidateCountries(SAMPLING_BBOX)
-      .filter((c) => c.gid_0 !== 'USA');
+      .filter((c) => !REJECTED_GIDS.has(c.gid_0));
     for (const { gid_0, name_0 } of countries) {
       process.stdout.write(`${gid_0}  ${name_0}\n`);
     }

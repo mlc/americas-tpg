@@ -9,6 +9,12 @@ const BBOX_EPSILON = 1e-6;
 // country-level entities (GID_0 = 'PRI' and 'VIR'), not children of 'USA'.
 // Rejecting GID_0 === 'USA' therefore accepts them automatically.
 
+// Countries excluded from round selection. USA is excluded by design (the
+// game is about the rest of the Americas). SGS (South Georgia and the
+// South Sandwich Islands) is excluded because the game's southern limit
+// is conceptually the Antarctic Convergence, which runs north of SGS.
+export const REJECTED_GIDS: ReadonlySet<string> = new Set(['USA', 'SGS']);
+
 export interface GadmProperties {
   gid_0: string;
   name_0: string;
@@ -19,7 +25,7 @@ export interface GadmProperties {
 export type LookupResult =
   | { kind: 'ocean' }
   | {
-      kind: 'mainland-us';
+      kind: 'rejected';
       feature: Feature<Polygon | MultiPolygon, GadmProperties>;
     }
   | {
@@ -164,8 +170,8 @@ export async function openGadm(path?: string): Promise<GadmHandle> {
         const feature = parseFeature(fid, row);
         if (!feature) continue;
         if (!booleanPointInPolygon(point, feature.geometry)) continue;
-        if (feature.properties.gid_0 === 'USA') {
-          return { kind: 'mainland-us', feature };
+        if (REJECTED_GIDS.has(feature.properties.gid_0)) {
+          return { kind: 'rejected', feature };
         }
         return { kind: 'accept', feature };
       }
