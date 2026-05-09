@@ -120,20 +120,22 @@ export function applyDnsSaveRule(
  */
 export interface DnsCheck {
   player: string;
-  bestPoint: Position | null;
-  bestDistanceKm: number | null;
+  /** The closest historical submission to the current target — its
+   * `[lon, lat]` and `distanceKm` — or `null` when the player has no
+   * available history (anti-ghost case). The pair is structurally bundled
+   * so the type system enforces the "both populated or both null" invariant. */
+  best: { point: Position; distanceKm: number } | null;
   couldHaveEscaped: boolean;
-  morphiorDbStatus: 'ok' | 'notFound' | 'ambiguous' | 'unavailable';
-  /** Non-negative integer when status === 'ok'; null otherwise. Distinguishes
-   * "ok with N submissions" from "ok with zero submissions" without overloading
-   * `notFound` for a Discord ID that simply has no data. */
+  /** `ok` — exactly one MorphiorDB record matched and submissions fetched;
+   * `noMatch` — zero or multiple exact matches (the rule falls back to
+   * local-only history either way); `unavailable` — any HTTP / network /
+   * parse failure. The two non-`ok` outcomes are behaviorally identical
+   * for the rule but kept distinct for operator audits. */
+  morphiorDbStatus: 'ok' | 'noMatch' | 'unavailable';
+  /** Parse-survivor count of submission rows when status === 'ok'; null
+   * otherwise. Reflects rows the parser kept (with finite lat/lon), not
+   * raw API row count — see CLAUDE.md "Honest-DNS save rule" subsection. */
   morphiorDbSubmissionCount: number | null;
-}
-
-export interface DnsCheckEvaluation {
-  bestPoint: Position | null;
-  bestDistanceKm: number | null;
-  couldHaveEscaped: boolean;
 }
 
 /**
@@ -152,9 +154,9 @@ export function evaluateDnsCheck(
   target: Position,
   points: readonly Position[],
   currentMaxKm: number,
-): DnsCheckEvaluation {
+): Pick<DnsCheck, 'best' | 'couldHaveEscaped'> {
   if (points.length === 0) {
-    return { bestPoint: null, bestDistanceKm: null, couldHaveEscaped: true };
+    return { best: null, couldHaveEscaped: true };
   }
   let bestPoint = points[0];
   let bestDistanceKm = distance(target, bestPoint, { units: 'kilometers' });
@@ -166,8 +168,7 @@ export function evaluateDnsCheck(
     }
   }
   return {
-    bestPoint,
-    bestDistanceKm,
+    best: { point: bestPoint, distanceKm: bestDistanceKm },
     couldHaveEscaped: bestDistanceKm < currentMaxKm - TIE_BUFFER_KM,
   };
 }

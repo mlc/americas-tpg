@@ -206,3 +206,37 @@ export async function openGadm(path?: string): Promise<GadmHandle> {
     },
   };
 }
+
+/**
+ * Resolves a `[lon, lat]` to a human-readable region label
+ * (e.g. "Río Negro, Argentina"), or `null` for ocean / unresolved points.
+ * Used by `submit-round` and `end-round` to decorate output with location
+ * names. Tests inject a stub implementation to avoid GADM I/O.
+ */
+export type LookupLocation = (position: Position) => string | null;
+
+/**
+ * Build a `LookupLocation` backed by an open `GadmHandle`. The caller
+ * owns the handle's lifecycle (open in `main()`, `close()` in a `finally`).
+ */
+export function makeGadmLookupLocation(gadm: GadmHandle): LookupLocation {
+  return (position) => {
+    const result = gadm.lookup(position);
+    if (result.kind === 'ocean') return null;
+    return formatLocationFromProperties({
+      name_0: result.feature.properties.name_0,
+      name_1: result.feature.properties.name_1,
+    });
+  };
+}
+
+function formatLocationFromProperties(props: {
+  name_0?: string | null;
+  name_1?: string | null;
+}): string | null {
+  // Local copy of `formatLocation` semantics that doesn't depend on
+  // round-domain — keeps gadm.ts free of round-domain imports.
+  if (!props.name_0) return null;
+  if (props.name_1) return `${props.name_1}, ${props.name_0}`;
+  return props.name_0;
+}

@@ -9,15 +9,27 @@ export type MorphiorErrorKind = 'timeout' | 'status' | 'parse' | 'transport';
  * Error type for MorphiorDB client failures. Tagged via `.kind` so callers
  * can discriminate without parsing message strings.
  */
-export interface MorphiorDbError extends Error {
-  kind: MorphiorErrorKind;
-  status?: number;
+export class MorphiorDbError extends Error {
+  readonly kind: MorphiorErrorKind;
+  readonly status: number | undefined;
+
+  constructor(
+    kind: MorphiorErrorKind,
+    message: string,
+    options: { status?: number; cause?: unknown } = {},
+  ) {
+    super(
+      message,
+      options.cause !== undefined ? { cause: options.cause } : undefined,
+    );
+    this.name = 'MorphiorDbError';
+    this.kind = kind;
+    this.status = options.status;
+  }
 }
 
 export function isMorphiorDbError(err: unknown): err is MorphiorDbError {
-  return (
-    err instanceof Error && typeof (err as MorphiorDbError).kind === 'string'
-  );
+  return err instanceof MorphiorDbError;
 }
 
 function makeError(
@@ -25,14 +37,7 @@ function makeError(
   message: string,
   options: { status?: number; cause?: unknown } = {},
 ): MorphiorDbError {
-  const err = new Error(
-    message,
-    options.cause !== undefined ? { cause: options.cause } : undefined,
-  ) as MorphiorDbError;
-  err.name = 'MorphiorDbError';
-  err.kind = kind;
-  if (options.status !== undefined) err.status = options.status;
-  return err;
+  return new MorphiorDbError(kind, message, options);
 }
 
 export interface MorphiorPlayer {
@@ -121,11 +126,15 @@ function isPlayerObject(value: unknown): value is MorphiorPlayer {
   return v.aliases.every((a) => typeof a === 'string');
 }
 
+function normalizeForCompare(s: string): string {
+  return s.normalize('NFC').toLocaleLowerCase();
+}
+
 function playerMatchesExact(player: MorphiorPlayer, query: string): boolean {
-  const q = query.toLocaleLowerCase();
-  if (player.canonical_name.toLocaleLowerCase() === q) return true;
-  if (player.name.toLocaleLowerCase() === q) return true;
-  return player.aliases.some((a) => a.toLocaleLowerCase() === q);
+  const q = normalizeForCompare(query);
+  if (normalizeForCompare(player.canonical_name) === q) return true;
+  if (normalizeForCompare(player.name) === q) return true;
+  return player.aliases.some((a) => normalizeForCompare(a) === q);
 }
 
 async function fetchJson(
@@ -161,7 +170,16 @@ async function fetchJson(
       { status: response.status },
     );
   }
-  const body = await response.text();
+  let body: string;
+  try {
+    body = await response.text();
+  } catch (cause) {
+    throw makeError(
+      'transport',
+      `morphiordb /${endpointLabel}: response body read failed: ${cause instanceof Error ? cause.message : String(cause)}`,
+      { cause },
+    );
+  }
   try {
     return JSON.parse(body);
   } catch (cause) {
