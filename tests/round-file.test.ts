@@ -3,16 +3,22 @@ import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, test } from 'node:test';
-import { endedAtOf, type RoundFile } from '../src/round-domain.ts';
+import {
+  endedAtOf,
+  type RoundFile,
+  type SubmissionFeature,
+} from '../src/round-domain.ts';
 import {
   findActiveRound,
   findLatestRound,
   listRoundFiles,
+  listSubmissionsForPlayer,
   parseRoundNumber,
   readRound,
   roundPath,
   writeRoundAtomic,
 } from '../src/round-file.ts';
+import { withEliminated } from './test-helpers.ts';
 
 function makeRoundFile(
   round: number,
@@ -361,5 +367,168 @@ describe('findActiveRound / findLatestRound', () => {
     const active = await findActiveRound(dir);
     assert.equal(active?.entry.round, 2);
     assert.equal(active && endedAtOf(active.file), null);
+  });
+});
+
+function makeSubmission(
+  player: string,
+  coords: [number, number],
+): SubmissionFeature {
+  return {
+    type: 'Feature',
+    geometry: { type: 'Point', coordinates: coords },
+    properties: { player, distance: 0 },
+  };
+}
+
+function makeRoundWithSubmissions(
+  round: number,
+  endedAt: string | null,
+  subs: SubmissionFeature[],
+  eliminated: string[] = [],
+): RoundFile {
+  const stamped = endedAt ? withEliminated(subs, eliminated) : subs;
+  return {
+    type: 'FeatureCollection',
+    roundInfo: { number: round, endedAt },
+    features: [
+      {
+        type: 'Feature',
+        id: 'target',
+        geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
+        properties: { location: 'Río Negro, Argentina' },
+      },
+      ...stamped,
+    ],
+  };
+}
+
+describe('listSubmissionsForPlayer', () => {
+  test('empty rounds dir → []', async () => {
+    assert.deepEqual(await listSubmissionsForPlayer('alice', dir), []);
+  });
+
+  test('player with no historical submissions → []', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRoundWithSubmissions(
+        1,
+        '2026-05-06T12:00:00Z',
+        [makeSubmission('bob', [10, 20])],
+        ['bob'],
+      ),
+    );
+    assert.deepEqual(await listSubmissionsForPlayer('alice', dir), []);
+  });
+
+  test('player submitted in two ended rounds → both points in round-then-feature order', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRoundWithSubmissions(
+        1,
+        '2026-05-06T12:00:00Z',
+        [makeSubmission('alice', [10, 20]), makeSubmission('bob', [11, 21])],
+        ['bob'],
+      ),
+    );
+    await writeRoundAtomic(
+      roundPath(2, dir),
+      makeRoundWithSubmissions(
+        2,
+        '2026-05-06T13:00:00Z',
+        [makeSubmission('alice', [12, 22])],
+        ['alice'],
+      ),
+    );
+
+    assert.deepEqual(await listSubmissionsForPlayer('alice', dir), [
+      [10, 20],
+      [12, 22],
+    ]);
+  });
+
+  test('excludeRound filters out the named round', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRoundWithSubmissions(
+        1,
+        '2026-05-06T12:00:00Z',
+        [makeSubmission('alice', [10, 20])],
+        ['alice'],
+      ),
+    );
+    await writeRoundAtomic(
+      roundPath(2, dir),
+      makeRoundWithSubmissions(
+        2,
+        '2026-05-06T13:00:00Z',
+        [makeSubmission('alice', [12, 22])],
+        ['alice'],
+      ),
+    );
+
+    assert.deepEqual(
+      await listSubmissionsForPlayer('alice', dir, { excludeRound: 2 }),
+      [[10, 20]],
+    );
+  });
+
+  test('in-progress rounds are excluded from history', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRoundWithSubmissions(
+        1,
+        '2026-05-06T12:00:00Z',
+        [makeSubmission('alice', [10, 20])],
+        ['alice'],
+      ),
+    );
+    await writeRoundAtomic(
+      roundPath(2, dir),
+      makeRoundWithSubmissions(2, null, [makeSubmission('alice', [99, 99])]),
+    );
+
+    assert.deepEqual(await listSubmissionsForPlayer('alice', dir), [[10, 20]]);
+  });
+
+  test('duplicate submissions across rounds appear twice (caller dedupes if desired)', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRoundWithSubmissions(
+        1,
+        '2026-05-06T12:00:00Z',
+        [makeSubmission('alice', [5, 5])],
+        ['alice'],
+      ),
+    );
+    await writeRoundAtomic(
+      roundPath(2, dir),
+      makeRoundWithSubmissions(
+        2,
+        '2026-05-06T13:00:00Z',
+        [makeSubmission('alice', [5, 5])],
+        ['alice'],
+      ),
+    );
+
+    assert.deepEqual(await listSubmissionsForPlayer('alice', dir), [
+      [5, 5],
+      [5, 5],
+    ]);
+  });
+
+  test('player-name comparison is byte-exact (case-sensitive)', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      makeRoundWithSubmissions(
+        1,
+        '2026-05-06T12:00:00Z',
+        [makeSubmission('Alice', [10, 20])],
+        ['Alice'],
+      ),
+    );
+
+    assert.deepEqual(await listSubmissionsForPlayer('alice', dir), []);
+    assert.deepEqual(await listSubmissionsForPlayer('Alice', dir), [[10, 20]]);
   });
 });

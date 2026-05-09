@@ -7,7 +7,8 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
-import { endedAtOf, type RoundFile } from './round-domain.ts';
+import type { Position } from 'geojson';
+import { endedAtOf, type RoundFile, submissionsOf } from './round-domain.ts';
 import { applySimplestyle } from './simplestyle.ts';
 
 export const DEFAULT_ROUNDS_DIR = 'rounds';
@@ -78,6 +79,41 @@ export async function findActiveRound(
   const latest = await findLatestRound(dir);
   if (!latest || endedAtOf(latest.file) !== null) return null;
   return latest;
+}
+
+/**
+ * Collect every submission point a named player has on disk across the
+ * game's ended rounds. In-progress rounds are skipped (they're not history
+ * yet); `excludeRound` skips the round currently closing so the round being
+ * ended doesn't bias its own DNS check.
+ *
+ * Returns one `[lon, lat]` per matching submission feature, in
+ * round-then-feature order. Duplicates are kept; min-distance-style
+ * consumers don't care.
+ *
+ * Player-name comparison is byte-exact, post-NFC — matching the
+ * `normalizePlayerName` identity model used elsewhere.
+ */
+export async function listSubmissionsForPlayer(
+  player: string,
+  dir: string = DEFAULT_ROUNDS_DIR,
+  opts: { excludeRound?: number } = {},
+): Promise<Position[]> {
+  const rounds = await listRoundFiles(dir);
+  const points: Position[] = [];
+  for (const entry of rounds) {
+    if (opts.excludeRound !== undefined && entry.round === opts.excludeRound) {
+      continue;
+    }
+    const round = await readRound(entry.path);
+    if (endedAtOf(round) === null) continue;
+    for (const sub of submissionsOf(round)) {
+      if (sub.properties.player === player) {
+        points.push(sub.geometry.coordinates);
+      }
+    }
+  }
+  return points;
 }
 
 export interface ResolveRoundOptions {
