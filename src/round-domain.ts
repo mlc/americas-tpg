@@ -19,6 +19,10 @@ export interface RoundInfo {
   number: number;
   endedAt: string | null;
   language?: string;
+  /** Per-DNS-player rule evaluations from the honest-DNS save rule.
+   * Present iff the round is ended; the validator enforces both directions
+   * (presence-iff-ended). See CLAUDE.md "Honest-DNS save rule" subsection. */
+  dnsChecks?: DnsCheck[];
 }
 
 export interface RoundFile {
@@ -74,6 +78,38 @@ export function eliminationsForRound(round: RoundFile): ReadonlySet<string> {
       .filter((s) => max - s.properties.distance < TIE_BUFFER_KM)
       .map((s) => s.properties.player),
   );
+}
+
+/**
+ * Read the round's eliminated set from persisted `eliminated === true` flags
+ * on submissions — the post-save-rule answer that's authoritative on disk.
+ * Used by `endRound`'s re-end branch and any other consumer that needs the
+ * after-rule eliminations once it's been stamped. The first-run branch still
+ * derives its initial eliminations from `eliminationsForRound`, then mutates
+ * the disk flags to reflect any save.
+ */
+export function eliminationsFromFlags(round: RoundFile): ReadonlySet<string> {
+  return new Set(
+    submissionsOf(round)
+      .filter((s) => s.properties.eliminated === true)
+      .map((s) => s.properties.player),
+  );
+}
+
+/**
+ * The honest-DNS save rule. Given the distance-derived elimination set and
+ * the per-DNS evaluations, return the set of submitters to spare. The set is
+ * non-empty iff at least one DNS player could not have escaped (an "honest
+ * DNS" who triggers the save). Spared players are exactly the round's
+ * distance-derived eliminations — the rule absorbs the round's elimination
+ * slot via the DNS instead.
+ */
+export function applyDnsSaveRule(
+  eliminations: ReadonlySet<string>,
+  dnsChecks: readonly DnsCheck[],
+): ReadonlySet<string> {
+  const honest = dnsChecks.some((c) => !c.couldHaveEscaped);
+  return honest ? new Set(eliminations) : new Set();
 }
 
 /**

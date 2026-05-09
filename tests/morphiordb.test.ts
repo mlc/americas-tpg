@@ -49,34 +49,34 @@ function makeClient(
   });
 }
 
-describe('openMorphiorClient — findPlayer', () => {
-  test('exact case-insensitive alias match returns the player', async () => {
+describe('openMorphiorClient — findPlayers', () => {
+  test('exact case-insensitive alias match returns the single player', async () => {
     const client = makeClient((url) => {
       assert.equal(url, 'https://example.test/api/players?q=anza');
       return jsonResponse([ANZA]);
     });
-    const result = await client.findPlayer('anza');
-    assert.deepEqual(result, ANZA);
+    const result = await client.findPlayers('anza');
+    assert.deepEqual(result, [ANZA]);
   });
 
-  test('exact case-insensitive name match returns the player', async () => {
+  test('exact case-insensitive name match returns the single player', async () => {
     const client = makeClient(() => jsonResponse([TENDER]));
-    const result = await client.findPlayer('TENDERMAN96 | xo mobile 100%');
-    assert.deepEqual(result, TENDER);
+    const result = await client.findPlayers('TENDERMAN96 | xo mobile 100%');
+    assert.deepEqual(result, [TENDER]);
   });
 
-  test('exact case-insensitive canonical_name match returns the player', async () => {
+  test('exact case-insensitive canonical_name match returns the single player', async () => {
     const client = makeClient(() => jsonResponse([ANZA]));
-    const result = await client.findPlayer('MOTIVATION0');
-    assert.deepEqual(result, ANZA);
+    const result = await client.findPlayers('MOTIVATION0');
+    assert.deepEqual(result, [ANZA]);
   });
 
-  test('empty result array → null', async () => {
+  test('empty result array → []', async () => {
     const client = makeClient(() => jsonResponse([]));
-    assert.equal(await client.findPlayer('Nonexistent'), null);
+    assert.deepEqual(await client.findPlayers('Nonexistent'), []);
   });
 
-  test('multiple results, none exact-matching → null', async () => {
+  test('multiple results, none exact-matching → []', async () => {
     // Players whose name/canonical_name/aliases all only fuzzy-match the query.
     const client = makeClient(() =>
       jsonResponse([
@@ -94,30 +94,31 @@ describe('openMorphiorClient — findPlayer', () => {
         },
       ]),
     );
-    assert.equal(await client.findPlayer('anza'), null);
+    assert.deepEqual(await client.findPlayers('anza'), []);
   });
 
-  test('multiple results, two exact matches → null (ambiguous)', async () => {
+  test('multiple results, two exact matches → length-2 array (ambiguous)', async () => {
     const client = makeClient(() =>
       jsonResponse([ANZA, { ...TENDER, name: 'Anza' }]),
     );
-    assert.equal(await client.findPlayer('Anza'), null);
+    const result = await client.findPlayers('Anza');
+    assert.equal(result.length, 2);
   });
 
-  test('substring match without exact match → null', async () => {
+  test('substring match without exact match → []', async () => {
     const client = makeClient(() => jsonResponse([ANZA]));
     // ?q=anz is a fuzzy prefix that the server returns Anza for, but our
     // strict filter requires the query equal canonical_name/name/alias.
-    assert.equal(await client.findPlayer('anz'), null);
+    assert.deepEqual(await client.findPlayers('anz'), []);
   });
 
-  test('empty / whitespace name → null without HTTP call', async () => {
+  test('empty / whitespace name → [] without HTTP call', async () => {
     let called = false;
     const client = makeClient(() => {
       called = true;
       return jsonResponse([]);
     });
-    assert.equal(await client.findPlayer('   '), null);
+    assert.deepEqual(await client.findPlayers('   '), []);
     assert.equal(called, false);
   });
 
@@ -128,12 +129,12 @@ describe('openMorphiorClient — findPlayer', () => {
         ANZA,
       ]),
     );
-    assert.deepEqual(await client.findPlayer('Anza'), ANZA);
+    assert.deepEqual(await client.findPlayers('Anza'), [ANZA]);
   });
 
   test('non-array response → MorphiorDbError(parse)', async () => {
     const client = makeClient(() => jsonResponse({ players: [] }));
-    await assert.rejects(client.findPlayer('Anza'), (err: unknown) => {
+    await assert.rejects(client.findPlayers('Anza'), (err: unknown) => {
       assert.ok(isMorphiorDbError(err));
       assert.equal(err.kind, 'parse');
       return true;
@@ -195,7 +196,7 @@ describe('openMorphiorClient — fetchSubmissions', () => {
 describe('openMorphiorClient — error mapping', () => {
   test('HTTP 500 → MorphiorDbError(status) with status code', async () => {
     const client = makeClient(() => statusResponse(500, 'boom'));
-    await assert.rejects(client.findPlayer('Anza'), (err: unknown) => {
+    await assert.rejects(client.findPlayers('Anza'), (err: unknown) => {
       assert.ok(isMorphiorDbError(err));
       assert.equal(err.kind, 'status');
       assert.equal(err.status, 500);
@@ -217,7 +218,7 @@ describe('openMorphiorClient — error mapping', () => {
     const client = makeClient(
       () => new Response('{ not json', { status: 200 }),
     );
-    await assert.rejects(client.findPlayer('Anza'), (err: unknown) => {
+    await assert.rejects(client.findPlayers('Anza'), (err: unknown) => {
       assert.ok(isMorphiorDbError(err));
       assert.equal(err.kind, 'parse');
       return true;
@@ -228,7 +229,7 @@ describe('openMorphiorClient — error mapping', () => {
     const client = makeClient(() => {
       throw new Error('ECONNREFUSED');
     });
-    await assert.rejects(client.findPlayer('Anza'), (err: unknown) => {
+    await assert.rejects(client.findPlayers('Anza'), (err: unknown) => {
       assert.ok(isMorphiorDbError(err));
       assert.equal(err.kind, 'transport');
       return true;
@@ -241,7 +242,7 @@ describe('openMorphiorClient — error mapping', () => {
       err.name = 'TimeoutError';
       throw err;
     });
-    await assert.rejects(client.findPlayer('Anza'), (err: unknown) => {
+    await assert.rejects(client.findPlayers('Anza'), (err: unknown) => {
       assert.ok(isMorphiorDbError(err));
       assert.equal(err.kind, 'timeout');
       return true;

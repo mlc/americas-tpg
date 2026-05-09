@@ -1,8 +1,18 @@
 import { parseArgs } from 'node:util';
+import type { Position } from 'geojson';
 import { isMain, parseRound } from './cli-helpers.ts';
 import {
+  isMorphiorDbError,
+  type MorphiorClient,
+  openMorphiorClient,
+} from './morphiordb.ts';
+import {
+  applyDnsSaveRule,
+  type DnsCheck,
   eliminationsForRound,
+  eliminationsFromFlags,
   endedAtOf,
+  evaluateDnsCheck,
   formatStandings,
   type RoundFile,
   submissionsOf,
@@ -11,6 +21,7 @@ import {
 } from './round-domain.ts';
 import {
   DEFAULT_ROUNDS_DIR,
+  listSubmissionsForPlayer,
   readRound,
   resolveRound,
   roundPath,
@@ -34,6 +45,9 @@ export interface EndRoundDeps {
   roundsDir: string;
   explicitRound?: number;
   now?: () => Date;
+  /** Optional MorphiorDB client. Defaults to a freshly-opened client against
+   * the production endpoint. Tests inject a stub via this seam. */
+  morphiorClient?: MorphiorClient;
 }
 
 export interface EndRoundResult {
@@ -43,6 +57,12 @@ export interface EndRoundResult {
   eliminations: ReadonlySet<string>;
   dnsSet: ReadonlySet<string>;
   nextEligible: ReadonlySet<string>;
+  /** Submitters spared by the honest-DNS save rule (subset of the
+   * distance-derived eliminations). Empty when the rule didn't fire. */
+  savedSet: ReadonlySet<string>;
+  /** Per-DNS-player rule evaluations. Persisted at `roundInfo.dnsChecks`
+   * for re-end determinism. */
+  dnsChecks: readonly DnsCheck[];
   endedAt: string;
   wasAlreadyEnded: boolean;
   file: RoundFile;
@@ -64,9 +84,7 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
     prev = await readRound(prevPath);
   }
 
-  const eliminations = eliminationsForRound(current);
   const submittersCurrent = new Set(submitters(current));
-
   let dnsSet: ReadonlySet<string>;
   if (prev) {
     if (endedAtOf(prev) === null) {
@@ -84,60 +102,162 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
     dnsSet = new Set();
   }
 
-  // Current round is being closed *now* and has not yet been written with
-  // `eliminated` flags, so derive from the freshly computed eliminations set.
-  const nextEligible = new Set(
-    submitters(current).filter((p) => !eliminations.has(p)),
-  );
-
-  const output = formatRoundOutput({
-    round,
-    standings: formatStandings(current),
-    eliminations,
-    dnsSet,
-    nextEligible,
-  });
-
   const existingEndedAt = endedAtOf(current);
+
   if (existingEndedAt === null) {
-    const now = deps.now ?? (() => new Date());
-    const endedAt = now().toISOString();
-    const updatedSubmissions = submissionsOf(current).map((sub) => ({
+    // First-run: evaluate the honest-DNS save rule, stamp flags, persist.
+    const distanceEliminations = eliminationsForRound(current);
+    const target = targetOf(current).geometry.coordinates;
+    const subs = submissionsOf(current);
+    const currentMaxKm =
+      subs.length === 0
+        ? 0
+        : Math.max(...subs.map((s) => s.properties.distance));
+
+    const morphior = deps.morphiorClient ?? openMorphiorClient();
+    const dnsChecks: DnsCheck[] = [];
+    for (const player of [...dnsSet].sort()) {
+      const dnsCheck = await evaluateDnsForPlayer({
+        player,
+        target,
+        currentMaxKm,
+        round,
+        roundsDir: deps.roundsDir,
+        morphior,
+      });
+      dnsChecks.push(dnsCheck);
+    }
+
+    const savedSet = applyDnsSaveRule(distanceEliminations, dnsChecks);
+    const finalEliminations = new Set(
+      [...distanceEliminations].filter((p) => !savedSet.has(p)),
+    );
+
+    const updatedSubmissions = subs.map((sub) => ({
       ...sub,
       properties: {
         ...sub.properties,
-        eliminated: eliminations.has(sub.properties.player),
+        eliminated: finalEliminations.has(sub.properties.player),
       },
     }));
+
+    const now = deps.now ?? (() => new Date());
+    const endedAt = now().toISOString();
     const updated: RoundFile = {
       ...current,
-      roundInfo: { ...current.roundInfo, endedAt },
+      roundInfo: { ...current.roundInfo, endedAt, dnsChecks },
       features: [targetOf(current), ...updatedSubmissions],
     };
     await writeRoundAtomic(path, updated);
+
+    const nextEligible = new Set(
+      submitters(current).filter((p) => !finalEliminations.has(p)),
+    );
+    const output = formatRoundOutput({
+      round,
+      standings: formatStandings(current),
+      eliminations: finalEliminations,
+      dnsSet,
+      nextEligible,
+    });
     return {
       round,
       path,
       output,
-      eliminations,
+      eliminations: finalEliminations,
       dnsSet,
       nextEligible,
+      savedSet,
+      dnsChecks,
       endedAt,
       wasAlreadyEnded: false,
       file: updated,
     };
   }
 
+  // Re-end: read persisted state. No MorphiorDB call, no file write.
+  const persistedEliminations = eliminationsFromFlags(current);
+  const distanceEliminations = eliminationsForRound(current);
+  const savedSet = new Set(
+    [...distanceEliminations].filter((p) => !persistedEliminations.has(p)),
+  );
+  const dnsChecks = current.roundInfo.dnsChecks ?? [];
+  const nextEligible = new Set(
+    submitters(current).filter((p) => !persistedEliminations.has(p)),
+  );
+  const output = formatRoundOutput({
+    round,
+    standings: formatStandings(current),
+    eliminations: persistedEliminations,
+    dnsSet,
+    nextEligible,
+  });
   return {
     round,
     path,
     output,
-    eliminations,
+    eliminations: persistedEliminations,
     dnsSet,
     nextEligible,
+    savedSet,
+    dnsChecks,
     endedAt: existingEndedAt,
     wasAlreadyEnded: true,
     file: current,
+  };
+}
+
+interface DnsEvaluationContext {
+  player: string;
+  target: Position;
+  currentMaxKm: number;
+  round: number;
+  roundsDir: string;
+  morphior: MorphiorClient;
+}
+
+async function evaluateDnsForPlayer(
+  ctx: DnsEvaluationContext,
+): Promise<DnsCheck> {
+  const localPoints = await listSubmissionsForPlayer(
+    ctx.player,
+    ctx.roundsDir,
+    {
+      excludeRound: ctx.round,
+    },
+  );
+
+  let morphiorDbStatus: DnsCheck['morphiorDbStatus'] = 'unavailable';
+  let morphiorDbSubmissionCount: number | null = null;
+  let mdbPoints: readonly Position[] = [];
+  try {
+    const matches = await ctx.morphior.findPlayers(ctx.player);
+    if (matches.length === 0) {
+      morphiorDbStatus = 'notFound';
+    } else if (matches.length > 1) {
+      morphiorDbStatus = 'ambiguous';
+    } else {
+      mdbPoints = await ctx.morphior.fetchSubmissions(matches[0].discord_id);
+      morphiorDbStatus = 'ok';
+      morphiorDbSubmissionCount = mdbPoints.length;
+    }
+  } catch (err) {
+    if (!isMorphiorDbError(err)) throw err;
+    morphiorDbStatus = 'unavailable';
+    process.stderr.write(
+      `endRound: MorphiorDB unavailable for ${ctx.player}: ${err.message}\n`,
+    );
+  }
+
+  const allPoints = [...localPoints, ...mdbPoints];
+  const evaluation = evaluateDnsCheck(ctx.target, allPoints, ctx.currentMaxKm);
+  return {
+    player: ctx.player,
+    bestPoint: evaluation.bestPoint,
+    bestDistanceKm: evaluation.bestDistanceKm,
+    couldHaveEscaped: evaluation.couldHaveEscaped,
+    morphiorDbStatus,
+    morphiorDbSubmissionCount,
   };
 }
 

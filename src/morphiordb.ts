@@ -44,13 +44,14 @@ export interface MorphiorPlayer {
 
 export interface MorphiorClient {
   /**
-   * Resolve a player name to a single MorphiorDB record. Returns `null` when
-   * zero or multiple records exact-match the query (case-insensitive against
-   * `canonical_name`, `name`, or any alias). The fuzzy `?q=` search is a
-   * starting point; the strict match avoids accidentally pulling another
-   * player's history.
+   * Find every MorphiorDB record whose `canonical_name`, `name`, or any
+   * alias exact-matches the query (case-insensitive). The fuzzy `?q=`
+   * search is a starting point; the strict match avoids accidentally
+   * pulling another player's history. Returns `[]` for no matches and a
+   * length-N array for N matches — callers can discriminate `notFound`
+   * from `ambiguous` by inspecting the length.
    */
-  findPlayer(name: string): Promise<MorphiorPlayer | null>;
+  findPlayers(name: string): Promise<readonly MorphiorPlayer[]>;
   /**
    * Fetch all unique submission points for a Discord ID. Returns `[lon, lat]`
    * pairs in the API's natural order. Empty array for unknown IDs (the API
@@ -73,9 +74,9 @@ export function openMorphiorClient(
   const fetchImpl = options.fetchImpl ?? fetch;
 
   return {
-    async findPlayer(name) {
+    async findPlayers(name) {
       const trimmed = name.trim();
-      if (trimmed.length === 0) return null;
+      if (trimmed.length === 0) return [];
       const url = `${baseUrl}/players?q=${encodeURIComponent(trimmed)}`;
       const data = await fetchJson(fetchImpl, url, timeoutMs, 'players');
       if (!Array.isArray(data)) {
@@ -84,11 +85,9 @@ export function openMorphiorClient(
           `morphiordb /players: expected array response, got ${typeof data}`,
         );
       }
-      const exact = data
+      return data
         .filter(isPlayerObject)
         .filter((row) => playerMatchesExact(row, trimmed));
-      if (exact.length !== 1) return null;
-      return exact[0];
     },
     async fetchSubmissions(discordId) {
       const url = `${baseUrl}/submissions/${encodeURIComponent(discordId)}`;
