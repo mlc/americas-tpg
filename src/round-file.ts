@@ -322,12 +322,7 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
   return data as RoundFile;
 }
 
-const VALID_MORPHIOR_STATUSES = new Set([
-  'ok',
-  'notFound',
-  'ambiguous',
-  'unavailable',
-]);
+const VALID_MORPHIOR_STATUSES = new Set(['ok', 'noMatch', 'unavailable']);
 
 function validateRoundInfoDnsChecks(
   roundInfo: Record<string, unknown>,
@@ -360,33 +355,31 @@ function validateRoundInfoDnsChecks(
     if (typeof e.couldHaveEscaped !== 'boolean') {
       fail(`roundInfo.dnsChecks[${idx}].couldHaveEscaped must be a boolean`);
     }
-    const bestDistanceKm = e.bestDistanceKm;
-    const bestPoint = e.bestPoint;
-    const bestDistOk =
-      bestDistanceKm === null ||
-      (typeof bestDistanceKm === 'number' && Number.isFinite(bestDistanceKm));
-    if (!bestDistOk) {
-      fail(
-        `roundInfo.dnsChecks[${idx}].bestDistanceKm must be a finite number or null`,
-      );
-    }
-    const bestPointOk =
-      bestPoint === null ||
-      (Array.isArray(bestPoint) &&
-        bestPoint.length >= 2 &&
-        typeof bestPoint[0] === 'number' &&
-        Number.isFinite(bestPoint[0]) &&
-        typeof bestPoint[1] === 'number' &&
-        Number.isFinite(bestPoint[1]));
-    if (!bestPointOk) {
-      fail(
-        `roundInfo.dnsChecks[${idx}].bestPoint must be a [lon, lat] array of finite numbers or null`,
-      );
-    }
-    if ((bestDistanceKm === null) !== (bestPoint === null)) {
-      fail(
-        `roundInfo.dnsChecks[${idx}]: bestDistanceKm and bestPoint must agree (both null or both populated)`,
-      );
+    const best = e.best;
+    if (best !== null) {
+      if (!best || typeof best !== 'object') {
+        fail(`roundInfo.dnsChecks[${idx}].best must be an object or null`);
+      }
+      const bestObj = best as Record<string, unknown>;
+      const point = bestObj.point;
+      const distanceKm = bestObj.distanceKm;
+      const pointOk =
+        Array.isArray(point) &&
+        point.length >= 2 &&
+        typeof point[0] === 'number' &&
+        Number.isFinite(point[0]) &&
+        typeof point[1] === 'number' &&
+        Number.isFinite(point[1]);
+      if (!pointOk) {
+        fail(
+          `roundInfo.dnsChecks[${idx}].best.point must be a [lon, lat] array of finite numbers`,
+        );
+      }
+      if (typeof distanceKm !== 'number' || !Number.isFinite(distanceKm)) {
+        fail(
+          `roundInfo.dnsChecks[${idx}].best.distanceKm must be a finite number`,
+        );
+      }
     }
     if (
       typeof e.morphiorDbStatus !== 'string' ||

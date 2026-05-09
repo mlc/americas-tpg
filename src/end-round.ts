@@ -2,7 +2,11 @@ import { parseArgs } from 'node:util';
 import type { Position } from 'geojson';
 import { isMain, parseRound } from './cli-helpers.ts';
 import { formatCoords } from './format.ts';
-import { openGadm } from './gadm.ts';
+import {
+  type LookupLocation,
+  makeGadmLookupLocation,
+  openGadm,
+} from './gadm.ts';
 import {
   isMorphiorDbError,
   type MorphiorClient,
@@ -29,7 +33,6 @@ import {
   roundPath,
   writeRoundAtomic,
 } from './round-file.ts';
-import { type LookupLocation, makeGadmLookupLocation } from './submit-round.ts';
 
 const USAGE = `Usage: yarn end-round [--round N] [--rounds-dir <dir>]
 
@@ -37,6 +40,14 @@ Closes the active round (or --round N if explicit). Computes eliminations, print
 the standings + winner/stalemate banner, and stamps the round's endedAt marker.
 Re-running on an already-ended round prints the same output without mutating the
 round file.
+
+First-run also evaluates the honest-DNS save rule: for each player who failed
+to submit, gathers their submission history (this game's prior rounds plus a
+best-effort query against the MorphiorDB API) and decides whether they could
+have escaped elimination. If not, the actual last-place submitter(s) are
+spared. MorphiorDB unavailability degrades to local-only history without
+blocking round-close. Output may include "Saved by honest-DNS rule" and
+"DNS could-have-sent" sections.
 
 Options:
       --round N         Target a specific round (default: latest unended round)
@@ -61,6 +72,12 @@ export interface EndRoundResult {
   round: number;
   path: string;
   output: string;
+  /** Players eliminated this round in the post-honest-DNS-rule sense.
+   * On first-run, this is `eliminationsForRound(current)` minus `savedSet`.
+   * On re-end, it's read from the persisted `eliminated === true` flags
+   * (which were stamped post-rule on the first run). Callers wanting the
+   * pre-rule distance-derived set should compute `eliminationsForRound`
+   * themselves; the players spared by the rule are in `savedSet`. */
   eliminations: ReadonlySet<string>;
   dnsSet: ReadonlySet<string>;
   nextEligible: ReadonlySet<string>;
@@ -194,7 +211,16 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
   const savedSet = new Set(
     [...distanceEliminations].filter((p) => !persistedEliminations.has(p)),
   );
-  const dnsChecks = current.roundInfo.dnsChecks ?? [];
+  // Validator invariant: ended rounds must carry dnsChecks (round-file.ts
+  // enforces presence-iff-ended). The fallback is unreachable in normal
+  // flow; throw loudly if the invariant ever weakens so we don't silently
+  // synthesize an empty saved-set.
+  if (!current.roundInfo.dnsChecks) {
+    throw new Error(
+      `endRound (re-end): ended round ${round} is missing roundInfo.dnsChecks — validator invariant violated`,
+    );
+  }
+  const dnsChecks = current.roundInfo.dnsChecks;
   const nextEligible = new Set(
     submitters(current).filter((p) => !persistedEliminations.has(p)),
   );
@@ -248,14 +274,16 @@ async function evaluateDnsForPlayer(
   let mdbPoints: readonly Position[] = [];
   try {
     const matches = await ctx.morphior.findPlayers(ctx.player);
-    if (matches.length === 0) {
-      morphiorDbStatus = 'notFound';
-    } else if (matches.length > 1) {
-      morphiorDbStatus = 'ambiguous';
-    } else {
-      mdbPoints = await ctx.morphior.fetchSubmissions(matches[0].discord_id);
+    if (matches.length === 1) {
+      const [match] = matches;
+      mdbPoints = await ctx.morphior.fetchSubmissions(match.discord_id);
       morphiorDbStatus = 'ok';
       morphiorDbSubmissionCount = mdbPoints.length;
+    } else {
+      // Zero exact matches OR ambiguous (multiple exact). Either way the
+      // rule falls back to local-only history; the audit trail records the
+      // outcome via `noMatch`.
+      morphiorDbStatus = 'noMatch';
     }
   } catch (err) {
     if (!isMorphiorDbError(err)) throw err;
@@ -269,8 +297,7 @@ async function evaluateDnsForPlayer(
   const evaluation = evaluateDnsCheck(ctx.target, allPoints, ctx.currentMaxKm);
   return {
     player: ctx.player,
-    bestPoint: evaluation.bestPoint,
-    bestDistanceKm: evaluation.bestDistanceKm,
+    best: evaluation.best,
     couldHaveEscaped: evaluation.couldHaveEscaped,
     morphiorDbStatus,
     morphiorDbSubmissionCount,
@@ -313,15 +340,23 @@ function formatRoundOutput(input: FormatInput): string {
   }
 
   if (input.savedSet.size > 0) {
-    const honest = input.dnsChecks.find((c) => !c.couldHaveEscaped);
+    const honest = input.dnsChecks
+      .filter((c) => !c.couldHaveEscaped)
+      .sort((a, b) => a.player.localeCompare(b.player));
     sections.push('');
     sections.push('Saved by honest-DNS rule:');
     const saved = [...input.savedSet].sort();
-    const trigger = honest
-      ? ` (triggered by ${honest.player}'s best historical at ${formatBestDistance(honest)})`
-      : '';
+    const triggerList =
+      honest.length > 0
+        ? ` (triggered by ${honest
+            .map(
+              (c) =>
+                `${c.player}'s best historical at ${formatBestDistance(c)}`,
+            )
+            .join('; ')})`
+        : '';
     for (const name of saved) {
-      sections.push(`  ${name}${trigger}`);
+      sections.push(`  ${name}${triggerList}`);
     }
   }
 
@@ -352,21 +387,19 @@ function formatRoundOutput(input: FormatInput): string {
 }
 
 function formatBestDistance(check: DnsCheck): string {
-  if (check.bestDistanceKm === null) return 'no submission history available';
-  return `${check.bestDistanceKm.toFixed(3)} km`;
+  if (check.best === null) return 'no submission history available';
+  return `${check.best.distanceKm.toFixed(3)} km`;
 }
 
 function formatDnsCheckDetail(
   check: DnsCheck,
   lookupLocation: LookupLocation,
 ): string {
-  if (check.bestPoint === null || check.bestDistanceKm === null) {
-    return 'no submission history available';
-  }
-  const coords = formatCoords(check.bestPoint);
-  const region = lookupLocation(check.bestPoint);
+  if (check.best === null) return 'no submission history available';
+  const coords = formatCoords(check.best.point);
+  const region = lookupLocation(check.best.point);
   const where = region ? `${coords}, ${region}` : coords;
-  return `${check.bestDistanceKm.toFixed(3)} km from target (${where})`;
+  return `${check.best.distanceKm.toFixed(3)} km from target (${where})`;
 }
 
 function fail(message: string): never {

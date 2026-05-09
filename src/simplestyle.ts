@@ -1,5 +1,7 @@
 import {
   eliminationsForRound,
+  eliminationsFromFlags,
+  endedAtOf,
   type RoundFile,
   submissionsOf,
 } from './round-domain.ts';
@@ -29,11 +31,21 @@ export function playerMarkerColor(rankIndex: number, isLast: boolean): string {
 /**
  * Returns a copy of the round with simplestyle-spec marker-symbol/marker-color
  * properties applied to the target and every submission. Always recomputes
- * from scratch — any styling already on the input is overwritten.
+ * marker style from scratch — any styling already on the input is overwritten.
+ *
+ * The eliminated set comes from the persisted `eliminated === true` flags on
+ * ended rounds (post-honest-DNS-rule answer), and from `eliminationsForRound`
+ * on in-progress rounds where the flags aren't stamped yet. This keeps the
+ * marker color (red for eliminated) consistent with the round's actual
+ * outcome — a player saved by the honest-DNS rule has `eliminated: false`
+ * on disk, so they correctly render in non-red.
  */
 export function applySimplestyle(round: RoundFile): RoundFile {
   const subs = submissionsOf(round);
-  const eliminations = eliminationsForRound(round);
+  const eliminations =
+    endedAtOf(round) === null
+      ? eliminationsForRound(round)
+      : eliminationsFromFlags(round);
   const sorted = [...subs].sort(
     (a, b) => a.properties.distance - b.properties.distance,
   );
