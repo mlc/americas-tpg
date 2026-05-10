@@ -42,7 +42,7 @@ export interface CreateRoundDeps {
 export interface CreateRoundResult {
   path: string;
   round: number;
-  targetLine: string;
+  discordMessage: string;
   file: RoundFile;
 }
 
@@ -76,7 +76,7 @@ export async function createRound(
   return {
     path,
     round: nextRound,
-    targetLine: formatTargetDiscord(file),
+    discordMessage: formatTargetDiscord(file),
     file,
   };
 }
@@ -148,7 +148,7 @@ async function main(): Promise<void> {
       generateTarget: () => sampleTargetFromGadm(rng, gadm),
       roundsDir,
     });
-    process.stdout.write(`${result.targetLine}\n`);
+    process.stdout.write(`${result.discordMessage}\n`);
   } finally {
     gadm.close();
   }
