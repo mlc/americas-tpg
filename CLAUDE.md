@@ -16,6 +16,26 @@ Two cooperating tools sharing the same sampler + GADM lookup pipeline:
    coordinates, the farthest (with a 25 m tie buffer) is eliminated, and the
    last surviving player wins. Round state lives on disk in `rounds/NNN.geojson`.
 
+## Documentation files (load-bearing conventions)
+
+The repo has four top-level Markdown files, each with a distinct audience.
+Do not collapse them, do not move content between them without being told to,
+and in particular:
+
+- **`RULES.md`** — player-facing rules of TPG. **Never edit this file.** It is
+  written by humans for humans. If a code change would alter player-visible
+  behavior in a way that contradicts `RULES.md`, stop and surface the conflict
+  to the user rather than "fixing" the doc.
+- **`README.md`** — deliberately short. It is a sign-post pointing at the other
+  three docs. Don't grow it back into a full README; previous long-form content
+  has been moved to `CODE.md`. New top-level prose for coders/operators goes in
+  `CODE.md`, not here.
+- **`CODE.md`** — coder and game-operator documentation (what used to live in
+  `README.md`). This is the right home for human-readable instructions on
+  running the tools, file formats, etc.
+- **`CLAUDE.md`** (this file) — guidance for AI coding agents. Architectural
+  invariants, non-obvious toolchain quirks, "don't fix that" notes.
+
 ## Toolchain (non-obvious bits)
 
 - **Node 24+ with native TypeScript type-stripping.** No build step; `.ts` files run directly. Because of `erasableSyntaxOnly` in `tsconfig.json`, you cannot use `enum`, `namespace`, parameter properties, or other syntax that emits runtime code — stick to `type` / `interface` / `const` objects.
