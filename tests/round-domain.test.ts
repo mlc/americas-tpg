@@ -9,6 +9,7 @@ import {
   type RoundFile,
   RULES_URL,
   type SubmissionFeature,
+  submissionTrackerUrl,
   submitters,
   type TargetFeature,
   TIE_BUFFER_KM,
@@ -109,11 +110,35 @@ describe('formatLocation', () => {
   });
 });
 
+describe('submissionTrackerUrl', () => {
+  test('zero-pads the round number to 3 digits and points at geojson.io', () => {
+    assert.equal(
+      submissionTrackerUrl(1),
+      'https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/001.geojson',
+    );
+    assert.equal(
+      submissionTrackerUrl(42),
+      'https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/042.geojson',
+    );
+  });
+
+  test('does not truncate four-digit round numbers', () => {
+    assert.equal(
+      submissionTrackerUrl(1234),
+      'https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/1234.geojson',
+    );
+  });
+});
+
 describe('formatTargetDiscord', () => {
-  test('renders Discord markdown with round, location, Google Maps link, and rules link', () => {
+  test('renders Discord markdown with header, tracker link, and rules link', () => {
     assert.equal(
       formatTargetDiscord(buildRound(7, null, [])),
-      '# Round 7, Río Negro, Argentina, [42.50000°S 67.50000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)\n[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
+      [
+        '# Round 7, Río Negro, Argentina, [42.50000°S 67.50000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)',
+        '[Submission Tracker](https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/007.geojson)',
+        '[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
+      ].join('\n'),
     );
   });
 
@@ -132,7 +157,11 @@ describe('formatTargetDiscord', () => {
     };
     assert.equal(
       formatTargetDiscord(positive),
-      '# Round 1, Somewhere, [20.00000°N 10.00000°E](https://www.google.com/maps/search/?api=1&query=20%2C10)\n[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
+      [
+        '# Round 1, Somewhere, [20.00000°N 10.00000°E](https://www.google.com/maps/search/?api=1&query=20%2C10)',
+        '[Submission Tracker](https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/001.geojson)',
+        '[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
+      ].join('\n'),
     );
   });
 
@@ -161,11 +190,13 @@ describe('formatTargetDiscord', () => {
     assert.match(formatTargetDiscord(buildRound(3, null, [])), /^# Round 3,/);
   });
 
-  test('rules link is on its own line and points at RULES.md', () => {
+  test('output is exactly three lines: header, tracker, rules', () => {
     const out = formatTargetDiscord(buildRound(2, null, []));
     const lines = out.split('\n');
-    assert.equal(lines.length, 2);
-    assert.equal(lines[1], `[Rules](${RULES_URL})`);
+    assert.equal(lines.length, 3);
+    assert.match(lines[0], /^# Round 2,/);
+    assert.equal(lines[1], `[Submission Tracker](${submissionTrackerUrl(2)})`);
+    assert.equal(lines[2], `[Rules](${RULES_URL})`);
   });
 
   test('rules link text is bilingual for non-English rounds', () => {
@@ -183,11 +214,30 @@ describe('formatTargetDiscord', () => {
     }
   });
 
-  test('English / unknown / missing language uses plain "Rules" link', () => {
+  test('tracker link text is bilingual for non-English rounds', () => {
+    const cases: Array<[string, string]> = [
+      ['es', 'Submission Tracker / Rastreador de Envíos'],
+      ['pt', 'Submission Tracker / Rastreador de Envios'],
+      ['fr', 'Submission Tracker / Suivi des Soumissions'],
+      ['nl', 'Submission Tracker / Inzendingen-tracker'],
+      ['ht', 'Submission Tracker / Swivi Soumisyon'],
+    ];
+    for (const [language, expected] of cases) {
+      const out = formatTargetDiscord(buildRound(4, null, [], language));
+      const trackerLine = out.split('\n')[1];
+      assert.equal(trackerLine, `[${expected}](${submissionTrackerUrl(4)})`);
+    }
+  });
+
+  test('English / unknown / missing language uses plain "Rules" and "Submission Tracker" links', () => {
     for (const lang of ['en', 'xx', undefined]) {
       const out = formatTargetDiscord(buildRound(4, null, [], lang));
-      const lastLine = out.split('\n').at(-1);
-      assert.equal(lastLine, `[Rules](${RULES_URL})`);
+      const [, trackerLine, rulesLine] = out.split('\n');
+      assert.equal(
+        trackerLine,
+        `[Submission Tracker](${submissionTrackerUrl(4)})`,
+      );
+      assert.equal(rulesLine, `[Rules](${RULES_URL})`);
     }
   });
 });

@@ -168,3 +168,28 @@ export function rulesLinkText(language: string | undefined): string {
   const translated = RULES_LABEL[language];
   return translated ? `Rules / ${translated}` : 'Rules';
 }
+
+export const SUBMISSION_TRACKER_LABEL: Record<string, string> = {
+  en: 'Submission Tracker',
+  es: 'Rastreador de Envíos',
+  pt: 'Rastreador de Envios',
+  fr: 'Suivi des Soumissions',
+  nl: 'Inzendingen-tracker',
+  ht: 'Swivi Soumisyon',
+};
+
+/**
+ * Link text for the submission-tracker link in the round announcement:
+ * `Submission Tracker` in English, or `Submission Tracker / <translation>`
+ * when the round's language is non-English. Same fallback rules as
+ * `rulesLinkText`.
+ */
+export function submissionTrackerLinkText(
+  language: string | undefined,
+): string {
+  if (!language || language === 'en') return 'Submission Tracker';
+  const translated = SUBMISSION_TRACKER_LABEL[language];
+  return translated
+    ? `Submission Tracker / ${translated}`
+    : 'Submission Tracker';
+}

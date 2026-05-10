@@ -1,12 +1,27 @@
 import { distance } from '@turf/distance';
 import type { Feature, Point, Position } from 'geojson';
 import { formatCoords } from './format.ts';
-import { mainCountryName, roundLabel, rulesLinkText } from './language.ts';
+import {
+  mainCountryName,
+  roundLabel,
+  rulesLinkText,
+  submissionTrackerLinkText,
+} from './language.ts';
 
 export const TIE_BUFFER_KM = 0.025;
 
 export const RULES_URL =
   'https://github.com/mlc/americas-tpg/blob/main/RULES.md';
+
+/**
+ * Public URL to the round's GeoJSON viewed in geojson.io. Mirrors the
+ * filename convention from `roundPath`: `rounds/NNN.geojson` with `NNN`
+ * zero-padded to 3 digits.
+ */
+export function submissionTrackerUrl(round: number): string {
+  const padded = String(round).padStart(3, '0');
+  return `https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/${padded}.geojson`;
+}
 
 const ZERO_WIDTH_RE = /[​-‍﻿]/g;
 
@@ -249,8 +264,9 @@ export function formatTargetDiscord(file: RoundFile): string {
   const coords = formatCoords(target.geometry.coordinates);
   const word = roundLabel(file.roundInfo.language);
   const header = `# ${word} ${file.roundInfo.number}, ${target.properties.location}, [${coords}](${url})`;
+  const trackerLink = `[${submissionTrackerLinkText(file.roundInfo.language)}](${submissionTrackerUrl(file.roundInfo.number)})`;
   const rulesLink = `[${rulesLinkText(file.roundInfo.language)}](${RULES_URL})`;
-  return `${header}\n${rulesLink}`;
+  return `${header}\n${trackerLink}\n${rulesLink}`;
 }
 
 export function formatStandings(round: RoundFile): string {

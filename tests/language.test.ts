@@ -8,6 +8,8 @@ import {
   RULES_LABEL,
   roundLabel,
   rulesLinkText,
+  SUBMISSION_TRACKER_LABEL,
+  submissionTrackerLinkText,
 } from '../src/language.ts';
 
 describe('language tables — internal consistency', () => {
@@ -42,6 +44,17 @@ describe('language tables — internal consistency', () => {
       `languages missing from RULES_LABEL: ${missing.join(', ')}`,
     );
   });
+
+  test('every language in GID0_TO_ISO639_1 has a SUBMISSION_TRACKER_LABEL entry', () => {
+    const languages = new Set(Object.values(GID0_TO_ISO639_1));
+    const labelled = new Set(Object.keys(SUBMISSION_TRACKER_LABEL));
+    const missing = [...languages].filter((l) => !labelled.has(l));
+    assert.deepEqual(
+      missing,
+      [],
+      `languages missing from SUBMISSION_TRACKER_LABEL: ${missing.join(', ')}`,
+    );
+  });
 });
 
 describe('roundLabel', () => {
@@ -72,6 +85,38 @@ describe('rulesLinkText', () => {
     assert.equal(rulesLinkText('fr'), 'Rules / Règles');
     assert.equal(rulesLinkText('nl'), 'Rules / Regels');
     assert.equal(rulesLinkText('ht'), 'Rules / Règ');
+  });
+});
+
+describe('submissionTrackerLinkText', () => {
+  test('returns plain "Submission Tracker" for English / undefined / unknown', () => {
+    assert.equal(submissionTrackerLinkText(undefined), 'Submission Tracker');
+    assert.equal(submissionTrackerLinkText(''), 'Submission Tracker');
+    assert.equal(submissionTrackerLinkText('en'), 'Submission Tracker');
+    assert.equal(submissionTrackerLinkText('xx'), 'Submission Tracker');
+  });
+
+  test('appends translation separated by " / " for non-English', () => {
+    assert.equal(
+      submissionTrackerLinkText('es'),
+      'Submission Tracker / Rastreador de Envíos',
+    );
+    assert.equal(
+      submissionTrackerLinkText('pt'),
+      'Submission Tracker / Rastreador de Envios',
+    );
+    assert.equal(
+      submissionTrackerLinkText('fr'),
+      'Submission Tracker / Suivi des Soumissions',
+    );
+    assert.equal(
+      submissionTrackerLinkText('nl'),
+      'Submission Tracker / Inzendingen-tracker',
+    );
+    assert.equal(
+      submissionTrackerLinkText('ht'),
+      'Submission Tracker / Swivi Soumisyon',
+    );
   });
 });
 
