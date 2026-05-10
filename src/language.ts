@@ -158,17 +158,6 @@ export const RULES_LABEL: Record<string, string> = {
   ht: 'Règ',
 };
 
-/**
- * Link text for the rules link in the round announcement: `Rules` in English,
- * or `Rules / <translation>` when the round's language is non-English. Falls
- * back to plain `Rules` for unknown / missing language.
- */
-export function rulesLinkText(language: string | undefined): string {
-  if (!language || language === 'en') return 'Rules';
-  const translated = RULES_LABEL[language];
-  return translated ? `Rules / ${translated}` : 'Rules';
-}
-
 export const SUBMISSION_TRACKER_LABEL: Record<string, string> = {
   en: 'Submission Tracker',
   es: 'Rastreador de Envíos',
@@ -179,6 +168,33 @@ export const SUBMISSION_TRACKER_LABEL: Record<string, string> = {
 };
 
 /**
+ * Render bilingual link text for round-announcement links: the English label
+ * alone for unknown / missing / English-equivalent language, or
+ * `<English> / <translated>` when the round's language has its own entry that
+ * differs from the English label. The table's `en` row is the canonical
+ * English label.
+ */
+function bilingualLinkText(
+  language: string | undefined,
+  table: Record<string, string>,
+): string {
+  const englishDefault = table.en;
+  const translated = (language && table[language]) || englishDefault;
+  return translated === englishDefault
+    ? englishDefault
+    : `${englishDefault} / ${translated}`;
+}
+
+/**
+ * Link text for the rules link in the round announcement: `Rules` in English,
+ * or `Rules / <translation>` when the round's language is non-English. Falls
+ * back to plain `Rules` for unknown / missing language.
+ */
+export function rulesLinkText(language: string | undefined): string {
+  return bilingualLinkText(language, RULES_LABEL);
+}
+
+/**
  * Link text for the submission-tracker link in the round announcement:
  * `Submission Tracker` in English, or `Submission Tracker / <translation>`
  * when the round's language is non-English. Same fallback rules as
@@ -187,9 +203,5 @@ export const SUBMISSION_TRACKER_LABEL: Record<string, string> = {
 export function submissionTrackerLinkText(
   language: string | undefined,
 ): string {
-  if (!language || language === 'en') return 'Submission Tracker';
-  const translated = SUBMISSION_TRACKER_LABEL[language];
-  return translated
-    ? `Submission Tracker / ${translated}`
-    : 'Submission Tracker';
+  return bilingualLinkText(language, SUBMISSION_TRACKER_LABEL);
 }
