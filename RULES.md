@@ -49,7 +49,7 @@ The submission of stolen pictures constitutes cheating, and violators will be ba
 
 * *Is it too late to start playing?*
 
-    Unfortunately, players cannot be accepted after the first round has finished.
+    Anyone can start playing while Round 1 is open; unfortunately, players cannot be accepted after the first round has finished.
 
 * *What happens if there are any nonsubmitters?*
 
@@ -63,7 +63,7 @@ The submission of stolen pictures constitutes cheating, and violators will be ba
 
     Yes. All players within 25 meters of the furthest submission are considered tied for last. In the event of a tie for last, all tied players will be eliminated. Ties for any position except last will not be considered, as placement is not relevant outside of elimination positions.
 
-* Can I target an antipode?
+* *Can I target an antipode?*
 
     Sure, but you will certainly lose; there is no bonus or grace for such submissions.
 
