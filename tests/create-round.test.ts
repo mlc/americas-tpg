@@ -114,14 +114,14 @@ describe('createRound', () => {
     assert.equal(result.path, join(dir, '004.geojson'));
   });
 
-  test('returned targetLine is Discord markdown with round, location, and link', async () => {
+  test('returned targetLine is Discord markdown with round, location, link, and rules link', async () => {
     const result = await createRound({
       generateTarget: async () => ({ target: argentinaTarget }),
       roundsDir: dir,
     });
     assert.equal(
       result.targetLine,
-      '# Round 1, Río Negro, Argentina, [42.50000°S 67.50000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)',
+      '# Round 1, Río Negro, Argentina, [42.50000°S 67.50000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)\n[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
     );
   });
 

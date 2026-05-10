@@ -1,9 +1,12 @@
 import { distance } from '@turf/distance';
 import type { Feature, Point, Position } from 'geojson';
 import { formatCoords } from './format.ts';
-import { mainCountryName, roundLabel } from './language.ts';
+import { mainCountryName, roundLabel, rulesLinkText } from './language.ts';
 
 export const TIE_BUFFER_KM = 0.025;
+
+export const RULES_URL =
+  'https://github.com/mlc/americas-tpg/blob/main/RULES.md';
 
 const ZERO_WIDTH_RE = /[​-‍﻿]/g;
 
@@ -245,7 +248,9 @@ export function formatTargetDiscord(file: RoundFile): string {
   const url = `https://www.google.com/maps/search/?${params}`;
   const coords = formatCoords(target.geometry.coordinates);
   const word = roundLabel(file.roundInfo.language);
-  return `# ${word} ${file.roundInfo.number}, ${target.properties.location}, [${coords}](${url})`;
+  const header = `# ${word} ${file.roundInfo.number}, ${target.properties.location}, [${coords}](${url})`;
+  const rulesLink = `[${rulesLinkText(file.roundInfo.language)}](${RULES_URL})`;
+  return `${header}\n${rulesLink}`;
 }
 
 export function formatStandings(round: RoundFile): string {

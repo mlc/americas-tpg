@@ -148,3 +148,23 @@ export function roundLabel(language: string | undefined): string {
   if (!language) return 'Round';
   return ROUND_LABEL[language] ?? 'Round';
 }
+
+export const RULES_LABEL: Record<string, string> = {
+  en: 'Rules',
+  es: 'Reglas',
+  pt: 'Regras',
+  fr: 'Règles',
+  nl: 'Regels',
+  ht: 'Règ',
+};
+
+/**
+ * Link text for the rules link in the round announcement: `Rules` in English,
+ * or `Rules / <translation>` when the round's language is non-English. Falls
+ * back to plain `Rules` for unknown / missing language.
+ */
+export function rulesLinkText(language: string | undefined): string {
+  if (!language || language === 'en') return 'Rules';
+  const translated = RULES_LABEL[language];
+  return translated ? `Rules / ${translated}` : 'Rules';
+}

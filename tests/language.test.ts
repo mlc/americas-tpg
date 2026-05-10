@@ -5,7 +5,9 @@ import {
   GID0_TO_LOCAL_NAME,
   mainLanguageOf,
   ROUND_LABEL,
+  RULES_LABEL,
   roundLabel,
+  rulesLinkText,
 } from '../src/language.ts';
 
 describe('language tables — internal consistency', () => {
@@ -29,6 +31,17 @@ describe('language tables — internal consistency', () => {
       `languages missing from ROUND_LABEL: ${missing.join(', ')}`,
     );
   });
+
+  test('every language in GID0_TO_ISO639_1 has a RULES_LABEL entry', () => {
+    const languages = new Set(Object.values(GID0_TO_ISO639_1));
+    const labelled = new Set(Object.keys(RULES_LABEL));
+    const missing = [...languages].filter((l) => !labelled.has(l));
+    assert.deepEqual(
+      missing,
+      [],
+      `languages missing from RULES_LABEL: ${missing.join(', ')}`,
+    );
+  });
 });
 
 describe('roundLabel', () => {
@@ -42,6 +55,23 @@ describe('roundLabel', () => {
     assert.equal(roundLabel(undefined), 'Round');
     assert.equal(roundLabel(''), 'Round');
     assert.equal(roundLabel('xx'), 'Round');
+  });
+});
+
+describe('rulesLinkText', () => {
+  test('returns plain "Rules" for English / undefined / unknown', () => {
+    assert.equal(rulesLinkText(undefined), 'Rules');
+    assert.equal(rulesLinkText(''), 'Rules');
+    assert.equal(rulesLinkText('en'), 'Rules');
+    assert.equal(rulesLinkText('xx'), 'Rules');
+  });
+
+  test('appends translation separated by " / " for non-English', () => {
+    assert.equal(rulesLinkText('es'), 'Rules / Reglas');
+    assert.equal(rulesLinkText('pt'), 'Rules / Regras');
+    assert.equal(rulesLinkText('fr'), 'Rules / Règles');
+    assert.equal(rulesLinkText('nl'), 'Rules / Regels');
+    assert.equal(rulesLinkText('ht'), 'Rules / Règ');
   });
 });
 
