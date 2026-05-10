@@ -24,8 +24,12 @@ export function parseRound(
   return n;
 }
 
-export function parseRng(raw: string | undefined, fail: FailFn): RngName {
-  if (raw === undefined) return 'crypto';
+export function parseRng(
+  raw: string | undefined,
+  fail: FailFn,
+  defaultRng: RngName = 'crypto',
+): RngName {
+  if (raw === undefined) return defaultRng;
   if ((RNG_NAMES as string[]).includes(raw)) return raw as RngName;
   return fail(
     `Invalid --rng value: '${raw}'. Expected one of: ${RNG_NAMES.join(', ')}.`,

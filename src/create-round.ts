@@ -24,7 +24,7 @@ Creates a new round file in the rounds/ directory containing a randomly sampled
 Americas target, and prints the target's human-readable single-line description.
 
 Options:
-      --rng <name>      Random source: crypto (default), math, or random.org
+      --rng <name>      Random source: random.org (default), crypto, or math
       --rounds-dir <d>  Rounds directory (default: rounds)
   -h, --help            Show this message
 `;
@@ -138,7 +138,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  const rngName = parseRng(values.rng, fail);
+  const rngName = parseRng(values.rng, fail, 'random.org');
   const roundsDir = values['rounds-dir'] ?? DEFAULT_ROUNDS_DIR;
 
   const rng = createRng(rngName);

@@ -41,7 +41,7 @@ Two cooperating tools sharing the same sampler + GADM lookup pipeline:
 | `yarn node <file>` | Run any TS file under the PnP runtime. |
 
 `yarn start` flags: `--count <N>` (default 1), `--geojson`, `--rng <crypto|math|random.org>` (default `crypto`).
-Round CLIs share `--round N` and `--rounds-dir <dir>`; `create-round` also takes `--rng`.
+Round CLIs share `--round N` and `--rounds-dir <dir>`; `create-round` also takes `--rng`, **defaulting to `random.org`** (not `crypto`) — RULES.md promises players that random.org is the source of truth for round picks, so this default is load-bearing. `yarn start` keeps the `crypto` default because the points sampler is a developer/operator utility, not the player-facing round generator. The shared `parseRng` helper takes a per-call default so the two CLIs can diverge cleanly.
 
 ## Conventions
 
