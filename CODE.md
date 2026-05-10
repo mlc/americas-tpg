@@ -28,6 +28,7 @@ last surviving player wins.
 | `yarn create-round` | Start a new round of TPG. |
 | `yarn submit-round` | Submit a player's coordinate guess to the active round. |
 | `yarn end-round` | Close the active round, compute eliminations, and print standings. |
+| `yarn send-reminders` | List players eligible for the active round who have not yet submitted. Prints a Discord-pasteable message with @-mentions and a submission-tracker link. |
 | `yarn test` | Run the test suite (`node --test`). |
 | `yarn typecheck` | Run `tsc --noEmit` against `src/`. |
 | `yarn lint` | Run Biome's linter. |

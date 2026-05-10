@@ -11,10 +11,12 @@ Two cooperating tools sharing the same sampler + GADM lookup pipeline:
    `(country, level1)`, rejects ocean / mainland-US hits and resamples.
    Outputs human-readable lines or a GeoJSON `FeatureCollection`.
 
-2. **`yarn create-round` / `submit-round` / `end-round`** — *TPG*, a turn-based
-   geo-guessing game. Each round picks a random Americas target, players submit
-   coordinates, the farthest (with a 25 m tie buffer) is eliminated, and the
-   last surviving player wins. Round state lives on disk in `rounds/NNN.geojson`.
+2. **`yarn create-round` / `submit-round` / `end-round` / `send-reminders`** —
+   *TPG*, a turn-based geo-guessing game. Each round picks a random Americas
+   target, players submit coordinates, the farthest (with a 25 m tie buffer) is
+   eliminated, and the last surviving player wins. Round state lives on disk in
+   `rounds/NNN.geojson`. `send-reminders` is a read-only operator nag that
+   prints the players still owing a submission for the active round.
 
 ## Documentation files (load-bearing conventions)
 
@@ -52,6 +54,7 @@ and in particular:
 | `yarn create-round` | Start a new round of TPG. |
 | `yarn submit-round <player> <coord>...` | Record a player submission. |
 | `yarn end-round` | Close the active round and print standings. |
+| `yarn send-reminders` | List players eligible for the active round who have not yet submitted. Errors on round 1. |
 | `yarn list-countries` | Print every non-USA country whose GADM bbox intersects the sampling band. |
 | `yarn test` | Run `node --test` over every `tests/**/*.test.ts`. |
 | `yarn typecheck` | `tsc --noEmit` over `src/`. |
@@ -89,7 +92,7 @@ Pipeline lives in `src/index.ts` and composes four pieces:
 - **`coords.ts`** — `decodeCoord(string)` parses one positional coordinate via `geographiclib-dms`. Accepts decimal, NESW, and DMS forms (`40.7128, -74.0060`, `40.7128°N 74.0060°W`, `40:42:46N 74:00:21W`, `40d42'46"N 74d00'21"W`).
 - **`simplestyle.ts`** — applies [simplestyle 1.1](https://github.com/mapbox/simplestyle-spec/blob/master/1.1.0/README.md) `marker-symbol` / `marker-color` to every feature on write. Target = star + black; players = circle + gold/silver/bronze for 1st/2nd/3rd, red for last (same tie rule), gray otherwise. Last beats podium.
 - **`language.ts`** — five hand-curated lookup tables for the 53 GADM countries reachable by the sampler: `GID0_TO_ISO639_1` (country → main language code), `GID0_TO_LOCAL_NAME` (country → name in its main language; e.g., `BRA → 'Brasil'`, `HTI → 'Ayiti'`), `ROUND_LABEL` (language code → translation of "Round"; `es → 'Ronda'`, `pt → 'Rodada'`, `fr → 'Manche'`, `nl → 'Ronde'`, `ht → 'Tou'`), `RULES_LABEL` (language code → translation of "Rules"; `es → 'Reglas'`, `pt → 'Regras'`, `fr → 'Règles'`, `nl → 'Regels'`, `ht → 'Règ'`), and `SUBMISSION_TRACKER_LABEL` (language code → translation of "Submission Tracker"; `es → 'Rastreador de Envíos'`, `pt → 'Rastreador de Envios'`, `fr → 'Suivi des Soumissions'`, `nl → 'Inzendingen-tracker'`, `ht → 'Swivi Soumisyon'`). Used at create-round time to localize the target country name, the Discord "Round" header, and the bilingual link text on the tracker and rules link lines.
-- **`create-round.ts`** / **`submit-round.ts`** / **`end-round.ts`** — the three CLIs.
+- **`create-round.ts`** / **`submit-round.ts`** / **`end-round.ts`** / **`send-reminders.ts`** — the four CLIs. `send-reminders` is a read-only operator nag for an in-flight round: it diffs the prior round's persisted survivors (`eliminated === false`) against the current round's submitters and prints a Discord-pasteable @-mention list. It reuses `submissionTrackerUrl` from `round-domain.ts` so the tracker URL convention stays a single source of truth shared with `formatTargetDiscord`. Errors on round 1 (no prior round to derive eligibility from) and on rounds that are already ended.
 
 ### Round file format (load-bearing)
 

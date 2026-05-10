@@ -10,6 +10,7 @@
     "create-round": "yarn node src/create-round.ts",
     "submit-round": "yarn node src/submit-round.ts",
     "end-round": "yarn node src/end-round.ts",
+    "send-reminders": "yarn node src/send-reminders.ts",
     "list-countries": "yarn node src/list-countries.ts",
     "typecheck": "tsc --noEmit",
     "test": "yarn node --test 'tests/**/*.test.ts'",
