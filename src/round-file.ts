@@ -169,13 +169,9 @@ export async function writeRoundAtomic(
     ...styled,
     features: [
       styled.features[0],
-      ...styled.features
-        .slice(1)
-        .sort(
-          (a, b) =>
-            (a.properties as { distance: number }).distance -
-            (b.properties as { distance: number }).distance,
-        ),
+      ...submissionsOf(styled).toSorted(
+        (a, b) => a.properties.distance - b.properties.distance,
+      ),
     ],
   };
   const json = `${JSON.stringify(sorted, null, 2)}\n`;
