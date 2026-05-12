@@ -1,0 +1,26 @@
+{
+  "type": "FeatureCollection",
+  "roundInfo": {
+    "number": 1,
+    "endedAt": null,
+    "language": "es"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "target",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -66.55809,
+          -26.2263
+        ]
+      },
+      "properties": {
+        "location": "Salta, Argentina",
+        "marker-symbol": "star",
+        "marker-color": "#000000"
+      }
+    }
+  ]
+}
