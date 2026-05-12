@@ -333,6 +333,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          2.152470532852038,
+          41.37012770208108
+        ]
+      },
+      "properties": {
+        "player": "pandem",
+        "distance": 10311.233003892201,
+        "location": "Cataluña, Spain",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -6.27853,
           53.34097
         ]
