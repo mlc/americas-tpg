@@ -27,6 +27,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -65.9755558,
+          -26.0736488
+        ]
+      },
+      "properties": {
+        "player": "Palin",
+        "distance": 60.57167400649132,
+        "location": "Salta, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -67.6604464,
           -23.9253541
         ]
@@ -36,7 +53,7 @@
         "distance": 278.8989054708665,
         "location": "Antofagasta, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#c0c0c0"
       }
     },
     {
@@ -53,7 +70,7 @@
         "distance": 392.487976636256,
         "location": "Antofagasta, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -70,7 +87,7 @@
         "distance": 887.7587580218797,
         "location": "Santiago Metropolitan, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
