@@ -78,6 +78,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -67.695818,
+          -23.92059
+        ]
+      },
+      "properties": {
+        "player": "Igorjan94 (wildtravel_club)",
+        "distance": 280.8202004566597,
+        "location": "Antofagasta, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -67.79932,
           -22.88191
         ]
@@ -103,6 +120,23 @@
         "player": "Norton",
         "distance": 887.7587580218797,
         "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.548094,
+          -32.943756
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 888.9313215034913,
+        "location": "Valparaíso, Chile",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
@@ -265,6 +299,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -88.26606529854097,
+          16.82434655337253
+        ]
+      },
+      "properties": {
+        "player": "De Martian",
+        "distance": 5331.147106127567,
+        "location": "Stann Creek, Belize",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -86.973889,
           20.47651
         ]
@@ -341,6 +392,23 @@
         "player": "pandem",
         "distance": 10311.233003892201,
         "location": "Cataluña, Spain",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -5.7152319,
+          50.0683702
+        ]
+      },
+      "properties": {
+        "player": "dorian",
+        "distance": 10379.42619964451,
+        "location": "England, United Kingdom",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
