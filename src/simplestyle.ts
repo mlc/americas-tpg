@@ -46,7 +46,7 @@ export function applySimplestyle(round: RoundFile): RoundFile {
     endedAtOf(round) === null
       ? eliminationsForRound(round)
       : eliminationsFromFlags(round);
-  const sorted = [...subs].sort(
+  const sorted = subs.toSorted(
     (a, b) => a.properties.distance - b.properties.distance,
   );
   const rankByPlayer = new Map<string, number>(

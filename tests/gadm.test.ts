@@ -134,7 +134,7 @@ describe('openGadm.candidateCountries — real GADM 4.10 fixture', {
     assert.ok(gids.includes('SGS'));
     assert.equal(new Set(gids).size, gids.length, 'gid_0 should be unique');
     const names = countries.map((c) => c.name_0);
-    const sorted = [...names].sort((a, b) => a.localeCompare(b));
+    const sorted = names.toSorted((a, b) => a.localeCompare(b));
     assert.deepEqual(names, sorted, 'should be sorted by name_0');
   });
 

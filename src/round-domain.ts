@@ -274,7 +274,7 @@ export function formatStandings(round: RoundFile): string {
   if (subs.length === 0) {
     return 'Standings:\n  (no submissions)';
   }
-  const sorted = [...subs].sort(
+  const sorted = subs.toSorted(
     (a, b) => a.properties.distance - b.properties.distance,
   );
   const lines = sorted.map((s, i) => {

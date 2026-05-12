@@ -363,7 +363,7 @@ function formatRoundOutput(input: FormatInput): string {
   if (input.dnsChecks.length > 0) {
     sections.push('');
     sections.push('DNS could-have-sent:');
-    for (const check of [...input.dnsChecks].sort((a, b) =>
+    for (const check of input.dnsChecks.toSorted((a, b) =>
       a.player.localeCompare(b.player),
     )) {
       sections.push(

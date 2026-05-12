@@ -48,7 +48,7 @@ describe('mathRandom', () => {
 
 describe('rngFactories / RNG_NAMES / createRng', () => {
   test('RNG_NAMES contains the three known sources', () => {
-    assert.deepEqual([...RNG_NAMES].sort(), ['crypto', 'math', 'random.org']);
+    assert.deepEqual(RNG_NAMES.toSorted(), ['crypto', 'math', 'random.org']);
   });
 
   test('every name has a factory', () => {
