@@ -37,7 +37,8 @@ sensitively — 'Alice' and 'alice' are different players.
 The coordinate may be passed as one quoted string ("40.7128, -74.0060") or as
 separate positionals (40.7128 -74.0060). Decimal (US or European-comma form),
 NESW, and DMS forms are all accepted (e.g. "40.7128°N 74.0060°W",
-"40:42:46N 74:00:21W", "40,7128 -74,0060").
+"40:42:46N 74:00:21W", "40,7128 -74,0060"). Bare negative latitudes/longitudes
+(e.g. -42.5 -73.1) work without \`--\`.
 
 Options:
       --round N         Target a specific round (default: latest unended round)
@@ -171,6 +172,51 @@ function fail(message: string): never {
   process.exit(1);
 }
 
+// parseArgs treats anything starting with `-` as an option, so a bare
+// `-42.5` for a southern-hemisphere latitude trips strict mode. Pre-split argv
+// into options vs. positionals using our known option surface so negative
+// numbers fall through as positionals without the user typing `--`.
+const STRING_OPTS = new Set(['--round', '--rounds-dir']);
+const BOOL_OPTS = new Set(['--force', '--help', '-h']);
+
+export function partitionSubmitArgs(argv: string[]): {
+  options: string[];
+  positionals: string[];
+} {
+  const options: string[] = [];
+  const positionals: string[] = [];
+  let i = 0;
+  while (i < argv.length) {
+    const a = argv[i];
+    if (a === '--') {
+      positionals.push(...argv.slice(i + 1));
+      break;
+    }
+    if (STRING_OPTS.has(a)) {
+      options.push(a);
+      if (i + 1 < argv.length) options.push(argv[i + 1]);
+      i += 2;
+      continue;
+    }
+    if (a.startsWith('--') && a.includes('=')) {
+      const name = a.slice(0, a.indexOf('='));
+      if (STRING_OPTS.has(name) || BOOL_OPTS.has(name)) {
+        options.push(a);
+        i += 1;
+        continue;
+      }
+    }
+    if (BOOL_OPTS.has(a)) {
+      options.push(a);
+      i += 1;
+      continue;
+    }
+    positionals.push(a);
+    i += 1;
+  }
+  return { options, positionals };
+}
+
 export function parseCoordArgs(coordParts: string[]): Position {
   if (coordParts.length === 0) {
     throw new Error(
@@ -189,14 +235,18 @@ export function parseCoordArgs(coordParts: string[]): Position {
 }
 
 async function main(): Promise<void> {
-  const { values, positionals } = parseArgs({
+  const { options: optionArgs, positionals } = partitionSubmitArgs(
+    process.argv.slice(2),
+  );
+  const { values } = parseArgs({
+    args: optionArgs,
     options: {
       round: { type: 'string' },
       'rounds-dir': { type: 'string' },
       force: { type: 'boolean', default: false },
       help: { type: 'boolean', short: 'h', default: false },
     },
-    allowPositionals: true,
+    allowPositionals: false,
     strict: true,
   });
 

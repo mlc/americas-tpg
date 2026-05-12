@@ -14,6 +14,7 @@ import {
   defaultComputeDistance,
   type LookupLocation,
   parseCoordArgs,
+  partitionSubmitArgs,
   submitRound,
 } from '../src/submit-round.ts';
 import { withEliminated } from './test-helpers.ts';
@@ -517,5 +518,77 @@ describe('parseCoordArgs — CLI coord argument joining', () => {
       () => parseCoordArgs(['91', '0']),
       /Invalid coordinate '91 0': .*Latitude .* not in/,
     );
+  });
+});
+
+describe('partitionSubmitArgs — separating options from positionals', () => {
+  test('bare negative numbers are positionals, not unknown options', () => {
+    const { options, positionals } = partitionSubmitArgs([
+      'alice',
+      '-42.5',
+      '-73.1',
+    ]);
+    assert.deepEqual(options, []);
+    assert.deepEqual(positionals, ['alice', '-42.5', '-73.1']);
+  });
+
+  test('known string option consumes its value', () => {
+    const { options, positionals } = partitionSubmitArgs([
+      'alice',
+      '-42.5',
+      '-73.1',
+      '--round',
+      '7',
+    ]);
+    assert.deepEqual(options, ['--round', '7']);
+    assert.deepEqual(positionals, ['alice', '-42.5', '-73.1']);
+  });
+
+  test('--opt=value form is recognized', () => {
+    const { options, positionals } = partitionSubmitArgs([
+      'alice',
+      '-42.5',
+      '-73.1',
+      '--rounds-dir=/tmp/r',
+    ]);
+    assert.deepEqual(options, ['--rounds-dir=/tmp/r']);
+    assert.deepEqual(positionals, ['alice', '-42.5', '-73.1']);
+  });
+
+  test('boolean flags pass through', () => {
+    const { options, positionals } = partitionSubmitArgs([
+      '--force',
+      'alice',
+      '-42.5',
+      '-73.1',
+    ]);
+    assert.deepEqual(options, ['--force']);
+    assert.deepEqual(positionals, ['alice', '-42.5', '-73.1']);
+  });
+
+  test('-h short flag pass through', () => {
+    const { options, positionals } = partitionSubmitArgs(['-h']);
+    assert.deepEqual(options, ['-h']);
+    assert.deepEqual(positionals, []);
+  });
+
+  test('explicit -- still terminates option scanning', () => {
+    const { options, positionals } = partitionSubmitArgs([
+      'alice',
+      '--',
+      '--round',
+      '-42.5',
+    ]);
+    assert.deepEqual(options, []);
+    assert.deepEqual(positionals, ['alice', '--round', '-42.5']);
+  });
+
+  test('single-quoted coord positional with leading minus is a positional', () => {
+    const { options, positionals } = partitionSubmitArgs([
+      'alice',
+      '-42.5, -73.1',
+    ]);
+    assert.deepEqual(options, []);
+    assert.deepEqual(positionals, ['alice', '-42.5, -73.1']);
   });
 });
