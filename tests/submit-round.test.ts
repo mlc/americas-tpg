@@ -591,4 +591,40 @@ describe('partitionSubmitArgs — separating options from positionals', () => {
     assert.deepEqual(options, []);
     assert.deepEqual(positionals, ['alice', '-42.5, -73.1']);
   });
+
+  test('unknown long option is forwarded to parseArgs (not silently positional)', () => {
+    const { options, positionals } = partitionSubmitArgs([
+      'alice',
+      '--frce',
+      '-42.5',
+      '-73.1',
+    ]);
+    assert.deepEqual(options, ['--frce']);
+    assert.deepEqual(positionals, ['alice', '-42.5', '-73.1']);
+  });
+
+  test('unknown long option with =value is forwarded to parseArgs', () => {
+    const { options, positionals } = partitionSubmitArgs([
+      'alice',
+      '--typo=foo',
+    ]);
+    assert.deepEqual(options, ['--typo=foo']);
+    assert.deepEqual(positionals, ['alice']);
+  });
+
+  test('unknown short option is forwarded to parseArgs', () => {
+    const { options, positionals } = partitionSubmitArgs(['-x', 'alice']);
+    assert.deepEqual(options, ['-x']);
+    assert.deepEqual(positionals, ['alice']);
+  });
+
+  test('leading-dot negative (-.5) is treated as a positional', () => {
+    const { options, positionals } = partitionSubmitArgs([
+      'alice',
+      '-.5',
+      '-.25',
+    ]);
+    assert.deepEqual(options, []);
+    assert.deepEqual(positionals, ['alice', '-.5', '-.25']);
+  });
 });

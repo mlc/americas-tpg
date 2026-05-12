@@ -176,8 +176,34 @@ function fail(message: string): never {
 // `-42.5` for a southern-hemisphere latitude trips strict mode. Pre-split argv
 // into options vs. positionals using our known option surface so negative
 // numbers fall through as positionals without the user typing `--`.
-const STRING_OPTS = new Set(['--round', '--rounds-dir']);
-const BOOL_OPTS = new Set(['--force', '--help', '-h']);
+// PARSE_OPTIONS is the single source of truth — partitionSubmitArgs derives
+// STRING_OPTS / BOOL_OPTS from it, main() passes it straight to parseArgs.
+const PARSE_OPTIONS = {
+  round: { type: 'string' },
+  'rounds-dir': { type: 'string' },
+  force: { type: 'boolean', default: false },
+  help: { type: 'boolean', short: 'h', default: false },
+} as const;
+
+const STRING_OPTS = new Set(
+  Object.entries(PARSE_OPTIONS)
+    .filter(([, v]) => v.type === 'string')
+    .map(([k]) => `--${k}`),
+);
+const BOOL_OPTS = new Set<string>(
+  Object.entries(PARSE_OPTIONS).flatMap(([k, v]) => {
+    if (v.type !== 'boolean') return [];
+    const labels = [`--${k}`];
+    if ('short' in v) labels.push(`-${v.short}`);
+    return labels;
+  }),
+);
+
+// Discriminator between negative-number positionals and unknown flags. A
+// bare hyphen-prefixed token is a number iff it matches /^-\.?\d/; anything
+// else starting with `-` is forwarded to parseArgs so it surfaces a clear
+// "Unknown option" error.
+const NEGATIVE_NUMBER_RE = /^-\.?\d/;
 
 export function partitionSubmitArgs(argv: string[]): {
   options: string[];
@@ -198,15 +224,12 @@ export function partitionSubmitArgs(argv: string[]): {
       i += 2;
       continue;
     }
-    if (a.startsWith('--') && a.includes('=')) {
-      const name = a.slice(0, a.indexOf('='));
-      if (STRING_OPTS.has(name) || BOOL_OPTS.has(name)) {
-        options.push(a);
-        i += 1;
-        continue;
-      }
-    }
     if (BOOL_OPTS.has(a)) {
+      options.push(a);
+      i += 1;
+      continue;
+    }
+    if (a.startsWith('-') && !NEGATIVE_NUMBER_RE.test(a)) {
       options.push(a);
       i += 1;
       continue;
@@ -240,12 +263,7 @@ async function main(): Promise<void> {
   );
   const { values } = parseArgs({
     args: optionArgs,
-    options: {
-      round: { type: 'string' },
-      'rounds-dir': { type: 'string' },
-      force: { type: 'boolean', default: false },
-      help: { type: 'boolean', short: 'h', default: false },
-    },
+    options: PARSE_OPTIONS,
     allowPositionals: false,
     strict: true,
   });
