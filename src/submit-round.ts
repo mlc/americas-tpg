@@ -9,6 +9,7 @@ import {
   openGadm,
 } from './gadm.ts';
 import {
+  googleMapsUrl,
   normalizePlayerName,
   type RoundFeature,
   type RoundFile,
@@ -67,9 +68,7 @@ export interface SubmitRoundDeps {
 export interface SubmitRoundResult {
   path: string;
   round: number;
-  player: string;
-  distance: number;
-  location?: string;
+  submission: SubmissionFeature;
   replaced: boolean;
   file: RoundFile;
 }
@@ -159,9 +158,7 @@ export async function submitRound(
   return {
     path: targetPath,
     round: currentRoundNumber,
-    player,
-    distance: distanceKm,
-    ...(location !== null ? { location } : {}),
+    submission,
     replaced,
     file: updated,
   };
@@ -301,10 +298,16 @@ async function main(): Promise<void> {
       force: values.force,
       lookupLocation: makeGadmLookupLocation(gadm),
     });
-    const locationPart = result.location ? `, ${result.location}` : '';
+    const {
+      player: name,
+      distance: km,
+      location,
+    } = result.submission.properties;
+    const locationPart = location ? `, ${location}` : '';
     const verb = result.replaced ? 'updated' : 'submitted';
+    const mapsUrl = googleMapsUrl(result.submission);
     process.stdout.write(
-      `${verb}: ${result.player} ${result.distance.toFixed(3)} km${locationPart}\n`,
+      `${verb}: ${name} ${km.toFixed(3)} km${locationPart}\n${mapsUrl}\n`,
     );
   } finally {
     gadm.close();

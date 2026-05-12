@@ -253,14 +253,18 @@ export function formatLocation(props: {
   return country;
 }
 
-export function formatTargetDiscord(file: RoundFile): string {
-  const target = targetOf(file);
-  const [lon, lat] = target.geometry.coordinates;
+export function googleMapsUrl(feature: Feature<Point>): string {
+  const [lon, lat] = feature.geometry.coordinates;
   const params = new URLSearchParams({
     api: '1',
     query: `${lat},${lon}`,
   });
-  const url = `https://www.google.com/maps/search/?${params}`;
+  return `https://www.google.com/maps/search/?${params}`;
+}
+
+export function formatTargetDiscord(file: RoundFile): string {
+  const target = targetOf(file);
+  const url = googleMapsUrl(target);
   const coords = formatCoords(target.geometry.coordinates);
   const word = roundLabel(file.roundInfo.language);
   const header = `# ${word} ${file.roundInfo.number}, ${target.properties.location}, [${coords}](${url})`;

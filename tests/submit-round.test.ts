@@ -90,9 +90,9 @@ describe('submitRound — round 1 open enrollment (R6 / AE1 setup)', () => {
       computeDistance: constantDistance(11.123),
     });
     assert.equal(result.round, 1);
-    assert.equal(result.player, 'alice');
-    assert.equal(result.distance, 11.123);
-    assert.equal(result.location, 'Río Negro, Argentina');
+    assert.equal(result.submission.properties.player, 'alice');
+    assert.equal(result.submission.properties.distance, 11.123);
+    assert.equal(result.submission.properties.location, 'Río Negro, Argentina');
     assert.equal(result.replaced, false);
     assert.equal(result.file.features.length, 2);
   });
@@ -107,7 +107,7 @@ describe('submitRound — round 1 open enrollment (R6 / AE1 setup)', () => {
       lookupLocation: constantLocation(null),
       computeDistance: constantDistance(10),
     });
-    assert.equal(result.player, 'alice');
+    assert.equal(result.submission.properties.player, 'alice');
   });
 });
 
@@ -191,7 +191,7 @@ describe('submitRound — eligibility (R7 / AE3)', () => {
       computeDistance: constantDistance(15),
     });
     assert.equal(result.round, 2);
-    assert.equal(result.player, 'alice');
+    assert.equal(result.submission.properties.player, 'alice');
   });
 
   test('--force admits an otherwise-ineligible player', async () => {
@@ -220,8 +220,8 @@ describe('submitRound — eligibility (R7 / AE3)', () => {
       computeDistance: constantDistance(10),
     });
     assert.equal(result.round, 2);
-    assert.equal(result.player, 'dan');
-    assert.equal(result.distance, 10);
+    assert.equal(result.submission.properties.player, 'dan');
+    assert.equal(result.submission.properties.distance, 10);
   });
 
   test('eligibility trusts persisted `eliminated` field, not recomputed distances', async () => {
@@ -263,7 +263,7 @@ describe('submitRound — eligibility (R7 / AE3)', () => {
       lookupLocation: constantLocation(null),
       computeDistance: constantDistance(10),
     });
-    assert.equal(result.player, 'dan');
+    assert.equal(result.submission.properties.player, 'dan');
   });
 
   test('--force does not override an ended round', async () => {
@@ -310,7 +310,7 @@ describe('submitRound — append vs replace (R9 / AE7)', () => {
     });
 
     assert.equal(second.replaced, true);
-    assert.equal(second.distance, 50);
+    assert.equal(second.submission.properties.distance, 50);
     assert.equal(second.file.features.length, 2);
     const subs = (second.file.features.slice(1) as SubmissionFeature[]).filter(
       (f) => f.properties.player === 'alice',
@@ -331,7 +331,7 @@ describe('submitRound — location decoration (R10)', () => {
       lookupLocation: constantLocation('Río Negro, Argentina'),
       computeDistance: constantDistance(10),
     });
-    assert.equal(result.location, 'Río Negro, Argentina');
+    assert.equal(result.submission.properties.location, 'Río Negro, Argentina');
     const sub = result.file.features[1] as SubmissionFeature;
     assert.equal(sub.properties.location, 'Río Negro, Argentina');
   });
@@ -346,7 +346,10 @@ describe('submitRound — location decoration (R10)', () => {
       lookupLocation: constantLocation('California, United States'),
       computeDistance: constantDistance(10000),
     });
-    assert.equal(result.location, 'California, United States');
+    assert.equal(
+      result.submission.properties.location,
+      'California, United States',
+    );
   });
 
   test('ocean submission omits location', async () => {
@@ -359,7 +362,7 @@ describe('submitRound — location decoration (R10)', () => {
       lookupLocation: constantLocation(null),
       computeDistance: constantDistance(5000),
     });
-    assert.equal(result.location, undefined);
+    assert.equal(result.submission.properties.location, undefined);
     const sub = result.file.features[1] as SubmissionFeature;
     assert.equal('location' in sub.properties, false);
   });
