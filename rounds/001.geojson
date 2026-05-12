@@ -21,6 +21,91 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.6068333,
+          -33.4169722
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 889.6347659626372,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.6068333,
+          -33.4169722
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 889.6347659626372,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -86.973889,
+          20.47651
+        ]
+      },
+      "properties": {
+        "player": "Puerto Vallarta",
+        "distance": 5640.765494806618,
+        "location": "Quintana Roo, México",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -67.79932,
+          -22.88191
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 392.487976636256,
+        "location": "Antofagasta, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.5983889,
+          -33.4016278
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 887.7587580218797,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
     }
   ]
 }
