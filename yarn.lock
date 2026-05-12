@@ -105,6 +105,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@js-joda/core@npm:6.0.1":
+  version: 6.0.1
+  resolution: "@js-joda/core@npm:6.0.1"
+  checksum: 10c0/d65dcca509a60d70e492e922902b6687594e8b61bcc3f3b3fc9a56b36dbd8bfec8b94dd1daf6a697506edb3080c6e106a03f23930020c83200a869a7d0d2958d
+  languageName: node
+  linkType: hard
+
+"@js-joda/timezone@npm:2.25.1":
+  version: 2.25.1
+  resolution: "@js-joda/timezone@npm:2.25.1"
+  peerDependencies:
+    "@js-joda/core": ">=5.7.0"
+  checksum: 10c0/0547ae1d9dfde05ae36211d18782ce2311abc0c24e9da8dcee663a29a4b0c6347797815beff75a29be57ee5f36b8d531a377ae84d4050250a5777cf5e6364d9c
+  languageName: node
+  linkType: hard
+
 "@ngageoint/geopackage@npm:4.2.6":
   version: 4.2.6
   resolution: "@ngageoint/geopackage@npm:4.2.6"
@@ -510,6 +526,8 @@ __metadata:
   resolution: "americas@workspace:."
   dependencies:
     "@biomejs/biome": "npm:2.4.15"
+    "@js-joda/core": "npm:6.0.1"
+    "@js-joda/timezone": "npm:2.25.1"
     "@ngageoint/geopackage": "npm:4.2.6"
     "@tsconfig/node24": "npm:24.0.4"
     "@turf/boolean-point-in-polygon": "npm:7.3.5"

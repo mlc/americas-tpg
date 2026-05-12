@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
+import { Instant } from '@js-joda/core';
 import {
   eliminationsForRound,
   evaluateDnsCheck,
@@ -8,6 +9,7 @@ import {
   formatTargetDiscord,
   type RoundFile,
   RULES_URL,
+  roundExpiry,
   type SubmissionFeature,
   submissionTrackerUrl,
   submitters,
@@ -16,6 +18,12 @@ import {
   validateSubmissionEligibility,
 } from '../src/round-domain.ts';
 import { withEliminated } from './test-helpers.ts';
+
+// Fixed "now" for formatTargetDiscord tests: weekday afternoon in May, when
+// New York is on EDT (UTC-4). Next-day 21:00 NY → 2026-05-14T01:00:00Z.
+const NOW = Instant.parse('2026-05-12T14:00:00Z');
+const EXPIRY_EPOCH = Instant.parse('2026-05-14T01:00:00Z').epochSecond();
+const EXPIRY_LINE = `Submissions close <t:${EXPIRY_EPOCH}:R>`;
 
 function makeTarget(): TargetFeature {
   return {
@@ -131,13 +139,14 @@ describe('submissionTrackerUrl', () => {
 });
 
 describe('formatTargetDiscord', () => {
-  test('renders Discord markdown with header, tracker link, and rules link', () => {
+  test('renders Discord markdown with header, tracker link, rules link, and expiry', () => {
     assert.equal(
-      formatTargetDiscord(buildRound(7, null, [])),
+      formatTargetDiscord(buildRound(7, null, []), NOW),
       [
         '# Round 7, Río Negro, Argentina, [42.50000°S 67.50000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)',
         '[Submission Tracker](https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/007.geojson)',
         '[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
+        EXPIRY_LINE,
       ].join('\n'),
     );
   });
@@ -156,11 +165,12 @@ describe('formatTargetDiscord', () => {
       ],
     };
     assert.equal(
-      formatTargetDiscord(positive),
+      formatTargetDiscord(positive, NOW),
       [
         '# Round 1, Somewhere, [20.00000°N 10.00000°E](https://www.google.com/maps/search/?api=1&query=20%2C10)',
         '[Submission Tracker](https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/001.geojson)',
         '[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
+        EXPIRY_LINE,
       ].join('\n'),
     );
   });
@@ -176,7 +186,7 @@ describe('formatTargetDiscord', () => {
     ];
     for (const [language, word] of cases) {
       assert.match(
-        formatTargetDiscord(buildRound(3, null, [], language)),
+        formatTargetDiscord(buildRound(3, null, [], language), NOW),
         new RegExp(`^# ${word} 3,`),
       );
     }
@@ -184,19 +194,23 @@ describe('formatTargetDiscord', () => {
 
   test('unknown / missing language falls back to "Round"', () => {
     assert.match(
-      formatTargetDiscord(buildRound(3, null, [], 'xx')),
+      formatTargetDiscord(buildRound(3, null, [], 'xx'), NOW),
       /^# Round 3,/,
     );
-    assert.match(formatTargetDiscord(buildRound(3, null, [])), /^# Round 3,/);
+    assert.match(
+      formatTargetDiscord(buildRound(3, null, []), NOW),
+      /^# Round 3,/,
+    );
   });
 
-  test('output is exactly three lines: header, tracker, rules', () => {
-    const out = formatTargetDiscord(buildRound(2, null, []));
+  test('output is exactly four lines: header, tracker, rules, expiry', () => {
+    const out = formatTargetDiscord(buildRound(2, null, []), NOW);
     const lines = out.split('\n');
-    assert.equal(lines.length, 3);
+    assert.equal(lines.length, 4);
     assert.match(lines[0], /^# Round 2,/);
     assert.equal(lines[1], `[Submission Tracker](${submissionTrackerUrl(2)})`);
     assert.equal(lines[2], `[Rules](${RULES_URL})`);
+    assert.equal(lines[3], EXPIRY_LINE);
   });
 
   test('rules link text is bilingual for non-English rounds', () => {
@@ -208,9 +222,9 @@ describe('formatTargetDiscord', () => {
       ['ht', 'Rules / Règ'],
     ];
     for (const [language, expected] of cases) {
-      const out = formatTargetDiscord(buildRound(4, null, [], language));
-      const lastLine = out.split('\n').at(-1);
-      assert.equal(lastLine, `[${expected}](${RULES_URL})`);
+      const out = formatTargetDiscord(buildRound(4, null, [], language), NOW);
+      const rulesLine = out.split('\n')[2];
+      assert.equal(rulesLine, `[${expected}](${RULES_URL})`);
     }
   });
 
@@ -223,7 +237,7 @@ describe('formatTargetDiscord', () => {
       ['ht', 'Submission Tracker / Swivi Soumisyon'],
     ];
     for (const [language, expected] of cases) {
-      const out = formatTargetDiscord(buildRound(4, null, [], language));
+      const out = formatTargetDiscord(buildRound(4, null, [], language), NOW);
       const trackerLine = out.split('\n')[1];
       assert.equal(trackerLine, `[${expected}](${submissionTrackerUrl(4)})`);
     }
@@ -231,7 +245,7 @@ describe('formatTargetDiscord', () => {
 
   test('English / unknown / missing language uses plain "Rules" and "Submission Tracker" links', () => {
     for (const lang of ['en', 'xx', undefined]) {
-      const out = formatTargetDiscord(buildRound(4, null, [], lang));
+      const out = formatTargetDiscord(buildRound(4, null, [], lang), NOW);
       const [, trackerLine, rulesLine] = out.split('\n');
       assert.equal(
         trackerLine,
@@ -239,6 +253,96 @@ describe('formatTargetDiscord', () => {
       );
       assert.equal(rulesLine, `[Rules](${RULES_URL})`);
     }
+  });
+
+  test('expiry line is the 4th line with a relative Discord timestamp for the next-day 21:00 NY epoch second', () => {
+    const out = formatTargetDiscord(buildRound(5, null, []), NOW);
+    const lines = out.split('\n');
+    assert.equal(lines.length, 4);
+    assert.equal(lines[3], `Submissions close <t:${EXPIRY_EPOCH}:R>`);
+    // Sanity: matches the Discord <t:UNIX:R> grammar — integer seconds + :R.
+    assert.match(lines[3], /^Submissions close <t:\d+:R>$/);
+  });
+
+  test('expiry line tracks the provided `now` — a different now produces a different epoch', () => {
+    // One week later → expiry shifts by exactly 7 days = 604800 seconds.
+    const later = NOW.plusSeconds(7 * 24 * 60 * 60);
+    const expiryLater = formatTargetDiscord(
+      buildRound(6, null, []),
+      later,
+    ).split('\n')[3];
+    const expected = `Submissions close <t:${EXPIRY_EPOCH + 7 * 24 * 60 * 60}:R>`;
+    assert.equal(expiryLater, expected);
+  });
+
+  test('defaults `now` to wall-clock when omitted — expiry is still well-formed and in the future', () => {
+    const before = Math.floor(Date.now() / 1000);
+    const out = formatTargetDiscord(buildRound(1, null, []));
+    const after = Math.floor(Date.now() / 1000);
+    const match = out.split('\n')[3].match(/^Submissions close <t:(\d+):R>$/);
+    assert.ok(match, `expected expiry line, got: ${out.split('\n')[3]}`);
+    const epoch = Number(match[1]);
+    // Next-day 21:00 NY is always strictly in the future relative to "now",
+    // and at most ~48h ahead (worst case: right after the prior day's 21:00).
+    assert.ok(epoch > before, `expiry ${epoch} should be > now ${before}`);
+    assert.ok(
+      epoch < after + 48 * 60 * 60,
+      `expiry ${epoch} should be < now + 48h (${after + 48 * 60 * 60})`,
+    );
+  });
+});
+
+describe('roundExpiry', () => {
+  test('returns next-day 21:00 in New York (EDT case, May)', () => {
+    // 2026-05-12T14:00:00Z → next-day 21:00 NY (EDT, UTC-4) = 2026-05-14T01:00:00Z.
+    const expiry = roundExpiry(Instant.parse('2026-05-12T14:00:00Z'));
+    assert.equal(expiry.toString(), '2026-05-14T01:00:00Z');
+  });
+
+  test('returns next-day 21:00 in New York (EST case, January)', () => {
+    // 2026-01-15T14:00:00Z → next-day 21:00 NY (EST, UTC-5) = 2026-01-17T02:00:00Z.
+    const expiry = roundExpiry(Instant.parse('2026-01-15T14:00:00Z'));
+    assert.equal(expiry.toString(), '2026-01-17T02:00:00Z');
+  });
+
+  test('crosses spring-forward DST boundary cleanly', () => {
+    // 2026 US DST begins 2026-03-08 (clocks jump from 02:00 EST → 03:00 EDT).
+    // "now" the morning before → next-day 21:00 NY lands AFTER the transition,
+    // so the resulting instant uses the EDT offset (UTC-4), not EST.
+    const expiry = roundExpiry(Instant.parse('2026-03-07T14:00:00Z'));
+    assert.equal(expiry.toString(), '2026-03-09T01:00:00Z');
+  });
+
+  test('crosses fall-back DST boundary cleanly', () => {
+    // 2026 US DST ends 2026-11-01 (clocks fall back from 02:00 EDT → 01:00 EST).
+    // "now" the morning before → next-day 21:00 NY lands AFTER the transition,
+    // so the resulting instant uses the EST offset (UTC-5).
+    const expiry = roundExpiry(Instant.parse('2026-10-31T14:00:00Z'));
+    assert.equal(expiry.toString(), '2026-11-02T02:00:00Z');
+  });
+
+  test('late-evening "now" past 21:00 NY still rolls to the NEXT day, not the same day', () => {
+    // 2026-05-12T23:00:00Z = 2026-05-12T19:00 EDT. Naively "21:00 today" would
+    // be just 2 hours away, but roundExpiry always adds a day first, so the
+    // result is 2026-05-13T21:00 EDT = 2026-05-14T01:00:00Z (~26 hours out).
+    const expiry = roundExpiry(Instant.parse('2026-05-12T23:00:00Z'));
+    assert.equal(expiry.toString(), '2026-05-14T01:00:00Z');
+  });
+
+  test('"now" before midnight UTC but already next-day in NY rolls relative to NY date, not UTC date', () => {
+    // 2026-05-13T01:00:00Z = 2026-05-12T21:00 EDT. NY calendar date is still
+    // May 12, so next-day 21:00 NY = 2026-05-13T21:00 EDT = 2026-05-14T01:00:00Z.
+    const expiry = roundExpiry(Instant.parse('2026-05-13T01:00:00Z'));
+    assert.equal(expiry.toString(), '2026-05-14T01:00:00Z');
+  });
+
+  test('default `now` (omitted) returns an instant strictly in the future', () => {
+    const before = Instant.now();
+    const expiry = roundExpiry();
+    assert.ok(
+      expiry.isAfter(before),
+      `expiry ${expiry} should be after now ${before}`,
+    );
   });
 });
 

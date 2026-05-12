@@ -114,19 +114,23 @@ describe('createRound', () => {
     assert.equal(result.path, join(dir, '004.geojson'));
   });
 
-  test('returned discordMessage is Discord markdown with header, tracker link, and rules link', async () => {
+  test('returned discordMessage is Discord markdown with header, tracker link, rules link, and expiry', async () => {
     const result = await createRound({
       generateTarget: async () => ({ target: argentinaTarget }),
       roundsDir: dir,
     });
-    assert.equal(
-      result.discordMessage,
-      [
-        '# Round 1, Río Negro, Argentina, [42.50000°S 67.50000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)',
-        '[Submission Tracker](https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/001.geojson)',
-        '[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
-      ].join('\n'),
-    );
+    const lines = result.discordMessage.split('\n');
+    // createRound calls formatTargetDiscord without a fixed `now`, so the
+    // expiry epoch is wall-clock-dependent — assert structure on line 4
+    // rather than a specific value (formatTargetDiscord's own tests cover
+    // the expiry-line semantics in depth).
+    assert.deepEqual(lines.slice(0, 3), [
+      '# Round 1, Río Negro, Argentina, [42.50000°S 67.50000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)',
+      '[Submission Tracker](https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/001.geojson)',
+      '[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
+    ]);
+    assert.equal(lines.length, 4);
+    assert.match(lines[3], /^Submissions close <t:\d+:R>$/);
   });
 
   test('does not overwrite an existing round (R4 / AE8)', async () => {

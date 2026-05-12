@@ -1,3 +1,4 @@
+import { Instant, LocalTime, ZoneId } from '@js-joda/core';
 import { distance } from '@turf/distance';
 import type { Feature, Point, Position } from 'geojson';
 import { formatCoords } from './format.ts';
@@ -262,7 +263,14 @@ export function googleMapsUrl(feature: Feature<Point>): string {
   return `https://www.google.com/maps/search/?${params}`;
 }
 
-export function formatTargetDiscord(file: RoundFile): string {
+export const roundExpiry = (now = Instant.now()): Instant =>
+  now
+    .atZone(ZoneId.of('America/New_York'))
+    .plusDays(1)
+    .with(LocalTime.parse('21:00'))
+    .toInstant();
+
+export function formatTargetDiscord(file: RoundFile, now?: Instant): string {
   const target = targetOf(file);
   const url = googleMapsUrl(target);
   const coords = formatCoords(target.geometry.coordinates);
@@ -270,7 +278,9 @@ export function formatTargetDiscord(file: RoundFile): string {
   const header = `# ${word} ${file.roundInfo.number}, ${target.properties.location}, [${coords}](${url})`;
   const trackerLink = `[${submissionTrackerLinkText(file.roundInfo.language)}](${submissionTrackerUrl(file.roundInfo.number)})`;
   const rulesLink = `[${rulesLinkText(file.roundInfo.language)}](${RULES_URL})`;
-  return `${header}\n${trackerLink}\n${rulesLink}`;
+  const expiry = roundExpiry(now);
+  const expiryString = `Submissions close <t:${expiry.epochSecond()}:R>`;
+  return [header, trackerLink, rulesLink, expiryString].join('\n');
 }
 
 export function formatStandings(round: RoundFile): string {
