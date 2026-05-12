@@ -27,13 +27,47 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          -70.6068333,
-          -33.4169722
+          -67.6604464,
+          -23.9253541
         ]
       },
       "properties": {
-        "player": "maclang23",
-        "distance": 889.6347659626372,
+        "player": "Rikk",
+        "distance": 278.8989054708665,
+        "location": "Antofagasta, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -67.79932,
+          -22.88191
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 392.487976636256,
+        "location": "Antofagasta, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.5983889,
+          -33.4016278
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 887.7587580218797,
         "location": "Santiago Metropolitan, Chile",
         "marker-symbol": "circle",
         "marker-color": "#cd7f32"
@@ -49,9 +83,77 @@
         ]
       },
       "properties": {
+        "player": "maclang23",
+        "distance": 889.6347659626372,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.6068333,
+          -33.4169722
+        ]
+      },
+      "properties": {
         "player": "maplemanatee",
         "distance": 889.6347659626372,
         "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.5362592,
+          -16.3999567
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 1207.8192914957622,
+        "location": "Arequipa, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -75.3132333,
+          6.1759861
+        ]
+      },
+      "properties": {
+        "player": "Daws",
+        "distance": 3724.703164101779,
+        "location": "Antioquia, Colombia",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -82.2537177,
+          8.2076028
+        ]
+      },
+      "properties": {
+        "player": "georoulette",
+        "distance": 4187.373767798532,
+        "location": "Chiriquí, Panama",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
@@ -78,40 +180,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          -67.79932,
-          -22.88191
-        ]
-      },
-      "properties": {
-        "player": "mlc",
-        "distance": 392.487976636256,
-        "location": "Antofagasta, Chile",
-        "marker-symbol": "circle",
-        "marker-color": "#d4af37"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -70.5983889,
-          -33.4016278
-        ]
-      },
-      "properties": {
-        "player": "Norton",
-        "distance": 887.7587580218797,
-        "location": "Santiago Metropolitan, Chile",
-        "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           -81.083871,
           24.692165
         ]
@@ -121,41 +189,24 @@
         "distance": 5872.90839128994,
         "location": "Florida, United States",
         "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -81.797461,
+          24.546534
+        ]
+      },
+      "properties": {
+        "player": "OKobern",
+        "distance": 5878.260705056678,
+        "location": "Florida, United States",
+        "marker-symbol": "circle",
         "marker-color": "#ff0000"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -82.2537177,
-          8.2076028
-        ]
-      },
-      "properties": {
-        "player": "georoulette",
-        "distance": 4187.373767798532,
-        "location": "Chiriquí, Panama",
-        "marker-symbol": "circle",
-        "marker-color": "#444444"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -71.5362592,
-          -16.3999567
-        ]
-      },
-      "properties": {
-        "player": "Patxepi",
-        "distance": 1207.8192914957622,
-        "location": "Arequipa, Peru",
-        "marker-symbol": "circle",
-        "marker-color": "#444444"
       }
     }
   ]
