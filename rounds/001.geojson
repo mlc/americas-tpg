@@ -123,6 +123,40 @@
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -82.2537177,
+          8.2076028
+        ]
+      },
+      "properties": {
+        "player": "georoulette",
+        "distance": 4187.373767798532,
+        "location": "Chiriquí, Panama",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.5362592,
+          -16.3999567
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 1207.8192914957622,
+        "location": "Arequipa, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
     }
   ]
 }
