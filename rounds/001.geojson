@@ -163,6 +163,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -57.85211,
+          -34.47243
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 1239.2984948346455,
+        "location": "Colonia, Uruguay",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -75.3132333,
           6.1759861
         ]
@@ -256,6 +273,22 @@
         "player": "OKobern",
         "distance": 5878.260705056678,
         "location": "Florida, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.27853,
+          53.34097
+        ]
+      },
+      "properties": {
+        "player": "Pinea",
+        "distance": 10575.197985198238,
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
