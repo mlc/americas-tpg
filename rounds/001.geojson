@@ -44,6 +44,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -65.701781,
+          -24.8873279
+        ]
+      },
+      "properties": {
+        "player": "Talking Nonsense",
+        "distance": 171.88884952379567,
+        "location": "Salta, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -67.6604464,
           -23.9253541
         ]
@@ -53,7 +70,7 @@
         "distance": 278.8989054708665,
         "location": "Antofagasta, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -70,7 +87,7 @@
         "distance": 392.487976636256,
         "location": "Antofagasta, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
