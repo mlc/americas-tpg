@@ -163,6 +163,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -61.128584924359075,
+          10.585860154170948
+        ]
+      },
+      "properties": {
+        "player": "Johann Sebastian Bach",
+        "distance": 4135.212931507441,
+        "location": "Sangre Grande, Trinidad and Tobago",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -82.2537177,
           8.2076028
         ]
@@ -222,6 +239,23 @@
         "player": "OKobern",
         "distance": 5878.260705056678,
         "location": "Florida, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          167.973464743304,
+          -29.055018810091
+        ]
+      },
+      "properties": {
+        "player": "Miss Inputs 🐈",
+        "distance": 11554.284459201539,
+        "location": "Norfolk Island",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
