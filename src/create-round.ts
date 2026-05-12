@@ -108,7 +108,7 @@ export async function sampleTargetFromGadm(
         type: 'Feature',
         id: 'target',
         geometry: { type: 'Point', coordinates: position },
-        properties: { location },
+        properties: { player: 'Target', distance: null, location },
       },
       ...(language ? { language } : {}),
     };

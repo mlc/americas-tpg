@@ -276,8 +276,13 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
   if (!targetProps || typeof targetProps !== 'object') {
     fail('features[0] (target) must have a properties object');
   }
-  if ('player' in targetProps) {
-    fail('features[0] (target) must not have a player property');
+  if (targetProps.player !== 'Target') {
+    fail(
+      `features[0] (target) must have properties.player === 'Target' (got ${JSON.stringify(targetProps.player)})`,
+    );
+  }
+  if (!('distance' in targetProps) || targetProps.distance !== null) {
+    fail('features[0] (target) must have properties.distance === null');
   }
   if (
     typeof targetProps.location !== 'string' ||

@@ -24,7 +24,11 @@ function makeArgentinaTarget(): TargetFeature {
     type: 'Feature',
     id: 'target',
     geometry: { type: 'Point', coordinates: ARGENTINA_TARGET_COORDS },
-    properties: { location: 'Río Negro, Argentina' },
+    properties: {
+      player: 'Target',
+      distance: null,
+      location: 'Río Negro, Argentina',
+    },
   };
 }
 

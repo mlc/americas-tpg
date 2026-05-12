@@ -37,7 +37,11 @@ function makeRoundFile(
         type: 'Feature',
         id: 'target',
         geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-        properties: { location: 'Río Negro, Argentina' },
+        properties: {
+          player: 'Target',
+          distance: null,
+          location: 'Río Negro, Argentina',
+        },
       },
     ],
   };
@@ -141,13 +145,40 @@ describe('readRound', () => {
     await assert.rejects(readRound(path), /id: "target"/);
   });
 
-  test('rejects target with player property', async () => {
+  test("rejects target whose player is not 'Target'", async () => {
     const path = join(dir, '001.geojson');
     const bad = makeRoundFile(1);
     // biome-ignore lint/suspicious/noExplicitAny: deliberately invalid fixture
     (bad.features[0].properties as any).player = 'alice';
     await writeFile(path, JSON.stringify(bad));
-    await assert.rejects(readRound(path), /must not have a player property/);
+    await assert.rejects(readRound(path), /properties\.player === 'Target'/);
+  });
+
+  test('rejects target missing the player property', async () => {
+    const path = join(dir, '001.geojson');
+    const bad = makeRoundFile(1);
+    // biome-ignore lint/suspicious/noExplicitAny: deliberately invalid fixture
+    delete (bad.features[0].properties as any).player;
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(readRound(path), /properties\.player === 'Target'/);
+  });
+
+  test('rejects target whose distance is not null', async () => {
+    const path = join(dir, '001.geojson');
+    const bad = makeRoundFile(1);
+    // biome-ignore lint/suspicious/noExplicitAny: deliberately invalid fixture
+    (bad.features[0].properties as any).distance = 0;
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(readRound(path), /properties\.distance === null/);
+  });
+
+  test('rejects target missing the distance property', async () => {
+    const path = join(dir, '001.geojson');
+    const bad = makeRoundFile(1);
+    // biome-ignore lint/suspicious/noExplicitAny: deliberately invalid fixture
+    delete (bad.features[0].properties as any).distance;
+    await writeFile(path, JSON.stringify(bad));
+    await assert.rejects(readRound(path), /properties\.distance === null/);
   });
 
   test('rejects FeatureCollection without roundInfo', async () => {
@@ -161,7 +192,11 @@ describe('readRound', () => {
             type: 'Feature',
             id: 'target',
             geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-            properties: { location: 'Río Negro, Argentina' },
+            properties: {
+              player: 'Target',
+              distance: null,
+              location: 'Río Negro, Argentina',
+            },
           },
         ],
       }),
@@ -181,7 +216,11 @@ describe('readRound', () => {
             type: 'Feature',
             id: 'target',
             geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-            properties: { location: 'Río Negro, Argentina' },
+            properties: {
+              player: 'Target',
+              distance: null,
+              location: 'Río Negro, Argentina',
+            },
           },
         ],
       }),
@@ -215,7 +254,11 @@ describe('readRound', () => {
             type: 'Feature',
             id: 'target',
             geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-            properties: { location: 'Río Negro, Argentina' },
+            properties: {
+              player: 'Target',
+              distance: null,
+              location: 'Río Negro, Argentina',
+            },
           },
         ],
       }),
@@ -235,7 +278,7 @@ describe('readRound', () => {
             type: 'Feature',
             id: 'target',
             geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-            properties: {},
+            properties: { player: 'Target', distance: null },
           },
         ],
       }),
@@ -350,7 +393,11 @@ describe('readRound', () => {
             type: 'Feature',
             id: 'target',
             geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-            properties: { location: 'Río Negro, Argentina' },
+            properties: {
+              player: 'Target',
+              distance: null,
+              location: 'Río Negro, Argentina',
+            },
           },
         ],
       }),
@@ -391,7 +438,11 @@ describe('readRound', () => {
           type: 'Feature',
           id: 'target',
           geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-          properties: { location: 'Río Negro, Argentina' },
+          properties: {
+            player: 'Target',
+            distance: null,
+            location: 'Río Negro, Argentina',
+          },
         },
       ],
     };
@@ -502,7 +553,11 @@ describe('readRound', () => {
           type: 'Feature',
           id: 'target',
           geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-          properties: { location: 'Río Negro, Argentina' },
+          properties: {
+            player: 'Target',
+            distance: null,
+            location: 'Río Negro, Argentina',
+          },
         },
       ],
     };
@@ -630,7 +685,11 @@ function makeRoundWithSubmissions(
         type: 'Feature',
         id: 'target',
         geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-        properties: { location: 'Río Negro, Argentina' },
+        properties: {
+          player: 'Target',
+          distance: null,
+          location: 'Río Negro, Argentina',
+        },
       },
       ...stamped,
     ],

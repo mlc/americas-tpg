@@ -115,10 +115,16 @@ validators don't special-case it.
     language. Drives the "Round"/"Ronda"/"Rodada"/etc. translation in
     `formatTargetDiscord` via `roundLabel` from `language.ts`.
 - `features[0]` is the target: `id: 'target'`, point geometry, and
+  `properties.player === 'Target'`, `properties.distance === null`,
   `properties.location` (non-empty string) — *that's it for stable
-  fields*. Simplestyle marker properties are stamped on every write by
-  `applySimplestyle` and appear alongside `location`. There is no
-  per-target `ended_at` or `language` anymore — both moved to `roundInfo`.
+  fields*. The fixed `player: 'Target'` / `distance: null` pair gives
+  the target the same property shape as the submission features so
+  downstream consumers (geojson.io tooltips, tabular views) can treat
+  every feature uniformly; the validator enforces both literals on
+  every read. Simplestyle marker properties are stamped on every write
+  by `applySimplestyle` and appear alongside the stable fields. There
+  is no per-target `ended_at` or `language` anymore — both moved to
+  `roundInfo`.
   `applySimplestyle` spreads both `...round` (preserving `roundInfo` and
   any other top-level foreign members) and `...feature.properties` on the
   way through, so unknown / future fields survive round-trips at both

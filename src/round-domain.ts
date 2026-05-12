@@ -52,7 +52,13 @@ export interface RoundFile {
 
 export type RoundFeature = TargetFeature | SubmissionFeature;
 
-export interface TargetFeature extends Feature<Point, { location: string }> {
+export type TargetProperties = {
+  player: 'Target';
+  distance: null;
+  location: string;
+};
+
+export interface TargetFeature extends Feature<Point, TargetProperties> {
   id: 'target';
 }
 
@@ -68,17 +74,18 @@ export function endedAtOf(round: RoundFile): string | null {
   return round.roundInfo.endedAt;
 }
 
-export type SubmissionFeature = Feature<
-  Point,
-  {
-    player: string;
-    distance: number;
-    location?: string;
-    // Stamped on every submission when the round is ended (via end-round).
-    // Absent on in-progress rounds. The validator enforces both directions.
-    eliminated?: boolean;
-  }
-> & { id?: never };
+export type SubmissionProperties = {
+  player: string;
+  distance: number;
+  location?: string;
+  // Stamped on every submission when the round is ended (via end-round).
+  // Absent on in-progress rounds. The validator enforces both directions.
+  eliminated?: boolean;
+};
+
+export type SubmissionFeature = Feature<Point, SubmissionProperties> & {
+  id?: never;
+};
 
 export function submissionsOf(round: RoundFile): readonly SubmissionFeature[] {
   return round.features.slice(1) as SubmissionFeature[];

@@ -30,7 +30,11 @@ function makeTarget(): TargetFeature {
     type: 'Feature',
     id: 'target',
     geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
-    properties: { location: 'Río Negro, Argentina' },
+    properties: {
+      player: 'Target',
+      distance: null,
+      location: 'Río Negro, Argentina',
+    },
   };
 }
 
@@ -160,7 +164,11 @@ describe('formatTargetDiscord', () => {
           type: 'Feature',
           id: 'target',
           geometry: { type: 'Point', coordinates: [10.0, 20.0] },
-          properties: { location: 'Somewhere' },
+          properties: {
+            player: 'Target',
+            distance: null,
+            location: 'Somewhere',
+          },
         },
       ],
     };
