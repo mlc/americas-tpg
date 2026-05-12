@@ -231,6 +231,40 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -68.37040476806294,
+          12.233361505503758
+        ]
+      },
+      "properties": {
+        "player": "Summitblvd",
+        "distance": 4281.015190055307,
+        "location": "Bonaire, Bonaire, Sint Eustatius and Saba",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.74902823085087,
+          15.823289434399953
+        ]
+      },
+      "properties": {
+        "player": "Martin",
+        "distance": 5255.374408746153,
+        "location": "Izabal, Guatemala",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -86.973889,
           20.47651
         ]
@@ -273,6 +307,23 @@
         "player": "OKobern",
         "distance": 5878.260705056678,
         "location": "Florida, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          170.6481946092008,
+          -45.896760126509406
+        ]
+      },
+      "properties": {
+        "player": "Arcturus",
+        "distance": 10140.086248837226,
+        "location": "Otago, New Zealand",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
