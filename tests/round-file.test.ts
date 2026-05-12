@@ -530,6 +530,44 @@ describe('writeRoundAtomic', () => {
     assert.equal(parsed.features[0].id, 'target');
     assert.equal(parsed.features[0].properties.ended_at, undefined);
   });
+
+  test('sorts submissions by distance ascending on disk; target stays at index 0', async () => {
+    const submission = (
+      player: string,
+      distance: number,
+    ): SubmissionFeature => ({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [0, 0] },
+      properties: { player, distance },
+    });
+    const file: RoundFile = {
+      ...makeRoundFile(1),
+      features: [
+        makeRoundFile(1).features[0],
+        submission('carol', 30),
+        submission('alice', 10),
+        submission('dan', 40),
+        submission('bob', 20),
+      ],
+    };
+    const path = join(dir, '001.geojson');
+    await writeRoundAtomic(path, file);
+
+    const parsed = JSON.parse(await readFile(path, 'utf8'));
+    assert.equal(parsed.features[0].id, 'target');
+    assert.deepEqual(
+      parsed.features
+        .slice(1)
+        .map((f: SubmissionFeature) => f.properties.player),
+      ['alice', 'bob', 'carol', 'dan'],
+    );
+    assert.deepEqual(
+      parsed.features
+        .slice(1)
+        .map((f: SubmissionFeature) => f.properties.distance),
+      [10, 20, 30, 40],
+    );
+  });
 });
 
 describe('findActiveRound / findLatestRound', () => {

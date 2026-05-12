@@ -164,7 +164,21 @@ export async function writeRoundAtomic(
 ): Promise<void> {
   await mkdir(dirname(path), { recursive: true });
   const tmp = `${path}.tmp`;
-  const json = `${JSON.stringify(applySimplestyle(file), null, 2)}\n`;
+  const styled = applySimplestyle(file);
+  const sorted: RoundFile = {
+    ...styled,
+    features: [
+      styled.features[0],
+      ...styled.features
+        .slice(1)
+        .sort(
+          (a, b) =>
+            (a.properties as { distance: number }).distance -
+            (b.properties as { distance: number }).distance,
+        ),
+    ],
+  };
+  const json = `${JSON.stringify(sorted, null, 2)}\n`;
   try {
     await writeFile(tmp, json, 'utf8');
     await rename(tmp, path);
