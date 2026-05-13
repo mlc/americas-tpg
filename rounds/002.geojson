@@ -436,6 +436,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -5.87491,
+          37.41796
+        ]
+      },
+      "properties": {
+        "player": "Pinea",
+        "distance": 8151.105916324323,
+        "location": "Andalucía, Spain",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -1.268997862834679,
           51.78482256481019
         ]
