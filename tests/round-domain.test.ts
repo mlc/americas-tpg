@@ -500,6 +500,53 @@ describe('roundExpiry', () => {
       `expiry ${expiry} should be after now ${before}`,
     );
   });
+
+  test('daysAhead = 0 returns same-day 21:00 in New York', () => {
+    // 2026-05-13T14:00:00Z = 2026-05-13T10:00 EDT. Same-day 21:00 NY (EDT) =
+    // 2026-05-14T01:00:00Z.
+    const expiry = roundExpiry(Instant.parse('2026-05-13T14:00:00Z'), 0);
+    assert.equal(expiry.toString(), '2026-05-14T01:00:00Z');
+  });
+
+  test('daysAhead = 0 rolls relative to NY date, not UTC date', () => {
+    // 2026-05-13T01:00:00Z = 2026-05-12T21:00 EDT. NY calendar date is still
+    // May 12, so same-day 21:00 NY = 2026-05-12T21:00 EDT = 2026-05-13T01:00:00Z
+    // — the input instant itself.
+    const expiry = roundExpiry(Instant.parse('2026-05-13T01:00:00Z'), 0);
+    assert.equal(expiry.toString(), '2026-05-13T01:00:00Z');
+  });
+
+  test('daysAhead = 0 can return a past instant when "now" is after 21:00 NY', () => {
+    // 2026-05-12T23:00:00Z = 2026-05-12T19:00 EDT — before 21:00 NY today, so
+    // same-day expiry is still ahead by 2 hours.
+    const before2100 = roundExpiry(Instant.parse('2026-05-12T23:00:00Z'), 0);
+    assert.equal(before2100.toString(), '2026-05-13T01:00:00Z');
+    // 2026-05-13T03:00:00Z = 2026-05-12T23:00 EDT — past 21:00 NY today, so
+    // same-day expiry is 2 hours in the past. The function doesn't clamp;
+    // callers send reminders before the deadline, not after.
+    const past2100 = roundExpiry(Instant.parse('2026-05-13T03:00:00Z'), 0);
+    assert.equal(past2100.toString(), '2026-05-13T01:00:00Z');
+    assert.ok(past2100.isBefore(Instant.parse('2026-05-13T03:00:00Z')));
+  });
+
+  test('daysAhead = 2 advances exactly two NY calendar days', () => {
+    // 2026-05-12T14:00:00Z + 2 days → 2026-05-14T21:00 EDT = 2026-05-15T01:00:00Z.
+    const expiry = roundExpiry(Instant.parse('2026-05-12T14:00:00Z'), 2);
+    assert.equal(expiry.toString(), '2026-05-15T01:00:00Z');
+  });
+
+  test('daysAhead = 0 crossing spring-forward DST lands at 21:00 NY EDT', () => {
+    // 2026-03-08T14:00:00Z is 2026-03-08T10:00 EDT (DST already started at
+    // 02:00 local). Same-day 21:00 NY uses the post-transition EDT offset
+    // (UTC-4), so 21:00 EDT = 2026-03-09T01:00:00Z.
+    const expiry = roundExpiry(Instant.parse('2026-03-08T14:00:00Z'), 0);
+    assert.equal(expiry.toString(), '2026-03-09T01:00:00Z');
+  });
+
+  test('explicit daysAhead = 1 matches the default behavior', () => {
+    const now = Instant.parse('2026-05-12T14:00:00Z');
+    assert.equal(roundExpiry(now, 1).toString(), roundExpiry(now).toString());
+  });
 });
 
 describe('submitters / eliminationsForRound', () => {

@@ -283,10 +283,10 @@ export function googleMapsUrl(feature: Feature<Point>): string {
   return `https://www.google.com/maps/search/?${params}`;
 }
 
-export const roundExpiry = (now = Instant.now()): Instant =>
+export const roundExpiry = (now = Instant.now(), daysAhead = 1): Instant =>
   now
     .atZone(ZoneId.of('America/New_York'))
-    .plusDays(1)
+    .plusDays(daysAhead)
     .with(LocalTime.parse('21:00'))
     .toInstant();
 

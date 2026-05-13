@@ -90,11 +90,11 @@ describe('sendReminders', () => {
     assert.deepEqual([...result.pending], ['bob']);
     assert.match(
       result.message,
-      /^Round 2 reminders — still need submissions from:\n@bob\n/,
+      /^Round 2, 1\/2 submissions received, round ends at <t:\d+:t>\n@bob\n/,
     );
   });
 
-  test('all eligible submitted prints friendly note', async () => {
+  test('all eligible submitted omits the ping line but keeps the header', async () => {
     const r1 = makeRound(
       1,
       '2026-05-06T12:00:00Z',
@@ -120,7 +120,7 @@ describe('sendReminders', () => {
     assert.deepEqual([...result.pending], []);
     assert.match(
       result.message,
-      /^All eligible players have submitted for round 2\.\n/,
+      /^Round 2, 2\/2 submissions received, round ends at <t:\d+:t>\n\[Submission Tracker\]/,
     );
   });
 

@@ -2,6 +2,7 @@ import { parseArgs } from 'node:util';
 import { isMain, parseRound } from './cli-helpers.ts';
 import {
   endedAtOf,
+  roundExpiry,
   submissionsOf,
   submissionTrackerUrl,
   submitters,
@@ -74,10 +75,16 @@ export async function sendReminders(
   const pending = [...eligible].filter((p) => !submitted.has(p)).sort();
 
   const trackerLink = `[Submission Tracker](${submissionTrackerUrl(round)})`;
-  const message =
-    pending.length === 0
-      ? `All eligible players have submitted for round ${round}.\n${trackerLink}`
-      : `Round ${round} reminders — still need submissions from:\n${pending.map((p) => `@${p}`).join(' ')}\n${trackerLink}`;
+  const received = eligible.size - pending.length;
+  const expiry = roundExpiry(undefined, 0);
+  const lines: string[] = [
+    `Round ${round}, ${received}/${eligible.size} submissions received, round ends at <t:${expiry.epochSecond()}:t>`,
+  ];
+  if (pending.length > 0) {
+    lines.push(pending.map((p) => `@${p}`).join(' '));
+  }
+  lines.push(trackerLink);
+  const message = lines.join('\n');
 
   return { round, pending, message };
 }
