@@ -46,6 +46,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -88.2154901,
+          17.5138401
+        ]
+      },
+      "properties": {
+        "player": "georoulette",
+        "distance": 98.48020561736182,
+        "location": "Belize, Belize",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -88.1840039220844,
           17.49338220844898
         ]
@@ -55,7 +72,7 @@
         "distance": 101.8310522782003,
         "location": "Belize, Belize",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -72,7 +89,7 @@
         "distance": 466.24116821289863,
         "location": "Guatemala, Guatemala",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
@@ -122,6 +139,40 @@
         "player": "Loading...",
         "distance": 978.3050341562672,
         "location": "Puntarenas, Costa Rica",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.1805762,
+          19.0525028
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 1017.1479620494738,
+        "location": "Puebla, México",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.899828,
+          -6.705231
+        ]
+      },
+      "properties": {
+        "player": "Palin",
+        "distance": 2942.180916435863,
+        "location": "Lambayeque, Peru",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
