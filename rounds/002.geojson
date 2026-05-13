@@ -63,6 +63,22 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -87.6912758,
+          18.7317685
+        ]
+      },
+      "properties": {
+        "player": "Johann Sebastian Bach",
+        "distance": 100.64249786201684,
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -88.1840039220844,
           17.49338220844898
         ]
@@ -72,7 +88,7 @@
         "distance": 101.8310522782003,
         "location": "Belize, Belize",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
@@ -122,6 +138,23 @@
         "player": "Patxepi",
         "distance": 466.24116821289863,
         "location": "Guatemala, Guatemala",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -91.22954,
+          14.63816
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 500.8925141272224,
+        "location": "Sololá, Guatemala",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
