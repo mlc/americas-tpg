@@ -80,6 +80,40 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -88.5547515206128,
+          17.352230505188913
+        ]
+      },
+      "properties": {
+        "player": "De Martian",
+        "distance": 109.80333979408789,
+        "location": "Belize, Belize",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.2018015,
+          20.6901599
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 263.9180608602381,
+        "location": "Yucatán, México",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -90.5183748,
           14.594602
         ]
@@ -148,6 +182,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -81.797461,
+          24.546534
+        ]
+      },
+      "properties": {
+        "player": "OKobern",
+        "distance": 981.9517392876936,
+        "location": "Florida, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -98.1805762,
           19.0525028
         ]
@@ -156,6 +207,23 @@
         "player": "maclang23",
         "distance": 1017.1479620494738,
         "location": "Puebla, México",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -81.0852675894499,
+          24.69211243462596
+        ]
+      },
+      "properties": {
+        "player": "Tones",
+        "distance": 1046.179778955056,
+        "location": "Florida, United States",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
