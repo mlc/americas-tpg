@@ -165,6 +165,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -99.0785,
+          19.4243
+        ]
+      },
+      "properties": {
+        "player": "Talking Nonsense",
+        "distance": 1113.9017698037246,
+        "location": "Distrito Federal, México",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -79.899828,
           -6.705231
         ]
