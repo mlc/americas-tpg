@@ -23,6 +23,125 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -87.9710528,
+          17.9745861
+        ]
+      },
+      "properties": {
+        "player": "Daws",
+        "distance": 73.56660740621899,
+        "location": "Corozal, Belize",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.1840039220844,
+          17.49338220844898
+        ]
+      },
+      "properties": {
+        "player": "Summitblvd",
+        "distance": 101.8310522782003,
+        "location": "Belize, Belize",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.5183748,
+          14.594602
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 466.24116821289863,
+        "location": "Guatemala, Guatemala",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -89.0605,
+          13.4435
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 547.1449730568015,
+        "location": "La Paz, El Salvador",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -83.7148611,
+          22.6331245
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 693.9460124014867,
+        "location": "Pinar del Río, Cuba",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -84.824511,
+          10.315301
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 978.3050341562672,
+        "location": "Puntarenas, Costa Rica",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -68.908476,
+          -22.496451
+        ]
+      },
+      "properties": {
+        "player": "Igorjan94 (wildtravel_club)",
+        "distance": 5017.824162042626,
+        "location": "Antofagasta, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
