@@ -19,6 +19,7 @@ import {
   eliminationsFromFlags,
   endedAtOf,
   evaluateDnsCheck,
+  formatRoundResultDiscord,
   formatStandings,
   type RoundFile,
   submissionsOf,
@@ -90,6 +91,10 @@ export interface EndRoundResult {
   endedAt: string;
   wasAlreadyEnded: boolean;
   file: RoundFile;
+  /** Discord-pasteable summary of the round's outcome. Three-line shape:
+   * `## Round N complete` header, one line per eliminated submitter/DNS,
+   * trailing `M players remain.` / winner / stalemate footer. */
+  discordMessage: string;
 }
 
 export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
@@ -190,6 +195,12 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
       dnsChecks,
       lookupLocation,
     });
+    const discordMessage = formatRoundResultDiscord({
+      round: updated,
+      eliminations: finalEliminations,
+      dnsSet,
+      nextEligible,
+    });
     return {
       round,
       path,
@@ -202,6 +213,7 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
       endedAt,
       wasAlreadyEnded: false,
       file: updated,
+      discordMessage,
     };
   }
 
@@ -234,6 +246,12 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
     dnsChecks,
     lookupLocation,
   });
+  const discordMessage = formatRoundResultDiscord({
+    round: current,
+    eliminations: persistedEliminations,
+    dnsSet,
+    nextEligible,
+  });
   return {
     round,
     path,
@@ -246,6 +264,7 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
     endedAt: existingEndedAt,
     wasAlreadyEnded: true,
     file: current,
+    discordMessage,
   };
 }
 
@@ -432,7 +451,7 @@ async function main(): Promise<void> {
       explicitRound,
       lookupLocation: makeGadmLookupLocation(gadm),
     });
-    process.stdout.write(`${result.output}\n`);
+    process.stdout.write(`${result.output}\n\n${result.discordMessage}\n`);
   } finally {
     gadm.close();
   }

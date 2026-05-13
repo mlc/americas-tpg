@@ -5,6 +5,7 @@ import {
   eliminationsForRound,
   evaluateDnsCheck,
   formatLocation,
+  formatRoundResultDiscord,
   formatStandings,
   formatTargetDiscord,
   type RoundFile,
@@ -297,6 +298,85 @@ describe('formatTargetDiscord', () => {
       epoch < after + 48 * 60 * 60,
       `expiry ${epoch} should be < now + 48h (${after + 48 * 60 * 60})`,
     );
+  });
+});
+
+describe('formatRoundResultDiscord', () => {
+  test('single elimination → header / Unfortunately line / M players remain', () => {
+    const round = buildRound(1, '2026-05-12T14:00:00Z', [
+      submission('alice', 12.345),
+      submission('bob', 45.678),
+      submission('miss_inputs', 11554.284),
+    ]);
+    const message = formatRoundResultDiscord({
+      round,
+      eliminations: new Set(['miss_inputs']),
+      dnsSet: new Set(),
+      nextEligible: new Set(['alice', 'bob']),
+    });
+    assert.equal(
+      message,
+      [
+        '## Round 1 complete',
+        'Unfortunately, @miss_inputs, at 11554.284km away, has been eliminated.',
+        '2 players remain.',
+      ].join('\n'),
+    );
+  });
+
+  test('tied for last → both submitters mentioned with the lower distance', () => {
+    const round = buildRound(2, '2026-05-13T14:00:00Z', [
+      submission('alice', 10),
+      submission('bob', 100.0),
+      submission('carol', 100.02),
+    ]);
+    const message = formatRoundResultDiscord({
+      round,
+      eliminations: new Set(['bob', 'carol']),
+      dnsSet: new Set(),
+      nextEligible: new Set(['alice']),
+    });
+    assert.match(
+      message,
+      /Unfortunately, @bob, @carol, tied for last within 25m at 100\.000km away, have been eliminated\./,
+    );
+    assert.match(message, /Game over! @alice wins!/);
+  });
+
+  test('DNS player → "did not submit" line, no distance', () => {
+    const round = buildRound(2, '2026-05-13T14:00:00Z', [
+      submission('alice', 10),
+      submission('bob', 50),
+    ]);
+    const message = formatRoundResultDiscord({
+      round,
+      eliminations: new Set(['bob']),
+      dnsSet: new Set(['carol']),
+      nextEligible: new Set(['alice']),
+    });
+    assert.equal(
+      message,
+      [
+        '## Round 2 complete',
+        'Unfortunately, @bob, at 50.000km away, has been eliminated.',
+        'Unfortunately, @carol did not submit and has been eliminated.',
+        'Game over! @alice wins!',
+      ].join('\n'),
+    );
+  });
+
+  test('stalemate → no-winner footer', () => {
+    const round = buildRound(3, '2026-05-14T14:00:00Z', [
+      submission('alice', 100.0),
+      submission('bob', 100.01),
+    ]);
+    const message = formatRoundResultDiscord({
+      round,
+      eliminations: new Set(['alice', 'bob']),
+      dnsSet: new Set(),
+      nextEligible: new Set(),
+    });
+    assert.match(message, /Game over: stalemate, no winner\./);
   });
 });
 

@@ -290,6 +290,62 @@ export function formatTargetDiscord(file: RoundFile, now?: Instant): string {
   return [header, trackerLink, rulesLink, expiryString].join('\n');
 }
 
+export interface RoundResultDiscordInput {
+  round: RoundFile;
+  /** Submitters eliminated this round (post-honest-DNS-rule). DNS players
+   * are not included here; they go in `dnsSet`. */
+  eliminations: ReadonlySet<string>;
+  dnsSet: ReadonlySet<string>;
+  nextEligible: ReadonlySet<string>;
+}
+
+export function formatRoundResultDiscord(
+  input: RoundResultDiscordInput,
+): string {
+  const lines: string[] = [`## Round ${input.round.roundInfo.number} complete`];
+  const subByPlayer = new Map(
+    submissionsOf(input.round).map((s) => [s.properties.player, s]),
+  );
+  const eliminatedSubmitters = [...input.eliminations]
+    .filter((p) => subByPlayer.has(p))
+    .sort(
+      (a, b) =>
+        // biome-ignore lint/style/noNonNullAssertion: filtered to keys we just inserted
+        subByPlayer.get(a)!.properties.distance -
+        // biome-ignore lint/style/noNonNullAssertion: filtered to keys we just inserted
+        subByPlayer.get(b)!.properties.distance,
+    );
+  if (eliminatedSubmitters.length === 1) {
+    const [player] = eliminatedSubmitters;
+    // biome-ignore lint/style/noNonNullAssertion: filtered to keys we just inserted
+    const km = subByPlayer.get(player)!.properties.distance;
+    lines.push(
+      `Unfortunately, @${player}, at ${km.toFixed(3)}km away, has been eliminated.`,
+    );
+  } else if (eliminatedSubmitters.length > 1) {
+    const mentions = eliminatedSubmitters.map((p) => `@${p}`).join(', ');
+    // biome-ignore lint/style/noNonNullAssertion: filtered to keys we just inserted
+    const km = subByPlayer.get(eliminatedSubmitters[0])!.properties.distance;
+    lines.push(
+      `Unfortunately, ${mentions}, tied for last within 25m at ${km.toFixed(3)}km away, have been eliminated.`,
+    );
+  }
+  for (const player of [...input.dnsSet].sort()) {
+    lines.push(
+      `Unfortunately, @${player} did not submit and has been eliminated.`,
+    );
+  }
+  if (input.nextEligible.size === 0) {
+    lines.push('Game over: stalemate, no winner.');
+  } else if (input.nextEligible.size === 1) {
+    const [winner] = input.nextEligible;
+    lines.push(`Game over! @${winner} wins!`);
+  } else {
+    lines.push(`${input.nextEligible.size} players remain.`);
+  }
+  return lines.join('\n');
+}
+
 export function formatStandings(round: RoundFile): string {
   const subs = submissionsOf(round);
   if (subs.length === 0) {
