@@ -172,7 +172,7 @@ describe('submissionTrackerUrl', () => {
 });
 
 describe('formatTargetDiscord', () => {
-  test('renders Discord markdown with header, tracker link, rules link, and expiry', () => {
+  test('renders Discord markdown with header, tracker link, rules link, expiry, and plain coords', () => {
     assert.equal(
       formatTargetDiscord(buildRound(7, null, []), NOW),
       [
@@ -180,6 +180,7 @@ describe('formatTargetDiscord', () => {
         '[Submission Tracker](https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/007.geojson)',
         '[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
         EXPIRY_LINE,
+        'Coordinates for degree-sign haters: `-42.5,-67.5`',
       ].join('\n'),
     );
   });
@@ -208,6 +209,7 @@ describe('formatTargetDiscord', () => {
         '[Submission Tracker](https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/001.geojson)',
         '[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
         EXPIRY_LINE,
+        'Coordinates for degree-sign haters: `20,10`',
       ].join('\n'),
     );
   });
@@ -240,14 +242,15 @@ describe('formatTargetDiscord', () => {
     );
   });
 
-  test('output is exactly four lines: header, tracker, rules, expiry', () => {
+  test('output is exactly five lines: header, tracker, rules, expiry, plain coords', () => {
     const out = formatTargetDiscord(buildRound(2, null, []), NOW);
     const lines = out.split('\n');
-    assert.equal(lines.length, 4);
+    assert.equal(lines.length, 5);
     assert.match(lines[0], /^# Round 2,/);
     assert.equal(lines[1], `[Submission Tracker](${submissionTrackerUrl(2)})`);
     assert.equal(lines[2], `[Rules](${RULES_URL})`);
     assert.equal(lines[3], EXPIRY_LINE);
+    assert.equal(lines[4], 'Coordinates for degree-sign haters: `-42.5,-67.5`');
   });
 
   test('rules link text is bilingual for non-English rounds', () => {
@@ -295,10 +298,16 @@ describe('formatTargetDiscord', () => {
   test('expiry line is the 4th line with a relative Discord timestamp for the next-day 21:00 NY epoch second', () => {
     const out = formatTargetDiscord(buildRound(5, null, []), NOW);
     const lines = out.split('\n');
-    assert.equal(lines.length, 4);
+    assert.equal(lines.length, 5);
     assert.equal(lines[3], `Submissions close <t:${EXPIRY_EPOCH}:R>`);
     // Sanity: matches the Discord <t:UNIX:R> grammar — integer seconds + :R.
     assert.match(lines[3], /^Submissions close <t:\d+:R>$/);
+  });
+
+  test('plain-coords line uses raw stored numbers and is the 5th line', () => {
+    const out = formatTargetDiscord(buildRound(5, null, []), NOW);
+    const lines = out.split('\n');
+    assert.equal(lines[4], 'Coordinates for degree-sign haters: `-42.5,-67.5`');
   });
 
   test('expiry line tracks the provided `now` — a different now produces a different epoch', () => {

@@ -300,7 +300,9 @@ export function formatTargetDiscord(file: RoundFile, now?: Instant): string {
   const rulesLink = `[${rulesLinkText(file.roundInfo.language)}](${RULES_URL})`;
   const expiry = roundExpiry(now);
   const expiryString = `Submissions close <t:${expiry.epochSecond()}:R>`;
-  return [header, trackerLink, rulesLink, expiryString].join('\n');
+  const [lon, lat] = target.geometry.coordinates;
+  const plainCoords = `Coordinates for degree-sign haters: \`${lat},${lon}\``;
+  return [header, trackerLink, rulesLink, expiryString, plainCoords].join('\n');
 }
 
 interface RoundResultDiscordInput {

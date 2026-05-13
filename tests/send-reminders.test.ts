@@ -90,7 +90,7 @@ describe('sendReminders', () => {
     assert.deepEqual([...result.pending], ['bob']);
     assert.match(
       result.message,
-      /^Round 2, 1\/2 submissions received, round ends at <t:\d+:t>\n@bob\n/,
+      /^Round 2, 1\/2 submissions received, alice in elimination position, round ends at <t:\d+:t>\n@bob\n/,
     );
   });
 
@@ -120,7 +120,7 @@ describe('sendReminders', () => {
     assert.deepEqual([...result.pending], []);
     assert.match(
       result.message,
-      /^Round 2, 2\/2 submissions received, round ends at <t:\d+:t>\n\[Submission Tracker\]/,
+      /^Round 2, 2\/2 submissions received, bob in elimination position, round ends at <t:\d+:t>\n\[Submission Tracker\]/,
     );
   });
 
@@ -207,6 +207,57 @@ describe('sendReminders', () => {
 
     const result = await sendReminders({ roundsDir: dir });
     assert.deepEqual([...result.pending], ['alice', 'bob', 'charlie']);
+  });
+
+  test('header omits elimination clause when no submissions yet', async () => {
+    const r1 = makeRound(
+      1,
+      '2026-05-06T12:00:00Z',
+      withEliminated(
+        [makeSubmission('alice', 10), makeSubmission('bob', 20)],
+        ['bob'],
+      ),
+    );
+    await writeRoundAtomic(roundPath(1, dir), r1);
+    await writeRoundAtomic(roundPath(2, dir), makeRound(2, null));
+
+    const result = await sendReminders({ roundsDir: dir });
+    const header = result.message.split('\n')[0];
+    assert.match(
+      header,
+      /^Round 2, 0\/1 submissions received, round ends at <t:\d+:t>$/,
+    );
+  });
+
+  test('multiple submissions tied within 25m share the elimination clause', async () => {
+    const r1 = makeRound(
+      1,
+      '2026-05-06T12:00:00Z',
+      withEliminated(
+        [
+          makeSubmission('alice', 10),
+          makeSubmission('bob', 20),
+          makeSubmission('carol', 30),
+        ],
+        [],
+      ),
+    );
+    await writeRoundAtomic(roundPath(1, dir), r1);
+    // alice and bob are tied at 50.000km (within the 25m buffer); carol is closer.
+    await writeRoundAtomic(
+      roundPath(2, dir),
+      makeRound(2, null, [
+        makeSubmission('alice', 50.0),
+        makeSubmission('bob', 50.02),
+        makeSubmission('carol', 5),
+      ]),
+    );
+    const result = await sendReminders({ roundsDir: dir });
+    const header = result.message.split('\n')[0];
+    assert.match(
+      header,
+      /^Round 2, 3\/3 submissions received, alice, bob in elimination position, round ends at <t:\d+:t>$/,
+    );
   });
 
   test('message contains submission tracker URL in both branches', async () => {

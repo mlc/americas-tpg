@@ -118,7 +118,7 @@ describe('createRound', () => {
     assert.equal(result.path, join(dir, '004.geojson'));
   });
 
-  test('returned discordMessage is Discord markdown with header, tracker link, rules link, and expiry', async () => {
+  test('returned discordMessage is Discord markdown with header, tracker link, rules link, expiry, and plain coords', async () => {
     const result = await createRound({
       generateTarget: async () => ({ target: argentinaTarget }),
       roundsDir: dir,
@@ -133,8 +133,9 @@ describe('createRound', () => {
       '[Submission Tracker](https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/001.geojson)',
       '[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
     ]);
-    assert.equal(lines.length, 4);
+    assert.equal(lines.length, 5);
     assert.match(lines[3], /^Submissions close <t:\d+:R>$/);
+    assert.equal(lines[4], 'Coordinates for degree-sign haters: `-42.5,-67.5`');
   });
 
   test('does not overwrite an existing round (R4 / AE8)', async () => {
