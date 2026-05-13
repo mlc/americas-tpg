@@ -120,6 +120,24 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -66.838308,
+          -20.482172
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 639.3582013162197,
+        "location": "Potosí, Bolivia",
+        "marker-symbol": "circle",
+        "marker-color": "#444444",
+        "eliminated": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -70.5983889,
           -33.4016278
         ]
@@ -380,6 +398,24 @@
         "player": "OKobern",
         "distance": 5878.260705056678,
         "location": "Florida, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#444444",
+        "eliminated": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.35350309447699,
+          25.67221742693221
+        ]
+      },
+      "properties": {
+        "player": "Шоша",
+        "distance": 6814.668457918019,
+        "location": "Nuevo León, México",
         "marker-symbol": "circle",
         "marker-color": "#444444",
         "eliminated": false
