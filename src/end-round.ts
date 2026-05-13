@@ -1,4 +1,5 @@
 import { parseArgs } from 'node:util';
+import { Instant } from '@js-joda/core';
 import type { Position } from 'geojson';
 import { isMain, parseRound } from './cli-helpers.ts';
 import { formatCoords } from './format.ts';
@@ -59,7 +60,7 @@ Options:
 export interface EndRoundDeps {
   roundsDir: string;
   explicitRound?: number;
-  now?: () => Date;
+  now?: () => Instant;
   /** Optional MorphiorDB client. Defaults to a freshly-opened client against
    * the production endpoint. Tests inject a stub via this seam. */
   morphiorClient?: MorphiorClient;
@@ -173,8 +174,8 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
       },
     }));
 
-    const now = deps.now ?? (() => new Date());
-    const endedAt = now().toISOString();
+    const now = deps.now ?? (() => Instant.now());
+    const endedAt = now().toString();
     const updated: RoundFile = {
       ...current,
       roundInfo: { ...current.roundInfo, endedAt, dnsChecks },

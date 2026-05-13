@@ -7,6 +7,7 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
+import { Instant } from '@js-joda/core';
 import type { Position } from 'geojson';
 import { endedAtOf, type RoundFile, submissionsOf } from './round-domain.ts';
 import { applySimplestyle } from './simplestyle.ts';
@@ -243,8 +244,12 @@ function validateRoundFile(data: unknown, path: string): RoundFile {
   if (endedAt !== null && typeof endedAt !== 'string') {
     fail('roundInfo.endedAt must be null or an ISO 8601 string');
   }
-  if (typeof endedAt === 'string' && Number.isNaN(Date.parse(endedAt))) {
-    fail('roundInfo.endedAt is not a valid ISO 8601 string');
+  if (typeof endedAt === 'string') {
+    try {
+      Instant.parse(endedAt);
+    } catch {
+      fail('roundInfo.endedAt is not a valid ISO 8601 string');
+    }
   }
   if (
     'language' in roundInfo &&

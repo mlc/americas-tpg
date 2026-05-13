@@ -3,6 +3,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, test } from 'node:test';
+import { Instant } from '@js-joda/core';
 import type { Position } from 'geojson';
 import { createRound } from '../src/create-round.ts';
 import { endRound } from '../src/end-round.ts';
@@ -90,7 +91,7 @@ function makeRound(
   };
 }
 
-const fixedNow = () => new Date('2026-05-07T00:00:00Z');
+const fixedNow = () => Instant.parse('2026-05-07T00:00:00Z');
 
 describe('endRound — AE1 (round 1, no DNS)', () => {
   test('eliminates only the farthest; round 2 eligibility = 2 non-last', async () => {
@@ -114,7 +115,7 @@ describe('endRound — AE1 (round 1, no DNS)', () => {
     assert.match(result.output, /Standings:/);
     assert.match(result.output, /carol \(last place\)/);
     assert.match(result.output, /Round 2 starts with: alice, bob/);
-    assert.equal(result.endedAt, '2026-05-07T00:00:00.000Z');
+    assert.equal(result.endedAt, '2026-05-07T00:00:00Z');
     assert.equal(result.wasAlreadyEnded, false);
   });
 });
@@ -278,25 +279,25 @@ describe('endRound — R16 idempotent re-end', () => {
       morphiorClient: emptyMorphior(),
     });
     assert.equal(first.wasAlreadyEnded, false);
-    assert.equal(first.endedAt, '2026-05-07T00:00:00.000Z');
+    assert.equal(first.endedAt, '2026-05-07T00:00:00Z');
 
     // Re-run with explicit --round 1 (default findActiveRound would skip ended)
     const second = await endRound({
       roundsDir: dir,
       explicitRound: 1,
-      now: () => new Date('2026-05-07T01:00:00Z'), // different time
+      now: () => Instant.parse('2026-05-07T01:00:00Z'), // different time
       morphiorClient: emptyMorphior(),
     });
 
     assert.equal(second.wasAlreadyEnded, true);
     // endedAt unchanged from first run despite different "now"
-    assert.equal(second.endedAt, '2026-05-07T00:00:00.000Z');
+    assert.equal(second.endedAt, '2026-05-07T00:00:00Z');
     // Output is identical
     assert.equal(second.output, first.output);
 
     // On-disk file's endedAt is still the original
     const onDisk = JSON.parse(await readFile(first.path, 'utf8'));
-    assert.equal(onDisk.roundInfo.endedAt, '2026-05-07T00:00:00.000Z');
+    assert.equal(onDisk.roundInfo.endedAt, '2026-05-07T00:00:00Z');
   });
 });
 
@@ -318,7 +319,7 @@ describe('endRound — persistence (R14)', () => {
     const onDisk = JSON.parse(await readFile(roundPath(1, dir), 'utf8'));
     const onDiskEndedAt = onDisk.roundInfo.endedAt;
     assert.equal(typeof onDiskEndedAt, 'string');
-    assert.equal(Number.isNaN(Date.parse(onDiskEndedAt)), false);
+    assert.doesNotThrow(() => Instant.parse(onDiskEndedAt));
   });
 
   test('writes eliminated: true/false on every submission', async () => {
@@ -369,7 +370,7 @@ describe('endRound — persistence (R14)', () => {
     await endRound({
       roundsDir: dir,
       explicitRound: 1,
-      now: () => new Date('2026-05-07T01:00:00Z'),
+      now: () => Instant.parse('2026-05-07T01:00:00Z'),
       morphiorClient: emptyMorphior(),
     });
     const second = JSON.parse(await readFile(roundPath(1, dir), 'utf8'));
@@ -716,7 +717,7 @@ describe('endRound — honest-DNS save rule', () => {
     });
     assert.equal(result.dnsChecks[0].morphiorDbStatus, 'unavailable');
     // Round still closes; rule still evaluates from local history.
-    assert.equal(result.endedAt, '2026-05-07T00:00:00.000Z');
+    assert.equal(result.endedAt, '2026-05-07T00:00:00Z');
     assert.equal(result.dnsChecks[0].couldHaveEscaped, false);
   });
 
@@ -912,7 +913,7 @@ describe('endRound — honest-DNS save rule', () => {
     const second = await endRound({
       roundsDir: dir,
       explicitRound: 2,
-      now: () => new Date('2026-05-07T01:00:00Z'),
+      now: () => Instant.parse('2026-05-07T01:00:00Z'),
       morphiorClient: counted,
     });
 
@@ -1110,7 +1111,7 @@ describe('endRound — output formatting (U5)', () => {
     const second = await endRound({
       roundsDir: dir,
       explicitRound: 2,
-      now: () => new Date('2026-05-07T01:00:00Z'),
+      now: () => Instant.parse('2026-05-07T01:00:00Z'),
       morphiorClient: emptyMorphior(),
       lookupLocation: stubLookup,
     });

@@ -313,9 +313,9 @@ describe('formatTargetDiscord', () => {
   });
 
   test('defaults `now` to wall-clock when omitted — expiry is still well-formed and in the future', () => {
-    const before = Math.floor(Date.now() / 1000);
+    const before = Instant.now().epochSecond();
     const out = formatTargetDiscord(buildRound(1, null, []));
-    const after = Math.floor(Date.now() / 1000);
+    const after = Instant.now().epochSecond();
     const match = out.split('\n')[3].match(/^Submissions close <t:(\d+):R>$/);
     assert.ok(match, `expected expiry line, got: ${out.split('\n')[3]}`);
     const epoch = Number(match[1]);
