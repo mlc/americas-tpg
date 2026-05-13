@@ -1,0 +1,28 @@
+{
+  "type": "FeatureCollection",
+  "roundInfo": {
+    "number": 2,
+    "endedAt": null,
+    "language": "en"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "target",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.55169,
+          18.33971
+        ]
+      },
+      "properties": {
+        "player": "Target",
+        "distance": null,
+        "location": "Corozal, Belize",
+        "marker-symbol": "star",
+        "marker-color": "#000000"
+      }
+    }
+  ]
+}
