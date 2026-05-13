@@ -29,6 +29,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -88.3942781,
+          18.4826741
+        ]
+      },
+      "properties": {
+        "player": "Martin",
+        "distance": 22.989575093781767,
+        "location": "Corozal, Belize",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -87.9710528,
           17.9745861
         ]
@@ -38,7 +55,7 @@
         "distance": 73.56660740621899,
         "location": "Corozal, Belize",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#c0c0c0"
       }
     },
     {
@@ -55,7 +72,7 @@
         "distance": 98.48020561736182,
         "location": "Belize, Belize",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -71,7 +88,7 @@
         "player": "Johann Sebastian Bach",
         "distance": 100.64249786201684,
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
@@ -121,6 +138,57 @@
         "player": "maplemanatee",
         "distance": 263.9180608602381,
         "location": "Yucatán, México",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.54950307937041,
+          20.72172688167565
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 264.86865740862925,
+        "location": "Yucatán, México",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -86.973889,
+          20.47651
+        ]
+      },
+      "properties": {
+        "player": "Puerto Vallarta",
+        "distance": 289.537073878583,
+        "location": "Quintana Roo, México",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -86.82239747748689,
+          21.156351599065953
+        ]
+      },
+      "properties": {
+        "player": "pandem",
+        "distance": 361.71320647577716,
+        "location": "Quintana Roo, México",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
@@ -308,6 +376,23 @@
         "player": "Igorjan94 (wildtravel_club)",
         "distance": 5017.824162042626,
         "location": "Antofagasta, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.268997862834679,
+          51.78482256481019
+        ]
+      },
+      "properties": {
+        "player": "Arcturus",
+        "distance": 8232.285298657598,
+        "location": "England, United Kingdom",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
