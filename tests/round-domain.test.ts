@@ -8,6 +8,7 @@ import {
   formatRoundResultDiscord,
   formatStandings,
   formatTargetDiscord,
+  normalizePlayerName,
   type RoundFile,
   RULES_URL,
   roundExpiry,
@@ -120,6 +121,33 @@ describe('formatLocation', () => {
 
   test('gid_0 with no name_0 → still localizes', () => {
     assert.equal(formatLocation({ gid_0: 'BRA' }), 'Brasil');
+  });
+});
+
+describe('normalizePlayerName', () => {
+  test('NFC + zero-width strip + trim', () => {
+    assert.equal(normalizePlayerName('  alice  '), 'alice');
+    assert.equal(normalizePlayerName('a​b'), 'ab');
+  });
+
+  test('rejects reserved Discord @-mention keywords (case-insensitive)', () => {
+    assert.throws(
+      () => normalizePlayerName('everyone'),
+      /reserved Discord @-mention/,
+    );
+    assert.throws(
+      () => normalizePlayerName('  HERE  '),
+      /reserved Discord @-mention/,
+    );
+    assert.throws(
+      () => normalizePlayerName('Everyone'),
+      /reserved Discord @-mention/,
+    );
+  });
+
+  test("non-reserved names with 'everyone' as a substring are accepted", () => {
+    assert.equal(normalizePlayerName('everyone1'), 'everyone1');
+    assert.equal(normalizePlayerName('mr_everyone'), 'mr_everyone');
   });
 });
 
@@ -313,6 +341,8 @@ describe('formatRoundResultDiscord', () => {
       eliminations: new Set(['miss_inputs']),
       dnsSet: new Set(),
       nextEligible: new Set(['alice', 'bob']),
+      savedSet: new Set(),
+      dnsChecks: [],
     });
     assert.equal(
       message,
@@ -335,6 +365,8 @@ describe('formatRoundResultDiscord', () => {
       eliminations: new Set(['bob', 'carol']),
       dnsSet: new Set(),
       nextEligible: new Set(['alice']),
+      savedSet: new Set(),
+      dnsChecks: [],
     });
     assert.match(
       message,
@@ -353,6 +385,8 @@ describe('formatRoundResultDiscord', () => {
       eliminations: new Set(['bob']),
       dnsSet: new Set(['carol']),
       nextEligible: new Set(['alice']),
+      savedSet: new Set(),
+      dnsChecks: [],
     });
     assert.equal(
       message,
@@ -375,8 +409,42 @@ describe('formatRoundResultDiscord', () => {
       eliminations: new Set(['alice', 'bob']),
       dnsSet: new Set(),
       nextEligible: new Set(),
+      savedSet: new Set(),
+      dnsChecks: [],
     });
     assert.match(message, /Game over: stalemate, no winner\./);
+  });
+
+  test('honest-DNS save → "saved by the honest-DNS rule" line names trigger and distance', () => {
+    const round = buildRound(2, '2026-05-13T14:00:00Z', [
+      submission('alice', 50),
+      submission('bob', 100),
+    ]);
+    const message = formatRoundResultDiscord({
+      round,
+      eliminations: new Set(),
+      dnsSet: new Set(['carol']),
+      nextEligible: new Set(['alice', 'bob']),
+      savedSet: new Set(['bob']),
+      dnsChecks: [
+        {
+          player: 'carol',
+          best: { point: [-67.5, -42.5], distanceKm: 25.0 },
+          couldHaveEscaped: false,
+          morphiorDbStatus: 'ok',
+          morphiorDbSubmissionCount: 3,
+        },
+      ],
+    });
+    assert.equal(
+      message,
+      [
+        '## Round 2 complete',
+        'Unfortunately, @carol did not submit and has been eliminated.',
+        "@bob was saved by the honest-DNS rule (triggered by @carol's best historical at 25.000km).",
+        '2 players remain.',
+      ].join('\n'),
+    );
   });
 });
 

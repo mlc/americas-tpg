@@ -26,12 +26,25 @@ export function submissionTrackerUrl(round: number): string {
 
 const ZERO_WIDTH_RE = /[​-‍﻿]/g;
 
+// Discord turns these keywords after `@` into channel-wide mass pings; player
+// names matching them (case-insensitive) would auto-ping when the round-result
+// message is pasted. Reject them at parse time rather than escaping at every
+// `@${player}` interpolation site.
+const RESERVED_DISCORD_MENTIONS = new Set(['everyone', 'here']);
+
 /**
- * Normalize a player name: NFC + strip zero-width chars + trim.
+ * Normalize a player name: NFC + strip zero-width chars + trim. Throws when
+ * the result is a reserved Discord mention keyword.
  * Player-name comparison is otherwise byte-exact (case-sensitive).
  */
 export function normalizePlayerName(raw: string): string {
-  return raw.normalize('NFC').replace(ZERO_WIDTH_RE, '').trim();
+  const normalized = raw.normalize('NFC').replace(ZERO_WIDTH_RE, '').trim();
+  if (RESERVED_DISCORD_MENTIONS.has(normalized.toLowerCase())) {
+    throw new Error(
+      `player name '${normalized}' is a reserved Discord @-mention keyword`,
+    );
+  }
+  return normalized;
 }
 
 export interface RoundInfo {
@@ -290,42 +303,38 @@ export function formatTargetDiscord(file: RoundFile, now?: Instant): string {
   return [header, trackerLink, rulesLink, expiryString].join('\n');
 }
 
-export interface RoundResultDiscordInput {
+interface RoundResultDiscordInput {
   round: RoundFile;
   /** Submitters eliminated this round (post-honest-DNS-rule). DNS players
    * are not included here; they go in `dnsSet`. */
   eliminations: ReadonlySet<string>;
   dnsSet: ReadonlySet<string>;
   nextEligible: ReadonlySet<string>;
+  /** Submitters spared by the honest-DNS save rule. Empty when the rule
+   * didn't fire. */
+  savedSet: ReadonlySet<string>;
+  /** Per-DNS-player rule evaluations; used to name the player(s) whose
+   * history triggered the save. */
+  dnsChecks: readonly DnsCheck[];
 }
 
 export function formatRoundResultDiscord(
   input: RoundResultDiscordInput,
 ): string {
   const lines: string[] = [`## Round ${input.round.roundInfo.number} complete`];
-  const subByPlayer = new Map(
-    submissionsOf(input.round).map((s) => [s.properties.player, s]),
-  );
-  const eliminatedSubmitters = [...input.eliminations]
-    .filter((p) => subByPlayer.has(p))
-    .sort(
-      (a, b) =>
-        // biome-ignore lint/style/noNonNullAssertion: filtered to keys we just inserted
-        subByPlayer.get(a)!.properties.distance -
-        // biome-ignore lint/style/noNonNullAssertion: filtered to keys we just inserted
-        subByPlayer.get(b)!.properties.distance,
-    );
-  if (eliminatedSubmitters.length === 1) {
-    const [player] = eliminatedSubmitters;
-    // biome-ignore lint/style/noNonNullAssertion: filtered to keys we just inserted
-    const km = subByPlayer.get(player)!.properties.distance;
+  const eliminatedSubmissions = submissionsOf(input.round)
+    .filter((s) => input.eliminations.has(s.properties.player))
+    .toSorted((a, b) => a.properties.distance - b.properties.distance);
+  if (eliminatedSubmissions.length === 1) {
+    const [sub] = eliminatedSubmissions;
     lines.push(
-      `Unfortunately, @${player}, at ${km.toFixed(3)}km away, has been eliminated.`,
+      `Unfortunately, @${sub.properties.player}, at ${sub.properties.distance.toFixed(3)}km away, has been eliminated.`,
     );
-  } else if (eliminatedSubmitters.length > 1) {
-    const mentions = eliminatedSubmitters.map((p) => `@${p}`).join(', ');
-    // biome-ignore lint/style/noNonNullAssertion: filtered to keys we just inserted
-    const km = subByPlayer.get(eliminatedSubmitters[0])!.properties.distance;
+  } else if (eliminatedSubmissions.length > 1) {
+    const mentions = eliminatedSubmissions
+      .map((s) => `@${s.properties.player}`)
+      .join(', ');
+    const km = eliminatedSubmissions[0].properties.distance;
     lines.push(
       `Unfortunately, ${mentions}, tied for last within 25m at ${km.toFixed(3)}km away, have been eliminated.`,
     );
@@ -334,6 +343,24 @@ export function formatRoundResultDiscord(
     lines.push(
       `Unfortunately, @${player} did not submit and has been eliminated.`,
     );
+  }
+  if (input.savedSet.size > 0) {
+    const honest = input.dnsChecks
+      .filter((c) => !c.couldHaveEscaped)
+      .toSorted((a, b) => a.player.localeCompare(b.player));
+    const trigger =
+      honest.length > 0
+        ? ` (triggered by ${honest
+            .map((c) =>
+              c.best
+                ? `@${c.player}'s best historical at ${c.best.distanceKm.toFixed(3)}km`
+                : `@${c.player}'s submission history`,
+            )
+            .join(', ')})`
+        : '';
+    for (const player of [...input.savedSet].sort()) {
+      lines.push(`@${player} was saved by the honest-DNS rule${trigger}.`);
+    }
   }
   if (input.nextEligible.size === 0) {
     lines.push('Game over: stalemate, no winner.');

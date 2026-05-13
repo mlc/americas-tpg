@@ -200,6 +200,8 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
       eliminations: finalEliminations,
       dnsSet,
       nextEligible,
+      savedSet,
+      dnsChecks,
     });
     return {
       round,
@@ -251,6 +253,8 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
     eliminations: persistedEliminations,
     dnsSet,
     nextEligible,
+    savedSet,
+    dnsChecks,
   });
   return {
     round,
