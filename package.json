@@ -17,7 +17,8 @@
     "lint": "biome lint .",
     "format": "biome format --write .",
     "check": "biome check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "build-kml": "ogrmerge.py -dsco NameField=player -o rounds.kml -f kml rounds/*"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.15",
