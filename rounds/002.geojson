@@ -300,6 +300,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -81.805408,
+          24.557419
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 982.1991595383722,
+        "location": "Florida, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -98.1805762,
           19.0525028
         ]
@@ -351,6 +368,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -95.811259,
+          29.51873
+        ]
+      },
+      "properties": {
+        "player": "Шоша",
+        "distance": 1444.5486407914464,
+        "location": "Texas, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -79.899828,
           -6.705231
         ]
@@ -376,6 +410,23 @@
         "player": "Igorjan94 (wildtravel_club)",
         "distance": 5017.824162042626,
         "location": "Antofagasta, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.1794265,
+          52.2514771
+        ]
+      },
+      "properties": {
+        "player": "dorian",
+        "distance": 7824.632828720623,
+        "location": "Waterford, Ireland",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
