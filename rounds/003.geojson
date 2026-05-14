@@ -46,6 +46,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -55.1745861,
+          5.8193861
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 668.5629092788763,
+        "location": "Paramaribo, Suriname",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -60.4933787,
           -3.1189445
         ]
@@ -55,7 +72,7 @@
         "distance": 875.7084189695415,
         "location": "Amazonas, Brazil",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -72,7 +89,7 @@
         "distance": 879.1279387050588,
         "location": "Grenadines, Saint Vincent and the Grenadines",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
@@ -375,6 +392,23 @@
         "player": "Шоша",
         "distance": 4202.029522344461,
         "location": "New York, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -13.61751,
+          28.93223
+        ]
+      },
+      "properties": {
+        "player": "Pinea",
+        "distance": 5671.823791171618,
+        "location": "Islas Canarias, Spain",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
