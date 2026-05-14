@@ -29,6 +29,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -60.4933787,
+          -3.1189445
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 875.7084189695415,
+        "location": "Amazonas, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -52.8345,
           5.3056
         ]
@@ -38,7 +55,92 @@
         "distance": 919.2315359727403,
         "location": "Cayenne, French Guiana",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -68.37040476806294,
+          12.233361505503758
+        ]
+      },
+      "properties": {
+        "player": "Summitblvd",
+        "distance": 1154.017022893336,
+        "location": "Bonaire, Bonaire, Sint Eustatius and Saba",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.06612,
+          4.60865
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 1435.558068996544,
+        "location": "Bogotá D.C., Colombia",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -75.1572132,
+          6.2344252
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 1563.3432178551136,
+        "location": "Antioquia, Colombia",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -72.544802,
+          -13.165542
+        ]
+      },
+      "properties": {
+        "player": "Palin",
+        "distance": 2356.758780462096,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.571151,
+          24.959191
+        ]
+      },
+      "properties": {
+        "player": "OKobern",
+        "distance": 3061.7853889693592,
+        "location": "Florida, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
       }
     },
     {
