@@ -2,8 +2,9 @@
   "type": "FeatureCollection",
   "roundInfo": {
     "number": 2,
-    "endedAt": null,
-    "language": "en"
+    "endedAt": "2026-05-14T00:56:27.041Z",
+    "language": "en",
+    "dnsChecks": []
   },
   "features": [
     {
@@ -38,7 +39,8 @@
         "distance": 22.989575093781767,
         "location": "Corozal, Belize",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#d4af37",
+        "eliminated": false
       }
     },
     {
@@ -55,7 +57,8 @@
         "distance": 73.56660740621899,
         "location": "Corozal, Belize",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#c0c0c0",
+        "eliminated": false
       }
     },
     {
@@ -72,7 +75,8 @@
         "distance": 98.48020561736182,
         "location": "Belize, Belize",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#cd7f32",
+        "eliminated": false
       }
     },
     {
@@ -88,7 +92,8 @@
         "player": "Johann Sebastian Bach",
         "distance": 100.64249786201684,
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -105,7 +110,8 @@
         "distance": 101.8310522782003,
         "location": "Belize, Belize",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -122,7 +128,8 @@
         "distance": 109.80333979408789,
         "location": "Belize, Belize",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -139,7 +146,8 @@
         "distance": 263.9180608602381,
         "location": "Yucatán, México",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -156,7 +164,8 @@
         "distance": 264.86865740862925,
         "location": "Yucatán, México",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -173,7 +182,8 @@
         "distance": 289.537073878583,
         "location": "Quintana Roo, México",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -190,7 +200,8 @@
         "distance": 361.71320647577716,
         "location": "Quintana Roo, México",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -207,7 +218,8 @@
         "distance": 466.24116821289863,
         "location": "Guatemala, Guatemala",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -224,7 +236,8 @@
         "distance": 500.8925141272224,
         "location": "Sololá, Guatemala",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -241,7 +254,8 @@
         "distance": 547.1449730568015,
         "location": "La Paz, El Salvador",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -258,7 +272,8 @@
         "distance": 693.9460124014867,
         "location": "Pinar del Río, Cuba",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -275,7 +290,8 @@
         "distance": 978.3050341562672,
         "location": "Puntarenas, Costa Rica",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -292,7 +308,8 @@
         "distance": 981.9517392876936,
         "location": "Florida, United States",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -309,7 +326,8 @@
         "distance": 982.1991595383722,
         "location": "Florida, United States",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -326,7 +344,8 @@
         "distance": 1017.1479620494738,
         "location": "Puebla, México",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -343,7 +362,8 @@
         "distance": 1046.179778955056,
         "location": "Florida, United States",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -360,7 +380,8 @@
         "distance": 1113.9017698037246,
         "location": "Distrito Federal, México",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -377,7 +398,8 @@
         "distance": 1444.5486407914464,
         "location": "Texas, United States",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -394,7 +416,8 @@
         "distance": 2942.180916435863,
         "location": "Lambayeque, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -411,7 +434,8 @@
         "distance": 5017.824162042626,
         "location": "Antofagasta, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -428,7 +452,8 @@
         "distance": 7824.632828720623,
         "location": "Waterford, Ireland",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -445,7 +470,8 @@
         "distance": 8151.105916324323,
         "location": "Andalucía, Spain",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -462,7 +488,8 @@
         "distance": 8232.285298657598,
         "location": "England, United Kingdom",
         "marker-symbol": "circle",
-        "marker-color": "#ff0000"
+        "marker-color": "#ff0000",
+        "eliminated": true
       }
     }
   ]
