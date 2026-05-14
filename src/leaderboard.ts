@@ -7,6 +7,7 @@ import {
   submissionsOf,
   submissionTrackerUrl,
   submitters,
+  targetOf,
 } from './round-domain.ts';
 import { DEFAULT_ROUNDS_DIR, listRoundFiles, readRound } from './round-file.ts';
 
@@ -152,16 +153,28 @@ export function buildLeaderboardMarkdown(rounds: readonly RoundFile[]): string {
   });
 
   const lines: string[] = [];
-  lines.push('# Leaderboard', '');
+  lines.push('# Américas TPG Gauntlet Leaderboard', '');
+  lines.push(
+    "Eliminated players shown in *italics*. Each cell contains the distance (in kilometers) for each player's submission.",
+    '',
+  );
   lines.push(formatRow(header));
   lines.push(formatRow(separator));
-  for (const row of body) lines.push(formatRow(row));
-  return `${lines.join('\n')}\n`;
+  for (const row of body) {
+    lines.push(formatRow(row));
+  }
+  lines.push('');
+  for (const round of rounds) {
+    lines.push(roundLinkRef(round));
+  }
+  // ensure newline at end of file
+  lines.push('');
+  return lines.join('\n');
 }
 
 function roundHeaderCell(round: RoundFile): string {
   const n = round.roundInfo.number;
-  return `[Round ${n}](${submissionTrackerUrl(n)})`;
+  return `[Round ${n}][r${n}]`;
 }
 
 function renderCell(cell: CellKind): string {
@@ -188,6 +201,13 @@ function formatRow(cells: string[]): string {
 // every cell-emission site that interpolates a name.
 function escapeMarkdownCell(value: string): string {
   return value.replace(/[\\|*_]/g, (ch) => `\\${ch}`);
+}
+
+function roundLinkRef(round: RoundFile): string {
+  const n = round.roundInfo.number;
+  const location = targetOf(round).properties.location;
+  const link = submissionTrackerUrl(n);
+  return `[r${n}]: ${link} "${location}"`;
 }
 
 function caseInsensitive(a: string, b: string): number {

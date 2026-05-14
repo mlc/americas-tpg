@@ -1,6 +1,8 @@
-# Leaderboard
+# Américas TPG Gauntlet Leaderboard
 
-| Player | [Round 1](https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/001.geojson) | [Round 2](https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/002.geojson) |
+Eliminated players shown in *italics*. Each cell contains the distance (in kilometers) for each player's submission.
+
+| Player | [Round 1][r1] | [Round 2][r2] |
 | --- | ---: | ---: |
 | BD82 | 1239 | 501 |
 | Daws | 3725 | 74 |
@@ -29,3 +31,6 @@
 | Шоша | 6815 | 1445 |
 | *Arcturus* | 10140 | **8232** |
 | *Miss Inputs 🐈* | **11554** |   |
+
+[r1]: https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/001.geojson "Salta, Argentina"
+[r2]: https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/002.geojson "Corozal, Belize"

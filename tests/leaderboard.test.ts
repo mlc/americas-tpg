@@ -92,16 +92,23 @@ describe('buildLeaderboardMarkdown', () => {
       withEliminated([sub('alice', 10.4), sub('bob', 99.7)], ['bob']),
     );
     const md = buildLeaderboardMarkdown([r1]);
-    assert.match(md, /^# Leaderboard\n\n/);
+    // Title, then a non-empty explanation paragraph before the table.
     assert.match(
       md,
-      /\| Player \| \[Round 1\]\(https:\/\/geojson\.io\/#id=github:mlc\/americas-tpg\/blob\/main\/rounds\/001\.geojson\) \|/,
+      /^# Américas TPG Gauntlet Leaderboard\n\n.+\n\n\| Player \|/,
     );
+    assert.match(md, /\| Player \| \[Round 1\]\[r1\] \|/);
     // Survivor plain, eliminated italic, elim cell bold (rounded).
     assert.match(md, /\| alice \| 10 \|/);
     assert.match(md, /\| \*bob\* \| \*\*100\*\* \|/);
     // Survivor row comes before eliminated row.
     assert.ok(md.indexOf('| alice |') < md.indexOf('| *bob* |'));
+    // Reference-style link footnote at the bottom, with the target
+    // location as the link title.
+    assert.match(
+      md,
+      /\[r1\]: https:\/\/geojson\.io\/#id=github:mlc\/americas-tpg\/blob\/main\/rounds\/001\.geojson "Río Negro, Argentina"/,
+    );
   });
 
   test('multi-round: survivors first (alpha), eliminated by elim-round desc then alpha; eliminated names italic', () => {
@@ -192,17 +199,22 @@ describe('buildLeaderboardMarkdown', () => {
     assert.match(md, /\| \*under\\_score\* \| \*\*30\*\* \|/);
   });
 
-  test('column header links use submissionTrackerUrl format', () => {
+  test('round header cells use reference-style links resolved by bottom footnotes', () => {
     const r1 = endedRound(1, T1, withEliminated([sub('alice', 5)], []));
     const r12 = endedRound(12, T2, withEliminated([sub('alice', 6)], []));
     const md = buildLeaderboardMarkdown([r1, r12]);
+    // Header cells are reference-style: [Round N][rN].
+    assert.match(md, /\[Round 1\]\[r1\]/);
+    assert.match(md, /\[Round 12\]\[r12\]/);
+    // And the footnote definitions resolve those refs to the tracker URL
+    // (3-digit zero-padded) with the target location as the link title.
     assert.match(
       md,
-      /\[Round 1\]\(https:\/\/geojson\.io\/#id=github:mlc\/americas-tpg\/blob\/main\/rounds\/001\.geojson\)/,
+      /\[r1\]: https:\/\/geojson\.io\/#id=github:mlc\/americas-tpg\/blob\/main\/rounds\/001\.geojson "Río Negro, Argentina"/,
     );
     assert.match(
       md,
-      /\[Round 12\]\(https:\/\/geojson\.io\/#id=github:mlc\/americas-tpg\/blob\/main\/rounds\/012\.geojson\)/,
+      /\[r12\]: https:\/\/geojson\.io\/#id=github:mlc\/americas-tpg\/blob\/main\/rounds\/012\.geojson "Río Negro, Argentina"/,
     );
   });
 });
