@@ -63,6 +63,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -61.36083,
+          12.634484
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 879.1279387050588,
+        "location": "Grenadines, Saint Vincent and the Grenadines",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -52.8345,
           5.3056
         ]
@@ -72,7 +89,24 @@
         "distance": 919.2315359727403,
         "location": "Cayenne, French Guiana",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.487776,
+          13.0792797
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 945.1550213632345,
+        "location": "Christ Church, Barbados",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
       }
     },
     {
@@ -105,6 +139,23 @@
         "player": "Summitblvd",
         "distance": 1154.017022893336,
         "location": "Bonaire, Bonaire, Sint Eustatius and Saba",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.0035556,
+          5.0235
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 1428.491577489468,
+        "location": "Cundinamarca, Colombia",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
@@ -148,6 +199,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -79.3873951,
+          9.0676214
+        ]
+      },
+      "properties": {
+        "player": "georoulette",
+        "distance": 2073.4728408023902,
+        "location": "Panamá, Panama",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -72.544802,
           -13.165542
         ]
@@ -156,6 +224,23 @@
         "player": "Palin",
         "distance": 2356.758780462096,
         "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -67.78504177402684,
+          -16.26991366516831
+        ]
+      },
+      "properties": {
+        "player": "pandem",
+        "distance": 2447.9006527609745,
+        "location": "La Paz, Bolivia",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
@@ -182,6 +267,72 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -80.679917,
+          24.863361
+        ]
+      },
+      "properties": {
+        "player": "Tones",
+        "distance": 3062.287942370723,
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.13121,
+          25.76653
+        ]
+      },
+      "properties": {
+        "player": "Talking Nonsense",
+        "distance": 3094.0226004226693,
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.136449,
+          25.795667
+        ]
+      },
+      "properties": {
+        "player": "Puerto Vallarta",
+        "distance": 3096.7152437155396,
+        "location": "Florida, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.2199055549291,
+          25.778212661615584
+        ]
+      },
+      "properties": {
+        "player": "De Martian",
+        "distance": 3101.1411764062173,
+        "location": "Florida, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -68.015043,
           -22.350377
         ]
@@ -190,6 +341,40 @@
         "player": "Igorjan94 (wildtravel_club)",
         "distance": 3103.604066305849,
         "location": "Antofagasta, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.74902823085087,
+          15.823289434399953
+        ]
+      },
+      "properties": {
+        "player": "Martin",
+        "distance": 3259.7829633831893,
+        "location": "Izabal, Guatemala",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.01233093227896,
+          40.70145417434128
+        ]
+      },
+      "properties": {
+        "player": "Шоша",
+        "distance": 4202.029522344461,
+        "location": "New York, United States",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
