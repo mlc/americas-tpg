@@ -426,6 +426,23 @@
         "distance": 5671.823791171618,
         "location": "Islas Canarias, Spain",
         "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.1691473,
+          22.27677
+        ]
+      },
+      "properties": {
+        "player": "dorian",
+        "distance": 16968.32263723002,
+        "location": "Hong Kong, China",
+        "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
     }
