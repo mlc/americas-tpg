@@ -29,6 +29,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -61.128584924359075,
+          10.585860154170948
+        ]
+      },
+      "properties": {
+        "player": "Johann Sebastian Bach",
+        "distance": 650.9126337589009,
+        "location": "Sangre Grande, Trinidad and Tobago",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -60.4933787,
           -3.1189445
         ]
@@ -38,7 +55,7 @@
         "distance": 875.7084189695415,
         "location": "Amazonas, Brazil",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#c0c0c0"
       }
     },
     {
@@ -55,7 +72,24 @@
         "distance": 919.2315359727403,
         "location": "Cayenne, French Guiana",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -60.9580734,
+          13.7333061
+        ]
+      },
+      "properties": {
+        "player": "Daws",
+        "distance": 1001.0355182600179,
+        "location": "Vieux Fort, Saint Lucia",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
       }
     },
     {
@@ -72,7 +106,7 @@
         "distance": 1154.017022893336,
         "location": "Bonaire, Bonaire, Sint Eustatius and Saba",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
