@@ -118,24 +118,25 @@ describe('createRound', () => {
     assert.equal(result.path, join(dir, '004.geojson'));
   });
 
-  test('returned discordMessage is Discord markdown with header, tracker link, rules link, expiry, and plain coords', async () => {
+  test('returned discordMessage is Discord markdown with header, tracker link, rules link, leaderboard link, expiry, and plain coords', async () => {
     const result = await createRound({
       generateTarget: async () => ({ target: argentinaTarget }),
       roundsDir: dir,
     });
     const lines = result.discordMessage.split('\n');
     // createRound calls formatTargetDiscord without a fixed `now`, so the
-    // expiry epoch is wall-clock-dependent — assert structure on line 4
+    // expiry epoch is wall-clock-dependent — assert structure on line 5
     // rather than a specific value (formatTargetDiscord's own tests cover
     // the expiry-line semantics in depth).
-    assert.deepEqual(lines.slice(0, 3), [
+    assert.deepEqual(lines.slice(0, 4), [
       '# Round 1, Río Negro, Argentina, [42.50000°S 67.50000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)',
       '[Submission Tracker](https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/001.geojson)',
       '[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
+      '[Leaderboard](https://github.com/mlc/americas-tpg/blob/main/LEADERBOARD.md)',
     ]);
-    assert.equal(lines.length, 5);
-    assert.match(lines[3], /^Submissions close <t:\d+:R>$/);
-    assert.equal(lines[4], 'Coordinates for degree-sign haters: `-42.5,-67.5`');
+    assert.equal(lines.length, 6);
+    assert.match(lines[4], /^Submissions close <t:\d+:R>$/);
+    assert.equal(lines[5], 'Coordinates for degree-sign haters: `-42.5,-67.5`');
   });
 
   test('does not overwrite an existing round (R4 / AE8)', async () => {

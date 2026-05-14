@@ -3,6 +3,8 @@ import { describe, test } from 'node:test';
 import {
   GID0_TO_ISO639_1,
   GID0_TO_LOCAL_NAME,
+  LEADERBOARD_LABEL,
+  leaderboardLinkText,
   mainLanguageOf,
   ROUND_LABEL,
   RULES_LABEL,
@@ -53,6 +55,17 @@ describe('language tables — internal consistency', () => {
       missing,
       [],
       `languages missing from SUBMISSION_TRACKER_LABEL: ${missing.join(', ')}`,
+    );
+  });
+
+  test('every language in GID0_TO_ISO639_1 has a LEADERBOARD_LABEL entry', () => {
+    const languages = new Set(Object.values(GID0_TO_ISO639_1));
+    const labelled = new Set(Object.keys(LEADERBOARD_LABEL));
+    const missing = [...languages].filter((l) => !labelled.has(l));
+    assert.deepEqual(
+      missing,
+      [],
+      `languages missing from LEADERBOARD_LABEL: ${missing.join(', ')}`,
     );
   });
 });
@@ -117,6 +130,23 @@ describe('submissionTrackerLinkText', () => {
       submissionTrackerLinkText('ht'),
       'Submission Tracker / Swivi Soumisyon',
     );
+  });
+});
+
+describe('leaderboardLinkText', () => {
+  test('returns plain "Leaderboard" for English / undefined / unknown', () => {
+    assert.equal(leaderboardLinkText(undefined), 'Leaderboard');
+    assert.equal(leaderboardLinkText(''), 'Leaderboard');
+    assert.equal(leaderboardLinkText('en'), 'Leaderboard');
+    assert.equal(leaderboardLinkText('xx'), 'Leaderboard');
+  });
+
+  test('appends translation separated by " / " for non-English', () => {
+    assert.equal(leaderboardLinkText('es'), 'Leaderboard / Clasificación');
+    assert.equal(leaderboardLinkText('pt'), 'Leaderboard / Classificação');
+    assert.equal(leaderboardLinkText('fr'), 'Leaderboard / Classement');
+    assert.equal(leaderboardLinkText('nl'), 'Leaderboard / Klassement');
+    assert.equal(leaderboardLinkText('ht'), 'Leaderboard / Klasman');
   });
 });
 

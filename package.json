@@ -11,6 +11,7 @@
     "submit-round": "yarn node src/submit-round.ts",
     "end-round": "yarn node src/end-round.ts",
     "send-reminders": "yarn node src/send-reminders.ts",
+    "leaderboard": "yarn node src/leaderboard.ts",
     "list-countries": "yarn node src/list-countries.ts",
     "typecheck": "tsc --noEmit",
     "test": "yarn node --test --import ./tests/setup.ts 'tests/**/*.test.ts'",

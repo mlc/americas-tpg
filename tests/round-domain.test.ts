@@ -8,6 +8,7 @@ import {
   formatRoundResultDiscord,
   formatStandings,
   formatTargetDiscord,
+  LEADERBOARD_URL,
   normalizePlayerName,
   type RoundFile,
   RULES_URL,
@@ -172,13 +173,14 @@ describe('submissionTrackerUrl', () => {
 });
 
 describe('formatTargetDiscord', () => {
-  test('renders Discord markdown with header, tracker link, rules link, expiry, and plain coords', () => {
+  test('renders Discord markdown with header, tracker link, rules link, leaderboard link, expiry, and plain coords', () => {
     assert.equal(
       formatTargetDiscord(buildRound(7, null, []), NOW),
       [
         '# Round 7, Río Negro, Argentina, [42.50000°S 67.50000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)',
         '[Submission Tracker](https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/007.geojson)',
         '[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
+        '[Leaderboard](https://github.com/mlc/americas-tpg/blob/main/LEADERBOARD.md)',
         EXPIRY_LINE,
         'Coordinates for degree-sign haters: `-42.5,-67.5`',
       ].join('\n'),
@@ -208,6 +210,7 @@ describe('formatTargetDiscord', () => {
         '# Round 1, Somewhere, [20.00000°N 10.00000°E](https://www.google.com/maps/search/?api=1&query=20%2C10)',
         '[Submission Tracker](https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/001.geojson)',
         '[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
+        '[Leaderboard](https://github.com/mlc/americas-tpg/blob/main/LEADERBOARD.md)',
         EXPIRY_LINE,
         'Coordinates for degree-sign haters: `20,10`',
       ].join('\n'),
@@ -242,15 +245,16 @@ describe('formatTargetDiscord', () => {
     );
   });
 
-  test('output is exactly five lines: header, tracker, rules, expiry, plain coords', () => {
+  test('output is exactly six lines: header, tracker, rules, leaderboard, expiry, plain coords', () => {
     const out = formatTargetDiscord(buildRound(2, null, []), NOW);
     const lines = out.split('\n');
-    assert.equal(lines.length, 5);
+    assert.equal(lines.length, 6);
     assert.match(lines[0], /^# Round 2,/);
     assert.equal(lines[1], `[Submission Tracker](${submissionTrackerUrl(2)})`);
     assert.equal(lines[2], `[Rules](${RULES_URL})`);
-    assert.equal(lines[3], EXPIRY_LINE);
-    assert.equal(lines[4], 'Coordinates for degree-sign haters: `-42.5,-67.5`');
+    assert.equal(lines[3], `[Leaderboard](${LEADERBOARD_URL})`);
+    assert.equal(lines[4], EXPIRY_LINE);
+    assert.equal(lines[5], 'Coordinates for degree-sign haters: `-42.5,-67.5`');
   });
 
   test('rules link text is bilingual for non-English rounds', () => {
@@ -283,31 +287,47 @@ describe('formatTargetDiscord', () => {
     }
   });
 
-  test('English / unknown / missing language uses plain "Rules" and "Submission Tracker" links', () => {
+  test('leaderboard link text is bilingual for non-English rounds', () => {
+    const cases: Array<[string, string]> = [
+      ['es', 'Leaderboard / Clasificación'],
+      ['pt', 'Leaderboard / Classificação'],
+      ['fr', 'Leaderboard / Classement'],
+      ['nl', 'Leaderboard / Klassement'],
+      ['ht', 'Leaderboard / Klasman'],
+    ];
+    for (const [language, expected] of cases) {
+      const out = formatTargetDiscord(buildRound(4, null, [], language), NOW);
+      const leaderboardLine = out.split('\n')[3];
+      assert.equal(leaderboardLine, `[${expected}](${LEADERBOARD_URL})`);
+    }
+  });
+
+  test('English / unknown / missing language uses plain "Rules", "Submission Tracker", and "Leaderboard" links', () => {
     for (const lang of ['en', 'xx', undefined]) {
       const out = formatTargetDiscord(buildRound(4, null, [], lang), NOW);
-      const [, trackerLine, rulesLine] = out.split('\n');
+      const [, trackerLine, rulesLine, leaderboardLine] = out.split('\n');
       assert.equal(
         trackerLine,
         `[Submission Tracker](${submissionTrackerUrl(4)})`,
       );
       assert.equal(rulesLine, `[Rules](${RULES_URL})`);
+      assert.equal(leaderboardLine, `[Leaderboard](${LEADERBOARD_URL})`);
     }
   });
 
-  test('expiry line is the 4th line with a relative Discord timestamp for the next-day 21:00 NY epoch second', () => {
+  test('expiry line is the 5th line with a relative Discord timestamp for the next-day 21:00 NY epoch second', () => {
     const out = formatTargetDiscord(buildRound(5, null, []), NOW);
     const lines = out.split('\n');
-    assert.equal(lines.length, 5);
-    assert.equal(lines[3], `Submissions close <t:${EXPIRY_EPOCH}:R>`);
+    assert.equal(lines.length, 6);
+    assert.equal(lines[4], `Submissions close <t:${EXPIRY_EPOCH}:R>`);
     // Sanity: matches the Discord <t:UNIX:R> grammar — integer seconds + :R.
-    assert.match(lines[3], /^Submissions close <t:\d+:R>$/);
+    assert.match(lines[4], /^Submissions close <t:\d+:R>$/);
   });
 
-  test('plain-coords line uses raw stored numbers and is the 5th line', () => {
+  test('plain-coords line uses raw stored numbers and is the 6th line', () => {
     const out = formatTargetDiscord(buildRound(5, null, []), NOW);
     const lines = out.split('\n');
-    assert.equal(lines[4], 'Coordinates for degree-sign haters: `-42.5,-67.5`');
+    assert.equal(lines[5], 'Coordinates for degree-sign haters: `-42.5,-67.5`');
   });
 
   test('expiry line tracks the provided `now` — a different now produces a different epoch', () => {
@@ -316,7 +336,7 @@ describe('formatTargetDiscord', () => {
     const expiryLater = formatTargetDiscord(
       buildRound(6, null, []),
       later,
-    ).split('\n')[3];
+    ).split('\n')[4];
     const expected = `Submissions close <t:${EXPIRY_EPOCH + 7 * 24 * 60 * 60}:R>`;
     assert.equal(expiryLater, expected);
   });
@@ -325,8 +345,8 @@ describe('formatTargetDiscord', () => {
     const before = Instant.now().epochSecond();
     const out = formatTargetDiscord(buildRound(1, null, []));
     const after = Instant.now().epochSecond();
-    const match = out.split('\n')[3].match(/^Submissions close <t:(\d+):R>$/);
-    assert.ok(match, `expected expiry line, got: ${out.split('\n')[3]}`);
+    const match = out.split('\n')[4].match(/^Submissions close <t:(\d+):R>$/);
+    assert.ok(match, `expected expiry line, got: ${out.split('\n')[4]}`);
     const epoch = Number(match[1]);
     // Next-day 21:00 NY is always strictly in the future relative to "now",
     // and at most ~48h ahead (worst case: right after the prior day's 21:00).

@@ -3,6 +3,7 @@ import { distance } from '@turf/distance';
 import type { Feature, Point, Position } from 'geojson';
 import { formatCoords } from './format.ts';
 import {
+  leaderboardLinkText,
   mainCountryName,
   roundLabel,
   rulesLinkText,
@@ -13,6 +14,9 @@ export const TIE_BUFFER_KM = 0.025;
 
 export const RULES_URL =
   'https://github.com/mlc/americas-tpg/blob/main/RULES.md';
+
+export const LEADERBOARD_URL =
+  'https://github.com/mlc/americas-tpg/blob/main/LEADERBOARD.md';
 
 /**
  * Public URL to the round's GeoJSON viewed in geojson.io. Mirrors the
@@ -298,11 +302,19 @@ export function formatTargetDiscord(file: RoundFile, now?: Instant): string {
   const header = `# ${word} ${file.roundInfo.number}, ${target.properties.location}, [${coords}](${url})`;
   const trackerLink = `[${submissionTrackerLinkText(file.roundInfo.language)}](${submissionTrackerUrl(file.roundInfo.number)})`;
   const rulesLink = `[${rulesLinkText(file.roundInfo.language)}](${RULES_URL})`;
+  const leaderboardLink = `[${leaderboardLinkText(file.roundInfo.language)}](${LEADERBOARD_URL})`;
   const expiry = roundExpiry(now);
   const expiryString = `Submissions close <t:${expiry.epochSecond()}:R>`;
   const [lon, lat] = target.geometry.coordinates;
   const plainCoords = `Coordinates for degree-sign haters: \`${lat},${lon}\``;
-  return [header, trackerLink, rulesLink, expiryString, plainCoords].join('\n');
+  return [
+    header,
+    trackerLink,
+    rulesLink,
+    leaderboardLink,
+    expiryString,
+    plainCoords,
+  ].join('\n');
 }
 
 interface RoundResultDiscordInput {

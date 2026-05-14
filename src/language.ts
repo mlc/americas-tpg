@@ -167,6 +167,15 @@ export const SUBMISSION_TRACKER_LABEL: Record<string, string> = {
   ht: 'Swivi Soumisyon',
 };
 
+export const LEADERBOARD_LABEL: Record<string, string> = {
+  en: 'Leaderboard',
+  es: 'Clasificación',
+  pt: 'Classificação',
+  fr: 'Classement',
+  nl: 'Klassement',
+  ht: 'Klasman',
+};
+
 /**
  * Render bilingual link text for round-announcement links: the English label
  * alone for unknown / missing / English-equivalent language, or
@@ -204,4 +213,13 @@ export function submissionTrackerLinkText(
   language: string | undefined,
 ): string {
   return bilingualLinkText(language, SUBMISSION_TRACKER_LABEL);
+}
+
+/**
+ * Link text for the leaderboard link in the round announcement:
+ * `Leaderboard` in English, or `Leaderboard / <translation>` when the
+ * round's language is non-English. Same fallback rules as `rulesLinkText`.
+ */
+export function leaderboardLinkText(language: string | undefined): string {
+  return bilingualLinkText(language, LEADERBOARD_LABEL);
 }
