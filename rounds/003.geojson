@@ -233,6 +233,22 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -79.529026,
+          8.910566
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 2085.0790593476786,
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -72.544802,
           -13.165542
         ]
