@@ -114,6 +114,57 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -71.836061,
+          -13.413001
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 686.4540049983217,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.84175,
+          -13.40704
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 686.7874550788557,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.9438611,
+          -13.5379167
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 702.4080406440172,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -60.4933787,
           -3.1189445
         ]
@@ -224,6 +275,23 @@
         "player": "georoulette",
         "distance": 2690.23378053022,
         "location": "Panamá, Panama",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.74902823085087,
+          15.823289434399953
+        ]
+      },
+      "properties": {
+        "player": "Martin",
+        "distance": 3905.2693956518174,
+        "location": "Izabal, Guatemala",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
