@@ -80,6 +80,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -70.368408,
+          -15.041782
+        ]
+      },
+      "properties": {
+        "player": "Palin",
+        "distance": 646.2527294092366,
+        "location": "Puno, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -71.2502606,
           -14.0365541
         ]
@@ -199,6 +216,40 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -79.5227366,
+          8.98454609
+        ]
+      },
+      "properties": {
+        "player": "georoulette",
+        "distance": 2690.23378053022,
+        "location": "Panamá, Panama",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.26606529854097,
+          16.82434655337253
+        ]
+      },
+      "properties": {
+        "player": "De Martian",
+        "distance": 3956.3572274610015,
+        "location": "Stann Creek, Belize",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -86.973889,
           20.47651
         ]
@@ -216,6 +267,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -81.083871,
+          24.692165
+        ]
+      },
+      "properties": {
+        "player": "Tones",
+        "distance": 4305.246101763829,
+        "location": "Florida, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -80.571151,
           24.959191
         ]
@@ -224,6 +292,23 @@
         "player": "OKobern",
         "distance": 4311.638477668793,
         "location": "Florida, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.309283,
+          25.663606
+        ]
+      },
+      "properties": {
+        "player": "Шоша",
+        "distance": 5525.402659952568,
+        "location": "Nuevo León, México",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
