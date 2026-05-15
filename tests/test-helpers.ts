@@ -51,3 +51,10 @@ export function mockGlobalFetch(
 ) {
   return mock.method(globalThis, 'fetch', makeFetchStub(handler));
 }
+
+/** Extract the label of a `[text](url)` markdown link. Throws on non-links. */
+export function linkText(markdownLink: string): string {
+  const match = markdownLink.match(/^\[(.+?)\]\(/);
+  if (!match) throw new Error(`not a markdown link: ${markdownLink}`);
+  return match[1];
+}

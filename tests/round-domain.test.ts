@@ -8,7 +8,6 @@ import {
   formatRoundResultDiscord,
   formatStandings,
   formatTargetDiscord,
-  LEADERBOARD_URL,
   normalizePlayerName,
   type RoundFile,
   RULES_URL,
@@ -20,7 +19,7 @@ import {
   TIE_BUFFER_KM,
   validateSubmissionEligibility,
 } from '../src/round-domain.ts';
-import { withEliminated } from './test-helpers.ts';
+import { linkText, withEliminated } from './test-helpers.ts';
 
 // Fixed "now" for formatTargetDiscord tests: weekday afternoon in May, when
 // New York is on EDT (UTC-4). Next-day 21:00 NY → 2026-05-14T01:00:00Z.
@@ -178,9 +177,9 @@ describe('formatTargetDiscord', () => {
       formatTargetDiscord(buildRound(7, null, []), NOW),
       [
         '# Round 7, Río Negro, Argentina, [42.50000°S 67.50000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)',
-        '[Submission Tracker](https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/007.geojson)',
+        '[Submission Tracker](<https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/007.geojson>)',
         '[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
-        '[Leaderboard](https://github.com/mlc/americas-tpg/blob/main/LEADERBOARD.md)',
+        '[Leaderboard](<https://github.com/mlc/americas-tpg/blob/main/LEADERBOARD.md>)',
         EXPIRY_LINE,
         'Coordinates for degree-sign haters: `-42.5,-67.5`',
       ].join('\n'),
@@ -204,16 +203,10 @@ describe('formatTargetDiscord', () => {
         },
       ],
     };
+    const [header] = formatTargetDiscord(positive, NOW).split('\n');
     assert.equal(
-      formatTargetDiscord(positive, NOW),
-      [
-        '# Round 1, Somewhere, [20.00000°N 10.00000°E](https://www.google.com/maps/search/?api=1&query=20%2C10)',
-        '[Submission Tracker](https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/001.geojson)',
-        '[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
-        '[Leaderboard](https://github.com/mlc/americas-tpg/blob/main/LEADERBOARD.md)',
-        EXPIRY_LINE,
-        'Coordinates for degree-sign haters: `20,10`',
-      ].join('\n'),
+      header,
+      '# Round 1, Somewhere, [20.00000°N 10.00000°E](https://www.google.com/maps/search/?api=1&query=20%2C10)',
     );
   });
 
@@ -250,9 +243,9 @@ describe('formatTargetDiscord', () => {
     const lines = out.split('\n');
     assert.equal(lines.length, 6);
     assert.match(lines[0], /^# Round 2,/);
-    assert.equal(lines[1], `[Submission Tracker](${submissionTrackerUrl(2)})`);
-    assert.equal(lines[2], `[Rules](${RULES_URL})`);
-    assert.equal(lines[3], `[Leaderboard](${LEADERBOARD_URL})`);
+    assert.match(lines[1], /^\[Submission Tracker\]\(.*\)$/);
+    assert.match(lines[2], /^\[Rules\]\(.*\)$/);
+    assert.match(lines[3], /^\[Leaderboard\]\(.*\)$/);
     assert.equal(lines[4], EXPIRY_LINE);
     assert.equal(lines[5], 'Coordinates for degree-sign haters: `-42.5,-67.5`');
   });
@@ -283,7 +276,7 @@ describe('formatTargetDiscord', () => {
     for (const [language, expected] of cases) {
       const out = formatTargetDiscord(buildRound(4, null, [], language), NOW);
       const trackerLine = out.split('\n')[1];
-      assert.equal(trackerLine, `[${expected}](${submissionTrackerUrl(4)})`);
+      assert.equal(linkText(trackerLine), expected);
     }
   });
 
@@ -298,7 +291,7 @@ describe('formatTargetDiscord', () => {
     for (const [language, expected] of cases) {
       const out = formatTargetDiscord(buildRound(4, null, [], language), NOW);
       const leaderboardLine = out.split('\n')[3];
-      assert.equal(leaderboardLine, `[${expected}](${LEADERBOARD_URL})`);
+      assert.equal(linkText(leaderboardLine), expected);
     }
   });
 
@@ -306,12 +299,9 @@ describe('formatTargetDiscord', () => {
     for (const lang of ['en', 'xx', undefined]) {
       const out = formatTargetDiscord(buildRound(4, null, [], lang), NOW);
       const [, trackerLine, rulesLine, leaderboardLine] = out.split('\n');
-      assert.equal(
-        trackerLine,
-        `[Submission Tracker](${submissionTrackerUrl(4)})`,
-      );
-      assert.equal(rulesLine, `[Rules](${RULES_URL})`);
-      assert.equal(leaderboardLine, `[Leaderboard](${LEADERBOARD_URL})`);
+      assert.equal(linkText(trackerLine), 'Submission Tracker');
+      assert.equal(linkText(rulesLine), 'Rules');
+      assert.equal(linkText(leaderboardLine), 'Leaderboard');
     }
   });
 

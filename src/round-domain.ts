@@ -300,9 +300,9 @@ export function formatTargetDiscord(file: RoundFile, now?: Instant): string {
   const coords = formatCoords(target.geometry.coordinates);
   const word = roundLabel(file.roundInfo.language);
   const header = `# ${word} ${file.roundInfo.number}, ${target.properties.location}, [${coords}](${url})`;
-  const trackerLink = `[${submissionTrackerLinkText(file.roundInfo.language)}](${submissionTrackerUrl(file.roundInfo.number)})`;
+  const trackerLink = `[${submissionTrackerLinkText(file.roundInfo.language)}](<${submissionTrackerUrl(file.roundInfo.number)}>)`;
   const rulesLink = `[${rulesLinkText(file.roundInfo.language)}](${RULES_URL})`;
-  const leaderboardLink = `[${leaderboardLinkText(file.roundInfo.language)}](${LEADERBOARD_URL})`;
+  const leaderboardLink = `[${leaderboardLinkText(file.roundInfo.language)}](<${LEADERBOARD_URL}>)`;
   const expiry = roundExpiry(now);
   const expiryString = `Submissions close <t:${expiry.epochSecond()}:R>`;
   const [lon, lat] = target.geometry.coordinates;
