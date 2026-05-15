@@ -46,6 +46,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -67.78504177402684,
+          -16.26991366516831
+        ]
+      },
+      "properties": {
+        "player": "pandem",
+        "distance": 606.2906408241627,
+        "location": "La Paz, Bolivia",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -68.12777,
           -16.349838
         ]
@@ -55,7 +72,7 @@
         "distance": 627.448242981949,
         "location": "La Paz, Bolivia",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -72,7 +89,7 @@
         "distance": 642.5294407805288,
         "location": "La Paz, Bolivia",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
@@ -190,6 +207,23 @@
         "player": "Norton",
         "distance": 1217.068828764215,
         "location": "Callao, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -68.015043,
+          -22.350377
+        ]
+      },
+      "properties": {
+        "player": "Igorjan94 (wildtravel_club)",
+        "distance": 1268.685705327557,
+        "location": "Antofagasta, Chile",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
@@ -377,6 +411,23 @@
         "player": "Шоша",
         "distance": 5525.402659952568,
         "location": "Nuevo León, México",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -13.59159,
+          28.95447
+        ]
+      },
+      "properties": {
+        "player": "Pinea",
+        "distance": 7170.015274969542,
+        "location": "Islas Canarias, Spain",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
