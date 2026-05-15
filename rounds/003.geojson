@@ -2,8 +2,9 @@
   "type": "FeatureCollection",
   "roundInfo": {
     "number": 3,
-    "endedAt": null,
-    "language": "es"
+    "endedAt": "2026-05-15T00:35:21.477Z",
+    "language": "es",
+    "dnsChecks": []
   },
   "features": [
     {
@@ -38,7 +39,8 @@
         "distance": 650.9126337589009,
         "location": "Sangre Grande, Trinidad and Tobago",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#d4af37",
+        "eliminated": false
       }
     },
     {
@@ -55,7 +57,8 @@
         "distance": 668.5629092788763,
         "location": "Paramaribo, Suriname",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#c0c0c0",
+        "eliminated": false
       }
     },
     {
@@ -72,7 +75,8 @@
         "distance": 875.7084189695415,
         "location": "Amazonas, Brazil",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#cd7f32",
+        "eliminated": false
       }
     },
     {
@@ -89,7 +93,8 @@
         "distance": 879.1279387050588,
         "location": "Grenadines, Saint Vincent and the Grenadines",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -106,7 +111,8 @@
         "distance": 919.2315359727403,
         "location": "Cayenne, French Guiana",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -123,7 +129,8 @@
         "distance": 945.1550213632345,
         "location": "Christ Church, Barbados",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -140,7 +147,8 @@
         "distance": 1001.0355182600179,
         "location": "Vieux Fort, Saint Lucia",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -157,7 +165,8 @@
         "distance": 1154.017022893336,
         "location": "Bonaire, Bonaire, Sint Eustatius and Saba",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -174,7 +183,8 @@
         "distance": 1428.491577489468,
         "location": "Cundinamarca, Colombia",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -191,7 +201,8 @@
         "distance": 1435.558068996544,
         "location": "Bogotá D.C., Colombia",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -208,7 +219,8 @@
         "distance": 1563.3432178551136,
         "location": "Antioquia, Colombia",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -225,7 +237,8 @@
         "distance": 2073.4728408023902,
         "location": "Panamá, Panama",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -241,7 +254,8 @@
         "player": "Loading...",
         "distance": 2085.0790593476786,
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -258,7 +272,8 @@
         "distance": 2356.758780462096,
         "location": "Cusco, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -275,7 +290,8 @@
         "distance": 2447.9006527609745,
         "location": "La Paz, Bolivia",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -292,7 +308,8 @@
         "distance": 3061.7853889693592,
         "location": "Florida, United States",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -308,7 +325,8 @@
         "player": "Tones",
         "distance": 3062.287942370723,
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -324,7 +342,8 @@
         "player": "Talking Nonsense",
         "distance": 3094.0226004226693,
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -341,7 +360,8 @@
         "distance": 3096.7152437155396,
         "location": "Florida, United States",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -358,7 +378,8 @@
         "distance": 3101.1411764062173,
         "location": "Florida, United States",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -375,7 +396,8 @@
         "distance": 3103.604066305849,
         "location": "Antofagasta, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -392,7 +414,8 @@
         "distance": 3259.7829633831893,
         "location": "Izabal, Guatemala",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -409,7 +432,8 @@
         "distance": 4202.029522344461,
         "location": "New York, United States",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -426,7 +450,8 @@
         "distance": 5671.823791171618,
         "location": "Islas Canarias, Spain",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -443,7 +468,8 @@
         "distance": 16968.32263723002,
         "location": "Hong Kong, China",
         "marker-symbol": "circle",
-        "marker-color": "#ff0000"
+        "marker-color": "#ff0000",
+        "eliminated": true
       }
     }
   ]
