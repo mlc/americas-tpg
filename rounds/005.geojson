@@ -23,6 +23,74 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -63.89973,
+          -8.71478
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 81.53009516077586,
+        "location": "Rondônia, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -68.12777,
+          -16.349838
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 996.0433342797093,
+        "location": "La Paz, Bolivia",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.26606529854097,
+          16.82434655337253
+        ]
+      },
+      "properties": {
+        "player": "De Martian",
+        "distance": 3822.9485883622838,
+        "location": "Stann Creek, Belize",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.571151,
+          24.959191
+        ]
+      },
+      "properties": {
+        "player": "OKobern",
+        "distance": 4079.2580679405723,
+        "location": "Florida, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
