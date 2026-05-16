@@ -114,6 +114,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -71.841529,
+          -13.407069
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 1000.3860411994845,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -71.84175,
           -13.40704
         ]
