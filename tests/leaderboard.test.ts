@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, test } from 'node:test';
 import {
   buildLeaderboardMarkdown,
   generateLeaderboard,
+  targetsMap,
 } from '../src/leaderboard.ts';
 import type {
   RoundFile,
@@ -15,15 +16,18 @@ import type {
 import { roundPath, writeRoundAtomic } from '../src/round-file.ts';
 import { withEliminated } from './test-helpers.ts';
 
-function target(): TargetFeature {
+function target(
+  coordinates: [number, number] = [-67.5, -42.5],
+  location = 'Río Negro, Argentina',
+): TargetFeature {
   return {
     type: 'Feature',
     id: 'target',
-    geometry: { type: 'Point', coordinates: [-67.5, -42.5] },
+    geometry: { type: 'Point', coordinates },
     properties: {
       player: 'Target',
       distance: null,
-      location: 'Río Negro, Argentina',
+      location,
     },
   };
 }
@@ -40,11 +44,12 @@ function endedRound(
   number: number,
   endedAt: string,
   submissions: SubmissionFeature[],
+  targetFeature: TargetFeature = target(),
 ): RoundFile {
   return {
     type: 'FeatureCollection',
     roundInfo: { number, endedAt, dnsChecks: [] },
-    features: [target(), ...submissions],
+    features: [targetFeature, ...submissions],
   };
 }
 
@@ -92,10 +97,11 @@ describe('buildLeaderboardMarkdown', () => {
       withEliminated([sub('alice', 10.4), sub('bob', 99.7)], ['bob']),
     );
     const md = buildLeaderboardMarkdown([r1]);
-    // Title, then a non-empty explanation paragraph before the table.
+    // Title, then a geojson code block, then a non-empty explanation
+    // paragraph before the table.
     assert.match(
       md,
-      /^# Américas TPG Gauntlet Leaderboard\n\n.+\n\n\| Player \|/,
+      /^# Américas TPG Gauntlet Leaderboard\n\n```geojson\n.+\n```\n\n.+\n\n\| Player \|/,
     );
     assert.match(md, /\| Player \| \[Round 1\]\[r1\] \|/);
     // Survivor plain, eliminated italic, elim cell bold (rounded).
@@ -199,6 +205,33 @@ describe('buildLeaderboardMarkdown', () => {
     assert.match(md, /\| \*under\\_score\* \| \*\*30\*\* \|/);
   });
 
+  test('embeds a geojson code block of round targets between title and explanation', () => {
+    const r1 = endedRound(
+      1,
+      T1,
+      withEliminated([sub('alice', 10)], []),
+      target([-66.55809, -26.2263], 'Salta, Argentina'),
+    );
+    const r2 = endedRound(
+      2,
+      T2,
+      withEliminated([sub('alice', 11)], []),
+      target([-88.55169, 18.33971], 'Corozal, Belize'),
+    );
+    const md = buildLeaderboardMarkdown([r1, r2]);
+    // Title, blank, ```geojson, <json>, ```, blank, explanation.
+    const fenced = md.match(/```geojson\n(.+)\n```/);
+    assert.ok(fenced, 'expected a ```geojson fenced code block');
+    const parsed = JSON.parse(fenced[1]);
+    assert.deepEqual(parsed, targetsMap([r1, r2]));
+    // Block sits between the H1 and the eliminated-players paragraph.
+    assert.ok(
+      md.indexOf('```geojson') <
+        md.indexOf('Eliminated players shown in *italics*'),
+    );
+    assert.ok(md.indexOf('# Américas') < md.indexOf('```geojson'));
+  });
+
   test('round header cells use reference-style links resolved by bottom footnotes', () => {
     const r1 = endedRound(1, T1, withEliminated([sub('alice', 5)], []));
     const r12 = endedRound(12, T2, withEliminated([sub('alice', 6)], []));
@@ -216,6 +249,60 @@ describe('buildLeaderboardMarkdown', () => {
       md,
       /\[r12\]: https:\/\/geojson\.io\/#id=github:mlc\/americas-tpg\/blob\/main\/rounds\/012\.geojson "Río Negro, Argentina"/,
     );
+  });
+});
+
+describe('targetsMap', () => {
+  test('empty input produces an empty FeatureCollection', () => {
+    assert.deepEqual(targetsMap([]), {
+      type: 'FeatureCollection',
+      features: [],
+    });
+  });
+
+  test('one feature per round, in input order, carrying round number and target location', () => {
+    const r1 = endedRound(
+      1,
+      T1,
+      withEliminated([sub('alice', 10)], []),
+      target([-66.55809, -26.2263], 'Salta, Argentina'),
+    );
+    const r2 = endedRound(
+      2,
+      T2,
+      withEliminated([sub('alice', 11)], []),
+      target([-88.55169, 18.33971], 'Corozal, Belize'),
+    );
+    const fc = targetsMap([r1, r2]);
+    assert.equal(fc.type, 'FeatureCollection');
+    assert.equal(fc.features.length, 2);
+    assert.deepEqual(fc.features[0], {
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [-66.55809, -26.2263] },
+      properties: { round: 1, location: 'Salta, Argentina' },
+    });
+    assert.deepEqual(fc.features[1], {
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [-88.55169, 18.33971] },
+      properties: { round: 2, location: 'Corozal, Belize' },
+    });
+  });
+
+  test('feature properties only include round + location (no player/distance/simplestyle)', () => {
+    const r = endedRound(7, T1, withEliminated([sub('alice', 10)], []));
+    const [feature] = targetsMap([r]).features;
+    assert.deepEqual(Object.keys(feature.properties).sort(), [
+      'location',
+      'round',
+    ]);
+  });
+
+  test('round number comes from roundInfo, not the input array index', () => {
+    const r5 = endedRound(5, T1, withEliminated([sub('alice', 10)], []));
+    const r9 = endedRound(9, T2, withEliminated([sub('alice', 11)], []));
+    const fc = targetsMap([r5, r9]);
+    assert.equal(fc.features[0].properties.round, 5);
+    assert.equal(fc.features[1].properties.round, 9);
   });
 });
 

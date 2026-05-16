@@ -1,5 +1,6 @@
 import { writeFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
+import type { FeatureCollection, Point } from 'geojson';
 import { isMain } from './cli-helpers.ts';
 import {
   endedAtOf,
@@ -38,6 +39,23 @@ interface PlayerRow {
   eliminatedAt: number | null;
   cells: Map<number, CellKind>;
 }
+
+export const targetsMap = (
+  rounds: readonly RoundFile[],
+): FeatureCollection<Point, { round: number; location: string }> => ({
+  type: 'FeatureCollection',
+  features: rounds.map((round) => {
+    const target = targetOf(round);
+    return {
+      type: 'Feature',
+      geometry: target.geometry,
+      properties: {
+        round: round.roundInfo.number,
+        location: target.properties.location,
+      },
+    };
+  }),
+});
 
 /** Pure markdown builder. `rounds` must already be filtered to ended rounds
  * and sorted by round number ascending. Throws on empty input. */
@@ -154,6 +172,7 @@ export function buildLeaderboardMarkdown(rounds: readonly RoundFile[]): string {
 
   const lines: string[] = [];
   lines.push('# Américas TPG Gauntlet Leaderboard', '');
+  lines.push('```geojson', JSON.stringify(targetsMap(rounds)), '```', '');
   lines.push(
     "Eliminated players shown in *italics*. Each cell contains the distance (in kilometers) for each player's submission.",
     '',
