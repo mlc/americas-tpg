@@ -233,6 +233,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -68.37040476806294,
+          12.233361505503758
+        ]
+      },
+      "properties": {
+        "player": "Summitblvd",
+        "distance": 2310.701125638197,
+        "location": "Bonaire, Bonaire, Sint Eustatius and Saba",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -46.4760243,
           -23.4238806
         ]
@@ -258,6 +275,23 @@
         "player": "georoulette",
         "distance": 2689.134254302253,
         "location": "Chiriquí, Panama",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.74902823085087,
+          15.823289434399953
+        ]
+      },
+      "properties": {
+        "player": "Martin",
+        "distance": 3782.74015382493,
+        "location": "Izabal, Guatemala",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
