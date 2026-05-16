@@ -39,7 +39,7 @@
     "geographiclib-dms": "2.2.0"
   },
   "resolutions": {
-    "better-sqlite3": "12.9.0"
+    "better-sqlite3": "12.10.0"
   },
   "lint-staged": {
     "*": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
