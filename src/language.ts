@@ -57,7 +57,8 @@ export const GID0_TO_ISO639_1: Record<string, string> = {
   BES: 'nl',
   CUW: 'nl',
   SXM: 'nl',
-  SUR: 'nl',
+  // Sranan Tongo
+  SUR: 'srn',
 };
 
 export function mainLanguageOf(gid_0: string | undefined): string | undefined {
@@ -127,7 +128,8 @@ export const GID0_TO_LOCAL_NAME: Record<string, string> = {
   BES: 'Caribisch Nederland',
   CUW: 'Curaçao',
   SXM: 'Sint Maarten',
-  SUR: 'Suriname',
+  // Sranan Tongo
+  SUR: 'Sranan',
 };
 
 export function mainCountryName(gid_0: string | undefined): string | undefined {
@@ -142,6 +144,7 @@ export const ROUND_LABEL: Record<string, string> = {
   fr: 'Manche',
   nl: 'Ronde',
   ht: 'Tou',
+  srn: 'Rondu',
 };
 
 export function roundLabel(language: string | undefined): string {
@@ -156,6 +159,7 @@ export const RULES_LABEL: Record<string, string> = {
   fr: 'Règles',
   nl: 'Regels',
   ht: 'Règ',
+  srn: 'Reglement',
 };
 
 export const SUBMISSION_TRACKER_LABEL: Record<string, string> = {
@@ -165,6 +169,7 @@ export const SUBMISSION_TRACKER_LABEL: Record<string, string> = {
   fr: 'Suivi des Soumissions',
   nl: 'Inzendingen-tracker',
   ht: 'Swivi Soumisyon',
+  srn: 'Inzendingen-tracker',
 };
 
 export const LEADERBOARD_LABEL: Record<string, string> = {
@@ -174,6 +179,7 @@ export const LEADERBOARD_LABEL: Record<string, string> = {
   fr: 'Classement',
   nl: 'Klassement',
   ht: 'Klasman',
+  srn: 'Klassement',
 };
 
 /**
