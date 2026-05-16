@@ -97,6 +97,40 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -71.836061,
+          -13.413001
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 1000.2781384509348,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.84175,
+          -13.40704
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 1000.4038131087776,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -70.368408,
           -15.041782
         ]
@@ -182,6 +216,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -61.128584924359075,
+          10.585860154170948
+        ]
+      },
+      "properties": {
+        "player": "Johann Sebastian Bach",
+        "distance": 2116.373762849558,
+        "location": "Sangre Grande, Trinidad and Tobago",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -46.4760243,
           -23.4238806
         ]
@@ -190,6 +241,23 @@
         "player": "maclang23",
         "distance": 2554.154977837519,
         "location": "São Paulo, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -82.2518163,
+          8.2064052
+        ]
+      },
+      "properties": {
+        "player": "georoulette",
+        "distance": 2689.134254302253,
+        "location": "Chiriquí, Panama",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
