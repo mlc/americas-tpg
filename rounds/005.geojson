@@ -63,6 +63,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -71.2502606,
+          -14.0365541
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 992.5194223209439,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -68.12777,
           -16.349838
         ]
@@ -72,7 +89,7 @@
         "distance": 996.0433342797093,
         "location": "La Paz, Bolivia",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
@@ -139,6 +156,40 @@
         "player": "Talking Nonsense",
         "distance": 1706.6994391098099,
         "location": "Jujuy, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -75.1570056,
+          6.2322278
+        ]
+      },
+      "properties": {
+        "player": "Daws",
+        "distance": 1997.0960868029756,
+        "location": "Antioquia, Colombia",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.4760243,
+          -23.4238806
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 2554.154977837519,
+        "location": "São Paulo, Brazil",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
