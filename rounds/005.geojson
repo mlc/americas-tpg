@@ -182,6 +182,22 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -80.679917,
+          24.863361
+        ]
+      },
+      "properties": {
+        "player": "Tones",
+        "distance": 4074.8978573910363,
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -80.571151,
           24.959191
         ]
