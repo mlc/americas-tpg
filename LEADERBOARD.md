@@ -1,5 +1,9 @@
 # Américas TPG Gauntlet Leaderboard
 
+```geojson
+{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-66.55809,-26.2263]},"properties":{"round":1,"location":"Salta, Argentina"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-88.55169,18.33971]},"properties":{"round":2,"location":"Corozal, Belize"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-61.11325,4.73209]},"properties":{"round":3,"location":"Bolívar, Venezuela"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-65.97456,-11.10872]},"properties":{"round":4,"location":"Beni, Bolivia"}}]}
+```
+
 Eliminated players shown in *italics*. Each cell contains the distance (in kilometers) for each player's submission.
 
 | Player | [Round 1][r1] | [Round 2][r2] | [Round 3][r3] | [Round 4][r4] |
