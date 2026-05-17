@@ -232,6 +232,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -68.015043,
+          -22.350377
+        ]
+      },
+      "properties": {
+        "player": "Igorjan94 (wildtravel_club)",
+        "distance": 2704.36013009308,
+        "location": "Antofagasta, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -66.111893,
           -23.460229
         ]
@@ -257,6 +274,23 @@
         "player": "georoulette",
         "distance": 2736.8752272541774,
         "location": "Panamá, Panama",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.4760243,
+          -23.4238806
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 2773.5284548269124,
+        "location": "São Paulo, Brazil",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
