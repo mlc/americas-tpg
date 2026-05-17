@@ -332,6 +332,23 @@ interface RoundResultDiscordInput {
   dnsChecks: readonly DnsCheck[];
 }
 
+export const formatPlayersList = (players: readonly string[]): string => {
+  switch (players.length) {
+    case 0:
+      // shouldn't happen
+      return '';
+    case 1:
+      return `@${players[0]}`;
+    case 2:
+      return `@${players[0]} and @${players[1]}`;
+    default:
+      return `${players
+        .slice(0, -1)
+        .map((p) => `@${p}`)
+        .join(', ')}, and @${players.at(-1)}`;
+  }
+};
+
 export function formatRoundResultDiscord(
   input: RoundResultDiscordInput,
 ): string {
@@ -345,35 +362,27 @@ export function formatRoundResultDiscord(
       `Unfortunately, @${sub.properties.player}, at ${sub.properties.distance.toFixed(3)}km away, has been eliminated.`,
     );
   } else if (eliminatedSubmissions.length > 1) {
-    const mentions = eliminatedSubmissions
-      .map((s) => `@${s.properties.player}`)
-      .join(', ');
+    const mentions = formatPlayersList(
+      eliminatedSubmissions.map((submission) => submission.properties.player),
+    );
     const km = eliminatedSubmissions[0].properties.distance;
     lines.push(
       `Unfortunately, ${mentions}, tied for last within 25m at ${km.toFixed(3)}km away, have been eliminated.`,
     );
   }
-  for (const player of [...input.dnsSet].sort()) {
+  if (input.dnsSet.size > 0) {
     lines.push(
-      `Unfortunately, @${player} did not submit and has been eliminated.`,
+      `Unfortunately, ${formatPlayersList([...input.dnsSet].toSorted())} did not submit and ${input.dnsSet.size > 1 ? 'have' : 'has'} been eliminated.`,
     );
   }
   if (input.savedSet.size > 0) {
     const honest = input.dnsChecks
       .filter((c) => !c.couldHaveEscaped)
       .toSorted((a, b) => a.player.localeCompare(b.player));
-    const trigger =
-      honest.length > 0
-        ? ` (triggered by ${honest
-            .map((c) =>
-              c.best
-                ? `@${c.player}'s best historical at ${c.best.distanceKm.toFixed(3)}km`
-                : `@${c.player}'s submission history`,
-            )
-            .join(', ')})`
-        : '';
     for (const player of [...input.savedSet].sort()) {
-      lines.push(`@${player} was saved by the honest-DNS rule${trigger}.`);
+      lines.push(
+        `${player} was saved because ${formatPlayersList(honest.map(({ player }) => player))}'s best known submission would not have been safe from elimination.`,
+      );
     }
   }
   if (input.nextEligible.size === 0) {

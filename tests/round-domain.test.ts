@@ -5,6 +5,7 @@ import {
   eliminationsForRound,
   evaluateDnsCheck,
   formatLocation,
+  formatPlayersList,
   formatRoundResultDiscord,
   formatStandings,
   formatTargetDiscord,
@@ -389,7 +390,7 @@ describe('formatRoundResultDiscord', () => {
     });
     assert.match(
       message,
-      /Unfortunately, @bob, @carol, tied for last within 25m at 100\.000km away, have been eliminated\./,
+      /Unfortunately, @bob and @carol, tied for last within 25m at 100\.000km away, have been eliminated\./,
     );
     assert.match(message, /Game over! @alice wins!/);
   });
@@ -434,7 +435,7 @@ describe('formatRoundResultDiscord', () => {
     assert.match(message, /Game over: stalemate, no winner\./);
   });
 
-  test('honest-DNS save → "saved by the honest-DNS rule" line names trigger and distance', () => {
+  test('honest-DNS save → "was saved because" line names triggering DNS player', () => {
     const round = buildRound(2, '2026-05-13T14:00:00Z', [
       submission('alice', 50),
       submission('bob', 100),
@@ -460,9 +461,173 @@ describe('formatRoundResultDiscord', () => {
       [
         '## Round 2 complete',
         'Unfortunately, @carol did not submit and has been eliminated.',
-        "@bob was saved by the honest-DNS rule (triggered by @carol's best historical at 25.000km).",
+        "bob was saved because @carol's best known submission would not have been safe from elimination.",
         '2 players remain.',
       ].join('\n'),
+    );
+  });
+
+  test('three-way tie → oxford-comma list with "and" before last', () => {
+    const round = buildRound(2, '2026-05-13T14:00:00Z', [
+      submission('alice', 10),
+      submission('bob', 100.0),
+      submission('carol', 100.01),
+      submission('dan', 100.02),
+    ]);
+    const message = formatRoundResultDiscord({
+      round,
+      eliminations: new Set(['bob', 'carol', 'dan']),
+      dnsSet: new Set(),
+      nextEligible: new Set(['alice']),
+      savedSet: new Set(),
+      dnsChecks: [],
+    });
+    assert.match(
+      message,
+      /Unfortunately, @bob, @carol, and @dan, tied for last within 25m at 100\.000km away, have been eliminated\./,
+    );
+  });
+
+  test('multiple DNS players → plural "have been eliminated" with comma-separated mentions', () => {
+    const round = buildRound(3, '2026-05-14T14:00:00Z', [
+      submission('alice', 10),
+    ]);
+    const message = formatRoundResultDiscord({
+      round,
+      eliminations: new Set(),
+      dnsSet: new Set(['carol', 'dan', 'eve']),
+      nextEligible: new Set(['alice']),
+      savedSet: new Set(),
+      dnsChecks: [],
+    });
+    assert.match(
+      message,
+      /Unfortunately, @carol, @dan, and @eve did not submit and have been eliminated\./,
+    );
+  });
+
+  test('two DNS players → "X and Y" with plural "have"', () => {
+    const round = buildRound(3, '2026-05-14T14:00:00Z', [
+      submission('alice', 10),
+    ]);
+    const message = formatRoundResultDiscord({
+      round,
+      eliminations: new Set(),
+      dnsSet: new Set(['carol', 'dan']),
+      nextEligible: new Set(['alice']),
+      savedSet: new Set(),
+      dnsChecks: [],
+    });
+    assert.match(
+      message,
+      /Unfortunately, @carol and @dan did not submit and have been eliminated\./,
+    );
+  });
+
+  test('save line names multiple honest-DNS triggers', () => {
+    const round = buildRound(4, '2026-05-15T14:00:00Z', [
+      submission('alice', 50),
+      submission('bob', 100),
+    ]);
+    const message = formatRoundResultDiscord({
+      round,
+      eliminations: new Set(),
+      dnsSet: new Set(['carol', 'dan']),
+      nextEligible: new Set(['alice', 'bob']),
+      savedSet: new Set(['bob']),
+      dnsChecks: [
+        {
+          player: 'carol',
+          best: { point: [0, 0], distanceKm: 10.0 },
+          couldHaveEscaped: false,
+          morphiorDbStatus: 'ok',
+          morphiorDbSubmissionCount: 2,
+        },
+        {
+          player: 'dan',
+          best: { point: [1, 1], distanceKm: 20.0 },
+          couldHaveEscaped: false,
+          morphiorDbStatus: 'ok',
+          morphiorDbSubmissionCount: 4,
+        },
+      ],
+    });
+    assert.match(
+      message,
+      /bob was saved because @carol and @dan's best known submission would not have been safe from elimination\./,
+    );
+  });
+
+  test('save line ignores DNS players who could have escaped (sore losers)', () => {
+    const round = buildRound(4, '2026-05-15T14:00:00Z', [
+      submission('alice', 50),
+      submission('bob', 100),
+    ]);
+    const message = formatRoundResultDiscord({
+      round,
+      eliminations: new Set(),
+      dnsSet: new Set(['carol', 'eve']),
+      nextEligible: new Set(['alice', 'bob']),
+      savedSet: new Set(['bob']),
+      dnsChecks: [
+        {
+          player: 'carol',
+          best: { point: [0, 0], distanceKm: 10.0 },
+          couldHaveEscaped: false,
+          morphiorDbStatus: 'ok',
+          morphiorDbSubmissionCount: 2,
+        },
+        {
+          player: 'eve',
+          best: { point: [0, 0], distanceKm: 5.0 },
+          couldHaveEscaped: true,
+          morphiorDbStatus: 'ok',
+          morphiorDbSubmissionCount: 1,
+        },
+      ],
+    });
+    const saveLine = message
+      .split('\n')
+      .find((l) => l.includes('was saved because'));
+    assert.equal(
+      saveLine,
+      "bob was saved because @carol's best known submission would not have been safe from elimination.",
+    );
+    assert.ok(saveLine && !saveLine.includes('@eve'));
+  });
+});
+
+describe('formatPlayersList', () => {
+  test('empty list → empty string', () => {
+    assert.equal(formatPlayersList([]), '');
+  });
+
+  test('single player → "@name"', () => {
+    assert.equal(formatPlayersList(['alice']), '@alice');
+  });
+
+  test('two players → "@a and @b" (no comma)', () => {
+    assert.equal(formatPlayersList(['alice', 'bob']), '@alice and @bob');
+  });
+
+  test('three players → oxford-comma "@a, @b, and @c"', () => {
+    assert.equal(
+      formatPlayersList(['alice', 'bob', 'carol']),
+      '@alice, @bob, and @carol',
+    );
+  });
+
+  test('four players → "@a, @b, @c, and @d"', () => {
+    assert.equal(
+      formatPlayersList(['alice', 'bob', 'carol', 'dan']),
+      '@alice, @bob, @carol, and @dan',
+    );
+  });
+
+  test('preserves input order (does not sort)', () => {
+    assert.equal(
+      formatPlayersList(['zoe', 'alice', 'bob']),
+      '@zoe, @alice, and @bob',
     );
   });
 });
