@@ -63,6 +63,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -67.78504177402684,
+          -16.26991366516831
+        ]
+      },
+      "properties": {
+        "player": "pandem",
+        "distance": 973.2811228717313,
+        "location": "La Paz, Bolivia",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -71.2502606,
           -14.0365541
         ]
@@ -72,7 +89,7 @@
         "distance": 992.5194223209439,
         "location": "Cusco, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
