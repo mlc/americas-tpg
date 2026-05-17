@@ -23,6 +23,107 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -60.04735,
+          -3.03249
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 447.78784483625446,
+        "location": "Amazonas, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -60.0142681,
+          -3.1073413
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 449.9698009540378,
+        "location": "Amazonas, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -55.1986083,
+          5.4557278
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 697.3487850624086,
+        "location": "Para, Suriname",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -52.62736,
+          5.15776
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 792.643736893196,
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.836061,
+          -13.413001
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 2181.358860635871,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -66.111893,
+          -23.460229
+        ]
+      },
+      "properties": {
+        "player": "Talking Nonsense",
+        "distance": 2732.07698193993,
+        "location": "Salta, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
