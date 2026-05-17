@@ -2,8 +2,23 @@
   "type": "FeatureCollection",
   "roundInfo": {
     "number": 5,
-    "endedAt": null,
-    "language": "pt"
+    "endedAt": "2026-05-17T01:05:55.344Z",
+    "language": "pt",
+    "dnsChecks": [
+      {
+        "player": "Шоша",
+        "best": {
+          "point": [
+            -95.811259,
+            29.51873
+          ],
+          "distanceKm": 5372.000177514282
+        },
+        "couldHaveEscaped": false,
+        "morphiorDbStatus": "unavailable",
+        "morphiorDbSubmissionCount": null
+      }
+    ]
   },
   "features": [
     {
@@ -38,7 +53,8 @@
         "distance": 81.53009516077586,
         "location": "Rondônia, Brazil",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#d4af37",
+        "eliminated": false
       }
     },
     {
@@ -55,7 +71,8 @@
         "distance": 708.0075292816296,
         "location": "Amazonas, Brazil",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#c0c0c0",
+        "eliminated": false
       }
     },
     {
@@ -72,7 +89,8 @@
         "distance": 973.2811228717313,
         "location": "La Paz, Bolivia",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#cd7f32",
+        "eliminated": false
       }
     },
     {
@@ -89,7 +107,8 @@
         "distance": 992.5194223209439,
         "location": "Cusco, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -106,7 +125,8 @@
         "distance": 996.0433342797093,
         "location": "La Paz, Bolivia",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -123,7 +143,8 @@
         "distance": 1000.2781384509348,
         "location": "Cusco, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -140,7 +161,8 @@
         "distance": 1000.3860411994845,
         "location": "Cusco, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -157,7 +179,8 @@
         "distance": 1000.4038131087776,
         "location": "Cusco, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -174,7 +197,8 @@
         "distance": 1003.6117605387375,
         "location": "Puno, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -191,7 +215,8 @@
         "distance": 1456.1642293295808,
         "location": "Callao, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -208,7 +233,8 @@
         "distance": 1623.9054434162272,
         "location": "Antofagasta, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -225,7 +251,8 @@
         "distance": 1706.6994391098099,
         "location": "Jujuy, Argentina",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -242,7 +269,8 @@
         "distance": 1997.0960868029756,
         "location": "Antioquia, Colombia",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -259,7 +287,8 @@
         "distance": 2116.373762849558,
         "location": "Sangre Grande, Trinidad and Tobago",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -276,7 +305,8 @@
         "distance": 2310.701125638197,
         "location": "Bonaire, Bonaire, Sint Eustatius and Saba",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -293,7 +323,8 @@
         "distance": 2554.154977837519,
         "location": "São Paulo, Brazil",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -310,7 +341,8 @@
         "distance": 2689.134254302253,
         "location": "Chiriquí, Panama",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -327,7 +359,8 @@
         "distance": 3782.74015382493,
         "location": "Izabal, Guatemala",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -344,7 +377,8 @@
         "distance": 3822.9485883622838,
         "location": "Stann Creek, Belize",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -361,7 +395,8 @@
         "distance": 4029.9496344222935,
         "location": "Quintana Roo, México",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -377,7 +412,8 @@
         "player": "Tones",
         "distance": 4074.8978573910363,
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -394,7 +430,8 @@
         "distance": 4079.2580679405723,
         "location": "Florida, United States",
         "marker-symbol": "circle",
-        "marker-color": "#ff0000"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     }
   ]
