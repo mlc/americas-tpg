@@ -96,6 +96,57 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -59.487776,
+          13.0792797
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 1548.7133774058798,
+        "location": "Christ Church, Barbados",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.6099851,
+          13.0820403
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 1551.6133472755455,
+        "location": "Saint Michael, Barbados",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -68.37040476806294,
+          12.233361505503758
+        ]
+      },
+      "properties": {
+        "player": "Summitblvd",
+        "distance": 1912.186836673726,
+        "location": "Bonaire, Bonaire, Sint Eustatius and Saba",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -71.836061,
           -13.413001
         ]
@@ -113,6 +164,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -70.368408,
+          -15.041782
+        ]
+      },
+      "properties": {
+        "player": "Palin",
+        "distance": 2188.279853230957,
+        "location": "Puno, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -66.111893,
           -23.460229
         ]
@@ -121,6 +189,23 @@
         "player": "Talking Nonsense",
         "distance": 2732.07698193993,
         "location": "Salta, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.571151,
+          24.959191
+        ]
+      },
+      "properties": {
+        "player": "OKobern",
+        "distance": 3820.9741095740037,
+        "location": "Florida, United States",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
