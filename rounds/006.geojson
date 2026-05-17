@@ -96,6 +96,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -61.128584924359075,
+          10.585860154170948
+        ]
+      },
+      "properties": {
+        "player": "Johann Sebastian Bach",
+        "distance": 1331.108834538134,
+        "location": "Sangre Grande, Trinidad and Tobago",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -59.487776,
           13.0792797
         ]
@@ -130,6 +147,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -60.9609806,
+          13.7334111
+        ]
+      },
+      "properties": {
+        "player": "Daws",
+        "distance": 1657.1100256255445,
+        "location": "Vieux Fort, Saint Lucia",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -68.37040476806294,
           12.233361505503758
         ]
@@ -138,6 +172,23 @@
         "player": "Summitblvd",
         "distance": 1912.186836673726,
         "location": "Bonaire, Bonaire, Sint Eustatius and Saba",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -75.1572132,
+          6.2344252
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 2170.6876497357985,
+        "location": "Antioquia, Colombia",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
@@ -198,6 +249,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -79.5894754,
+          9.0036538
+        ]
+      },
+      "properties": {
+        "player": "georoulette",
+        "distance": 2736.8752272541774,
+        "location": "Panamá, Panama",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -80.571151,
           24.959191
         ]
@@ -206,6 +274,57 @@
         "player": "OKobern",
         "distance": 3820.9741095740037,
         "location": "Florida, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.136449,
+          25.795667
+        ]
+      },
+      "properties": {
+        "player": "Puerto Vallarta",
+        "distance": 3856.2703230668744,
+        "location": "Florida, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.74902823085087,
+          15.823289434399953
+        ]
+      },
+      "properties": {
+        "player": "Martin",
+        "distance": 3950.8216307263515,
+        "location": "Izabal, Guatemala",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.26606529854097,
+          16.82434655337253
+        ]
+      },
+      "properties": {
+        "player": "De Martian",
+        "distance": 3951.9989457605366,
+        "location": "Stann Creek, Belize",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
