@@ -63,6 +63,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -69.68175135411425,
+          -15.792372921372134
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 587.8640712949153,
+        "location": "Puno, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -69.68134283592691,
           -15.764557775397504
         ]
@@ -72,7 +89,7 @@
         "distance": 588.4381263434545,
         "location": "Puno, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
@@ -148,6 +165,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -71.836061,
+          -13.413001
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 893.7827029350092,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -71.9438611,
           -13.5379167
         ]
@@ -199,6 +233,40 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -61.128584924359075,
+          10.585860154170948
+        ]
+      },
+      "properties": {
+        "player": "Johann Sebastian Bach",
+        "distance": 3060.861693025847,
+        "location": "Sangre Grande, Trinidad and Tobago",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.5358024,
+          8.9533196
+        ]
+      },
+      "properties": {
+        "player": "georoulette",
+        "distance": 3316.3426047639196,
+        "location": "Panamá, Panama",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -84.14622512911947,
           9.379095843726935
         ]
@@ -207,6 +275,23 @@
         "player": "Summitblvd",
         "distance": 3637.4086730345994,
         "location": "Puntarenas, Costa Rica",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.74902823085087,
+          15.823289434399953
+        ]
+      },
+      "properties": {
+        "player": "Martin",
+        "distance": 4509.929449488974,
+        "location": "Izabal, Guatemala",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
