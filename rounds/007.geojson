@@ -46,6 +46,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -68.136079,
+          -16.492719
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 413.2283372464097,
+        "location": "La Paz, Bolivia",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -69.68134283592691,
           -15.764557775397504
         ]
@@ -55,7 +72,7 @@
         "distance": 588.4381263434545,
         "location": "Puno, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -72,7 +89,7 @@
         "distance": 649.5035976410576,
         "location": "Tacna, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
@@ -139,6 +156,40 @@
         "player": "maclang23",
         "distance": 898.461023977404,
         "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.10850139490529,
+          -12.023823440290181
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 1479.4600300035343,
+        "location": "Callao, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -75.179709,
+          6.219614
+        ]
+      },
+      "properties": {
+        "player": "Daws",
+        "distance": 2823.4363855286947,
+        "location": "Antioquia, Colombia",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
