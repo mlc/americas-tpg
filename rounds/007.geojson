@@ -1,0 +1,28 @@
+{
+  "type": "FeatureCollection",
+  "roundInfo": {
+    "number": 7,
+    "endedAt": null,
+    "language": "es"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "target",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -64.26802,
+          -16.76546
+        ]
+      },
+      "properties": {
+        "player": "Target",
+        "distance": null,
+        "location": "Santa Cruz, Bolivia",
+        "marker-symbol": "star",
+        "marker-color": "#000000"
+      }
+    }
+  ]
+}
