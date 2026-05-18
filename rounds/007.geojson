@@ -23,6 +23,57 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -68.094,
+          -16.5678
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 408.1434327780385,
+        "location": "La Paz, Bolivia",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.24845,
+          -18.01109
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 649.5035976410576,
+        "location": "Tacna, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -86.973889,
+          20.47651
+        ]
+      },
+      "properties": {
+        "player": "Puerto Vallarta",
+        "distance": 4825.924456090341,
+        "location": "Quintana Roo, México",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
