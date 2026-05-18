@@ -46,6 +46,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -69.68134283592691,
+          -15.764557775397504
+        ]
+      },
+      "properties": {
+        "player": "Palin",
+        "distance": 588.4381263434545,
+        "location": "Puno, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -70.24845,
           -18.01109
         ]
@@ -55,7 +72,92 @@
         "distance": 649.5035976410576,
         "location": "Tacna, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.34893055555555,
+          -15.636700000000001
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 661.2989542942513,
+        "location": "Puno, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -66.111893,
+          -23.460229
+        ]
+      },
+      "properties": {
+        "player": "Talking Nonsense",
+        "distance": 768.8796908992542,
+        "location": "Salta, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -68.2420264,
+          -22.643575
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 774.6391243449649,
+        "location": "Antofagasta, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.9438611,
+          -13.5379167
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 898.461023977404,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -84.14622512911947,
+          9.379095843726935
+        ]
+      },
+      "properties": {
+        "player": "Summitblvd",
+        "distance": 3637.4086730345994,
+        "location": "Puntarenas, Costa Rica",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
       }
     },
     {
@@ -71,6 +173,23 @@
         "player": "Puerto Vallarta",
         "distance": 4825.924456090341,
         "location": "Quintana Roo, México",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.571151,
+          24.959191
+        ]
+      },
+      "properties": {
+        "player": "OKobern",
+        "distance": 4964.555157354885,
+        "location": "Florida, United States",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
