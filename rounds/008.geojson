@@ -23,6 +23,74 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -63.89973,
+          -8.71478
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 438.1272856237713,
+        "location": "Rondônia, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -68.12777,
+          -16.349838
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 893.1764049842627,
+        "location": "La Paz, Bolivia",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -68.015043,
+          -22.350377
+        ]
+      },
+      "properties": {
+        "player": "Igorjan94 (wildtravel_club)",
+        "distance": 1375.5503612389764,
+        "location": "Antofagasta, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -68.37040476806294,
+          12.233361505503758
+        ]
+      },
+      "properties": {
+        "player": "Summitblvd",
+        "distance": 2776.920490710773,
+        "location": "Bonaire, Bonaire, Sint Eustatius and Saba",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
