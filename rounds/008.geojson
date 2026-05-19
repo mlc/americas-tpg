@@ -148,6 +148,40 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -71.836061,
+          -13.413001
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 1153.8976639282134,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.9438611,
+          -13.5379167
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 1167.449576024951,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -68.015043,
           -22.350377
         ]
@@ -216,6 +250,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -75.179709,
+          6.219614
+        ]
+      },
+      "properties": {
+        "player": "Daws",
+        "distance": 2516.6254985173514,
+        "location": "Antioquia, Colombia",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -68.37040476806294,
           12.233361505503758
         ]
@@ -224,6 +275,57 @@
         "player": "Summitblvd",
         "distance": 2776.920490710773,
         "location": "Bonaire, Bonaire, Sint Eustatius and Saba",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.5894754,
+          9.0036538
+        ]
+      },
+      "properties": {
+        "player": "georoulette",
+        "distance": 3064.8115708485843,
+        "location": "Panamá, Panama",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.74902823085087,
+          15.823289434399953
+        ]
+      },
+      "properties": {
+        "player": "Martin",
+        "distance": 4300.2972073009405,
+        "location": "Izabal, Guatemala",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -86.973889,
+          20.47651
+        ]
+      },
+      "properties": {
+        "player": "Puerto Vallarta",
+        "distance": 4549.171370280425,
+        "location": "Quintana Roo, México",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
