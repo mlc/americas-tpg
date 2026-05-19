@@ -2,8 +2,9 @@
   "type": "FeatureCollection",
   "roundInfo": {
     "number": 7,
-    "endedAt": null,
-    "language": "es"
+    "endedAt": "2026-05-19T00:40:59.100Z",
+    "language": "es",
+    "dnsChecks": []
   },
   "features": [
     {
@@ -38,7 +39,8 @@
         "distance": 378.95785675821367,
         "location": "La Paz, Bolivia",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#d4af37",
+        "eliminated": false
       }
     },
     {
@@ -55,7 +57,8 @@
         "distance": 408.1434327780385,
         "location": "La Paz, Bolivia",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#c0c0c0",
+        "eliminated": false
       }
     },
     {
@@ -72,7 +75,8 @@
         "distance": 413.2283372464097,
         "location": "La Paz, Bolivia",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#cd7f32",
+        "eliminated": false
       }
     },
     {
@@ -89,7 +93,8 @@
         "distance": 587.8640712949153,
         "location": "Puno, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -106,7 +111,8 @@
         "distance": 588.4381263434545,
         "location": "Puno, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -123,7 +129,8 @@
         "distance": 649.5035976410576,
         "location": "Tacna, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -140,7 +147,8 @@
         "distance": 661.2989542942513,
         "location": "Puno, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -157,7 +165,8 @@
         "distance": 734.5945284652148,
         "location": "Antofagasta, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -174,7 +183,8 @@
         "distance": 768.8796908992542,
         "location": "Salta, Argentina",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -191,7 +201,8 @@
         "distance": 774.6391243449649,
         "location": "Antofagasta, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -208,7 +219,8 @@
         "distance": 893.7827029350092,
         "location": "Cusco, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -225,7 +237,8 @@
         "distance": 898.461023977404,
         "location": "Cusco, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -242,7 +255,8 @@
         "distance": 1479.4600300035343,
         "location": "Callao, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -259,7 +273,8 @@
         "distance": 2823.4363855286947,
         "location": "Antioquia, Colombia",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -276,7 +291,8 @@
         "distance": 3060.861693025847,
         "location": "Sangre Grande, Trinidad and Tobago",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -293,7 +309,8 @@
         "distance": 3316.3426047639196,
         "location": "Panamá, Panama",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -310,7 +327,8 @@
         "distance": 3637.4086730345994,
         "location": "Puntarenas, Costa Rica",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -327,7 +345,8 @@
         "distance": 4509.929449488974,
         "location": "Izabal, Guatemala",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -344,7 +363,8 @@
         "distance": 4825.924456090341,
         "location": "Quintana Roo, México",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -361,7 +381,8 @@
         "distance": 4964.555157354885,
         "location": "Florida, United States",
         "marker-symbol": "circle",
-        "marker-color": "#ff0000"
+        "marker-color": "#ff0000",
+        "eliminated": true
       }
     }
   ]
