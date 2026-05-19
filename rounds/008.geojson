@@ -63,6 +63,74 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -68.136079,
+          -16.492719
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 902.9059139001124,
+        "location": "La Paz, Bolivia",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -60.4933787,
+          -3.1189445
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 963.7436122721833,
+        "location": "Amazonas, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -69.68134283592691,
+          -15.764557775397504
+        ]
+      },
+      "properties": {
+        "player": "Palin",
+        "distance": 1005.3756651484073,
+        "location": "Puno, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.2502606,
+          -14.0365541
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 1103.7812763805982,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -68.015043,
           -22.350377
         ]
@@ -72,7 +140,24 @@
         "distance": 1375.5503612389764,
         "location": "Antofagasta, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -66.111893,
+          -23.460229
+        ]
+      },
+      "properties": {
+        "player": "Talking Nonsense",
+        "distance": 1396.9304968154852,
+        "location": "Salta, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
       }
     },
     {
