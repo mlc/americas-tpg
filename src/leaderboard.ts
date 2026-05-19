@@ -21,8 +21,9 @@ current working directory) summarising every ended round. Columns are rounds
 (linked to their submission tracker); rows are players. Surviving players
 appear first, alphabetically. Eliminated players follow, most-recently
 eliminated first, with their names in italics. Cells are integer-km
-distance to the target (bold on the round of elimination), or "DNS" when a
-player was eligible but did not submit. In-progress rounds are skipped.
+distance to the target (bold on the closest submission for each round,
+italic on the round of elimination), or "DNS" when a player was eligible
+but did not submit. In-progress rounds are skipped.
 
 Options:
       --rounds-dir <d>  Rounds directory (default: ${DEFAULT_ROUNDS_DIR})
@@ -30,7 +31,12 @@ Options:
 `;
 
 type CellKind =
-  | { kind: 'submitted'; distanceKm: number; eliminatedHere: boolean }
+  | {
+      kind: 'submitted';
+      distanceKm: number;
+      eliminatedHere: boolean;
+      firstHere: boolean;
+    }
   | { kind: 'dns' }
   | { kind: 'blank' };
 
@@ -117,8 +123,16 @@ export function buildLeaderboardMarkdown(rounds: readonly RoundFile[]): string {
   // DNS-out).
   for (const r of rounds) {
     const n = r.roundInfo.number;
+    const subs = submissionsOf(r);
+    const minDistance = subs.reduce<number | null>(
+      (acc, s) =>
+        acc === null || s.properties.distance < acc
+          ? s.properties.distance
+          : acc,
+      null,
+    );
     const submittedPlayers = new Set<string>();
-    for (const sub of submissionsOf(r)) {
+    for (const sub of subs) {
       const p = sub.properties.player;
       submittedPlayers.add(p);
       const row = ensure(p);
@@ -126,6 +140,7 @@ export function buildLeaderboardMarkdown(rounds: readonly RoundFile[]): string {
         kind: 'submitted',
         distanceKm: sub.properties.distance,
         eliminatedHere: sub.properties.eliminated === true,
+        firstHere: sub.properties.distance === minDistance,
       });
       if (sub.properties.eliminated === true && row.eliminatedAt === null) {
         row.eliminatedAt = n;
@@ -174,7 +189,7 @@ export function buildLeaderboardMarkdown(rounds: readonly RoundFile[]): string {
   lines.push('# Américas TPG Gauntlet Leaderboard', '');
   lines.push('```geojson', JSON.stringify(targetsMap(rounds)), '```', '');
   lines.push(
-    "Eliminated players shown in *italics*. Each cell contains the distance (in kilometers) for each player's submission.",
+    "Eliminated players' names shown in *italics*. Each cell contains the distance (in kilometers) for each player's submission — **bold** for the closest submission of the round, *italics* for the submission that was eliminated.",
     '',
   );
   lines.push(formatRow(header));
@@ -199,8 +214,11 @@ function roundHeaderCell(round: RoundFile): string {
 function renderCell(cell: CellKind): string {
   switch (cell.kind) {
     case 'submitted': {
-      const km = Math.round(cell.distanceKm);
-      return cell.eliminatedHere ? `**${km}**` : String(km);
+      const km = String(Math.round(cell.distanceKm));
+      let out = km;
+      if (cell.firstHere) out = `**${out}**`;
+      if (cell.eliminatedHere) out = `*${out}*`;
+      return out;
     }
     case 'dns':
       return 'DNS';

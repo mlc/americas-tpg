@@ -104,9 +104,10 @@ describe('buildLeaderboardMarkdown', () => {
       /^# Américas TPG Gauntlet Leaderboard\n\n```geojson\n.+\n```\n\n.+\n\n\| Player \|/,
     );
     assert.match(md, /\| Player \| \[Round 1\]\[r1\] \|/);
-    // Survivor plain, eliminated italic, elim cell bold (rounded).
-    assert.match(md, /\| alice \| 10 \|/);
-    assert.match(md, /\| \*bob\* \| \*\*100\*\* \|/);
+    // Survivor name plain, eliminated name italic; closest cell bold,
+    // eliminated cell italic (rounded).
+    assert.match(md, /\| alice \| \*\*10\*\* \|/);
+    assert.match(md, /\| \*bob\* \| \*100\* \|/);
     // Survivor row comes before eliminated row.
     assert.ok(md.indexOf('| alice |') < md.indexOf('| *bob* |'));
     // Reference-style link footnote at the bottom, with the target
@@ -158,8 +159,8 @@ describe('buildLeaderboardMarkdown', () => {
     const md = buildLeaderboardMarkdown([r1, r2]);
     // bob DNS'd in R2 — italicized, R1 cell shows 20, R2 cell shows DNS.
     assert.match(md, /\| \*bob\* \| 20 \| DNS \|/);
-    // alice survives.
-    assert.match(md, /\| alice \| 10 \| 11 \|/);
+    // alice survives; closest in both rounds → bold.
+    assert.match(md, /\| alice \| \*\*10\*\* \| \*\*11\*\* \|/);
   });
 
   test('late-joining player: R1-R2 cells blank, not DNS', () => {
@@ -171,6 +172,7 @@ describe('buildLeaderboardMarkdown', () => {
     );
     const md = buildLeaderboardMarkdown([r1, r2]);
     // newbie row should have a blank cell for R1 (single space), and 12 for R2.
+    // alice (11) is closest in R2, so 11 is bold and 12 is plain.
     assert.match(md, /\| newbie \| {3}\| 12 \|/);
   });
 
@@ -195,14 +197,15 @@ describe('buildLeaderboardMarkdown', () => {
       ),
     );
     const md = buildLeaderboardMarkdown([r1]);
-    // `|` must be escaped so the row keeps its column count.
-    assert.match(md, /\| a\\\|b \| 10 \|/);
+    // `|` must be escaped so the row keeps its column count. a|b is also
+    // closest in this round → bold.
+    assert.match(md, /\| a\\\|b \| \*\*10\*\* \|/);
     // `*` and `_` must be escaped so emphasis doesn't fire.
     assert.match(md, /\| star\\\*name \| 20 \|/);
     // Eliminated row: the escape happens before the italic wrap, so
     // `under_score` becomes `*under\_score*` (italic markers around the
-    // escaped name).
-    assert.match(md, /\| \*under\\_score\* \| \*\*30\*\* \|/);
+    // escaped name). The cell itself is also italic now (eliminated).
+    assert.match(md, /\| \*under\\_score\* \| \*30\* \|/);
   });
 
   test('embeds a geojson code block of round targets between title and explanation', () => {
@@ -227,7 +230,7 @@ describe('buildLeaderboardMarkdown', () => {
     // Block sits between the H1 and the eliminated-players paragraph.
     assert.ok(
       md.indexOf('```geojson') <
-        md.indexOf('Eliminated players shown in *italics*'),
+        md.indexOf("Eliminated players' names shown in *italics*"),
     );
     assert.ok(md.indexOf('# Américas') < md.indexOf('```geojson'));
   });
@@ -344,8 +347,8 @@ describe('generateLeaderboard', () => {
     assert.equal(rounds, 1);
     assert.match(markdown, /\| Player \| \[Round 1\]/);
     assert.doesNotMatch(markdown, /\[Round 2\]/);
-    assert.match(markdown, /\| alice \| 10 \|/);
-    assert.match(markdown, /\| \*bob\* \| \*\*20\*\* \|/);
+    assert.match(markdown, /\| alice \| \*\*10\*\* \|/);
+    assert.match(markdown, /\| \*bob\* \| \*20\* \|/);
   });
 
   test('end-to-end across two ended rounds (writes match on-disk reads)', async () => {
@@ -369,11 +372,11 @@ describe('generateLeaderboard', () => {
     // Order: alice (survivor), then bob (eliminated R2), then carol (eliminated R1).
     const names = playerNamesFromMarkdown(markdown);
     assert.deepEqual(names, ['alice', '*bob*', '*carol*']);
-    // Sanity: alice has no italic markup.
-    assert.match(markdown, /\| alice \| 10 \| 11 \|/);
-    // bob's elim is in R2: bolded 22.
-    assert.match(markdown, /\| \*bob\* \| 20 \| \*\*22\*\* \|/);
-    // carol eliminated in R1: bolded 30, then blank for R2.
-    assert.match(markdown, /\| \*carol\* \| \*\*30\*\* \| {3}\|/);
+    // alice has no italic markup on her name; closest in both rounds → bold.
+    assert.match(markdown, /\| alice \| \*\*10\*\* \| \*\*11\*\* \|/);
+    // bob's elim is in R2: italicized 22.
+    assert.match(markdown, /\| \*bob\* \| 20 \| \*22\* \|/);
+    // carol eliminated in R1: italicized 30, then blank for R2.
+    assert.match(markdown, /\| \*carol\* \| \*30\* \| {3}\|/);
   });
 });
