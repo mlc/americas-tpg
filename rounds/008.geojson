@@ -46,6 +46,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -67.78504177402684,
+          -16.26991366516831
+        ]
+      },
+      "properties": {
+        "player": "pandem",
+        "distance": 858.0188686515369,
+        "location": "La Paz, Bolivia",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -68.12777,
           -16.349838
         ]
@@ -55,7 +72,7 @@
         "distance": 893.1764049842627,
         "location": "La Paz, Bolivia",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -72,7 +89,7 @@
         "distance": 902.9059139001124,
         "location": "La Paz, Bolivia",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
@@ -156,6 +173,40 @@
         "player": "Talking Nonsense",
         "distance": 1396.9304968154852,
         "location": "Salta, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.9205556,
+          -15.8699639
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 1519.4400550861694,
+        "location": "Distrito Federal, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -61.128584924359075,
+          10.585860154170948
+        ]
+      },
+      "properties": {
+        "player": "Johann Sebastian Bach",
+        "distance": 2483.231255304468,
+        "location": "Sangre Grande, Trinidad and Tobago",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
