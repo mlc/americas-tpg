@@ -114,6 +114,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -72.93784149283726,
+          -41.46799403919032
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 636.8565716356893,
+        "location": "Los Lagos, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -71.37578,
           -40.16536
         ]
@@ -122,6 +139,23 @@
         "player": "BD82",
         "distance": 805.1373767806408,
         "location": "Neuquén, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -68.3128649,
+          -54.8097153
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 943.5901411926978,
+        "location": "Tierra del Fuego, Argentina",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
@@ -165,6 +199,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -75.5845278,
+          6.1181111
+        ]
+      },
+      "properties": {
+        "player": "Daws",
+        "distance": 5923.39851432927,
+        "location": "Antioquia, Colombia",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -84.14622512911947,
           9.379095843726935
         ]
@@ -173,6 +224,23 @@
         "player": "Summitblvd",
         "distance": 6362.609583717542,
         "location": "Puntarenas, Costa Rica",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.74902823085087,
+          15.823289434399953
+        ]
+      },
+      "properties": {
+        "player": "Martin",
+        "distance": 7152.201710487222,
+        "location": "Izabal, Guatemala",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
