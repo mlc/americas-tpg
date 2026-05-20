@@ -182,6 +182,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -70.7953094,
+          -33.4014891
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 1552.1904204043067,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -71.54501511829459,
           -16.40546646575274
         ]
@@ -216,6 +233,22 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -82.2638262,
+          8.0964365
+        ]
+      },
+      "properties": {
+        "player": "georoulette",
+        "distance": 6194.448312188072,
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -84.14622512911947,
           9.379095843726935
         ]
@@ -224,6 +257,23 @@
         "player": "Summitblvd",
         "distance": 6362.609583717542,
         "location": "Puntarenas, Costa Rica",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -84.218731005,
+          10.0156330869
+        ]
+      },
+      "properties": {
+        "player": "Johann Sebastian Bach",
+        "distance": 6433.802239165705,
+        "location": "Alajuela, Costa Rica",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
