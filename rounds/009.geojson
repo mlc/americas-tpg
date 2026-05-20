@@ -23,6 +23,125 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -72.98573,
+          -49.280232
+        ]
+      },
+      "properties": {
+        "player": "Igorjan94 (wildtravel_club)",
+        "distance": 252.1191190140339,
+        "location": "Santa Cruz, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -72.9069528,
+          -49.2957055
+        ]
+      },
+      "properties": {
+        "player": "Palin",
+        "distance": 255.68527217811732,
+        "location": "Santa Cruz, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -72.9501857,
+          -50.9431262
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 431.43246026307526,
+        "location": "Magallanes y Antártica Chilena, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -72.79243,
+          -50.94292
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 433.7689963260058,
+        "location": "Magallanes y Antártica Chilena, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.37578,
+          -40.16536
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 805.1373767806408,
+        "location": "Neuquén, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.0503388889,
+          -33.8280499999
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 1518.1462240476944,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -84.14622512911947,
+          9.379095843726935
+        ]
+      },
+      "properties": {
+        "player": "Summitblvd",
+        "distance": 6362.609583717542,
+        "location": "Puntarenas, Costa Rica",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
