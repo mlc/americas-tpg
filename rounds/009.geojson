@@ -63,6 +63,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -73.0343346,
+          -50.4648433
+        ]
+      },
+      "properties": {
+        "player": "Talking Nonsense",
+        "distance": 378.16766186797565,
+        "location": "Santa Cruz, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -72.9501857,
           -50.9431262
         ]
@@ -72,7 +89,7 @@
         "distance": 431.43246026307526,
         "location": "Magallanes y Antártica Chilena, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
@@ -122,6 +139,23 @@
         "player": "Loading...",
         "distance": 1518.1462240476944,
         "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.54501511829459,
+          -16.40546646575274
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 3425.0837306230505,
+        "location": "Arequipa, Peru",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
