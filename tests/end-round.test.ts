@@ -495,7 +495,7 @@ describe('endRound — honest-DNS save rule', () => {
     assert.equal(result.dnsChecks.length, 1);
     assert.equal(result.dnsChecks[0].player, 'carol');
     assert.equal(result.dnsChecks[0].couldHaveEscaped, true);
-    assert.equal(result.dnsChecks[0].morphiorDbStatus, 'noMatch');
+    assert.equal(result.dnsChecks[0].morphiorDbStatus, 'unavailable');
     assert.equal(result.dnsChecks[0].morphiorDbSubmissionCount, null);
     // best.point exists because carol has local history (her round 1 submission).
     assert.deepEqual(result.dnsChecks[0].best?.point, ARGENTINA_TARGET_COORDS);
@@ -616,7 +616,7 @@ describe('endRound — honest-DNS save rule', () => {
     assert.equal(check.couldHaveEscaped, false);
     assert.deepEqual(check.best.point, FAR_FROM_TARGET);
     assert.equal(typeof check.best.distanceKm, 'number');
-    assert.equal(check.morphiorDbStatus, 'noMatch');
+    assert.equal(check.morphiorDbStatus, 'unavailable');
     assert.equal(check.morphiorDbSubmissionCount, null);
   });
 
@@ -721,7 +721,9 @@ describe('endRound — honest-DNS save rule', () => {
     assert.equal(result.dnsChecks[0].couldHaveEscaped, false);
   });
 
-  test('MorphiorDB returns ambiguous match → status:noMatch; falls back to local history', async () => {
+  test('MorphiorDB returns ambiguous match → status:noMatch; falls back to local history', {
+    skip: 'MorphiorDB API disabled — re-enable when client lookups are restored',
+  }, async () => {
     const ambiguous: MorphiorClient = {
       findPlayers: async () => [
         {
@@ -770,7 +772,9 @@ describe('endRound — honest-DNS save rule', () => {
     assert.equal(result.dnsChecks[0].morphiorDbSubmissionCount, null);
   });
 
-  test('MorphiorDB ok happy path: returns one match + populated submissions; rule consumes them', async () => {
+  test('MorphiorDB ok happy path: returns one match + populated submissions; rule consumes them', {
+    skip: 'MorphiorDB API disabled — re-enable when client lookups are restored',
+  }, async () => {
     // dan has no in-game prior round, but MorphiorDB has 2 historical points,
     // one near the target. Rule should find the near point and let dan escape.
     const okMorphior: MorphiorClient = {
@@ -907,8 +911,9 @@ describe('endRound — honest-DNS save rule', () => {
       now: fixedNow,
       morphiorClient: counted,
     });
+    // MorphiorDB calls are disabled; first-run also makes zero calls. The
+    // load-bearing invariant is still that re-end adds none.
     const callsAfterFirst = calls;
-    assert.ok(callsAfterFirst > 0);
 
     const second = await endRound({
       roundsDir: dir,

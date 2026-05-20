@@ -8,11 +8,7 @@ import {
   makeGadmLookupLocation,
   openGadm,
 } from './gadm.ts';
-import {
-  isMorphiorDbError,
-  type MorphiorClient,
-  openMorphiorClient,
-} from './morphiordb.ts';
+import type { MorphiorClient } from './morphiordb.ts';
 import {
   applyDnsSaveRule,
   type DnsCheck,
@@ -44,12 +40,11 @@ Re-running on an already-ended round prints the same output without mutating the
 round file.
 
 First-run also evaluates the honest-DNS save rule: for each player who failed
-to submit, gathers their submission history (this game's prior rounds plus a
-best-effort query against the MorphiorDB API) and decides whether they could
-have escaped elimination. If not, the actual last-place submitter(s) are
-spared. MorphiorDB unavailability degrades to local-only history without
-blocking round-close. Output may include "Saved by honest-DNS rule" and
-"DNS could-have-sent" sections.
+to submit, gathers their submission history (this game's prior rounds only;
+the MorphiorDB API is currently disabled — every check records
+morphiorDbStatus: 'unavailable') and decides whether they could have escaped
+elimination. If not, the actual last-place submitter(s) are spared. Output
+may include "Saved by honest-DNS rule" and "DNS could-have-sent" sections.
 
 Options:
       --round N         Target a specific round (default: latest unended round)
@@ -61,8 +56,10 @@ export interface EndRoundDeps {
   roundsDir: string;
   explicitRound?: number;
   now?: () => Instant;
-  /** Optional MorphiorDB client. Defaults to a freshly-opened client against
-   * the production endpoint. Tests inject a stub via this seam. */
+  /** Optional MorphiorDB client. Currently ignored — the MorphiorDB API is
+   * unavailable for the foreseeable future, so endRound no longer issues
+   * lookups. Field retained so callers (and tests) can keep injecting a stub
+   * without churn; re-wire `evaluateDnsForPlayer` when MorphiorDB returns. */
   morphiorClient?: MorphiorClient;
   /** Optional location lookup for rendering DNS could-have-sent example
    * coords. Defaults to a GADM-backed lookup; the CLI opens GADM and closes
@@ -147,7 +144,6 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
         ? 0
         : Math.max(...subs.map((s) => s.properties.distance));
 
-    const morphior = deps.morphiorClient ?? openMorphiorClient();
     const dnsChecks: DnsCheck[] = [];
     for (const player of [...dnsSet].sort()) {
       const dnsCheck = await evaluateDnsForPlayer({
@@ -156,7 +152,6 @@ export async function endRound(deps: EndRoundDeps): Promise<EndRoundResult> {
         currentMaxKm,
         round,
         roundsDir: deps.roundsDir,
-        morphior,
       });
       dnsChecks.push(dnsCheck);
     }
@@ -279,7 +274,6 @@ interface DnsEvaluationContext {
   currentMaxKm: number;
   round: number;
   roundsDir: string;
-  morphior: MorphiorClient;
 }
 
 async function evaluateDnsForPlayer(
@@ -293,32 +287,17 @@ async function evaluateDnsForPlayer(
     },
   );
 
-  let morphiorDbStatus: DnsCheck['morphiorDbStatus'] = 'unavailable';
-  let morphiorDbSubmissionCount: number | null = null;
-  let mdbPoints: readonly Position[] = [];
-  try {
-    const matches = await ctx.morphior.findPlayers(ctx.player);
-    if (matches.length === 1) {
-      const [match] = matches;
-      mdbPoints = await ctx.morphior.fetchSubmissions(match.discord_id);
-      morphiorDbStatus = 'ok';
-      morphiorDbSubmissionCount = mdbPoints.length;
-    } else {
-      // Zero exact matches OR ambiguous (multiple exact). Either way the
-      // rule falls back to local-only history; the audit trail records the
-      // outcome via `noMatch`.
-      morphiorDbStatus = 'noMatch';
-    }
-  } catch (err) {
-    if (!isMorphiorDbError(err)) throw err;
-    morphiorDbStatus = 'unavailable';
-    process.stderr.write(
-      `endRound: MorphiorDB unavailable for ${ctx.player}: ${err.message}\n`,
-    );
-  }
+  // MorphiorDB is unavailable for the foreseeable future. We no longer issue
+  // a lookup; every check records `unavailable` and the rule evaluates from
+  // local-only history. Re-add the client call here when the API returns.
+  const morphiorDbStatus: DnsCheck['morphiorDbStatus'] = 'unavailable';
+  const morphiorDbSubmissionCount: number | null = null;
 
-  const allPoints = [...localPoints, ...mdbPoints];
-  const evaluation = evaluateDnsCheck(ctx.target, allPoints, ctx.currentMaxKm);
+  const evaluation = evaluateDnsCheck(
+    ctx.target,
+    localPoints,
+    ctx.currentMaxKm,
+  );
   return {
     player: ctx.player,
     best: evaluation.best,
