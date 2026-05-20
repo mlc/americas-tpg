@@ -19,7 +19,7 @@
       "properties": {
         "player": "Target",
         "distance": null,
-        "location": "Aysén del General Ibañez del Cam, Chile",
+        "location": "Aysén del General Ibañez del Campo, Chile",
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
@@ -199,6 +199,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -58.39136,
+          -34.60988
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 1911.8600543915293,
+        "location": "Ciudad de Buenos Aires, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -71.54501511829459,
           -16.40546646575274
         ]
@@ -207,6 +224,23 @@
         "player": "Patxepi",
         "distance": 3425.0837306230505,
         "location": "Arequipa, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -67.78504177402684,
+          -16.26991366516831
+        ]
+      },
+      "properties": {
+        "player": "pandem",
+        "distance": 3480.8885539101893,
+        "location": "La Paz, Bolivia",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
