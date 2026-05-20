@@ -131,6 +131,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -70.02986,
+          -15.84708
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 1043.0364060060958,
+        "location": "Puno, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -71.2502606,
           -14.0365541
         ]
