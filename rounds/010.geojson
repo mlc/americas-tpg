@@ -114,6 +114,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -60.945975,
+          13.7333917
+        ]
+      },
+      "properties": {
+        "player": "Daws",
+        "distance": 1504.2034635164102,
+        "location": "Vieux Fort, Saint Lucia",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -66.0042,
           18.4378
         ]
@@ -122,6 +139,23 @@
         "player": "Patxepi",
         "distance": 2248.6082129850242,
         "location": "Carolina, Puerto Rico",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.0035556,
+          5.0235
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 2327.6198802206386,
+        "location": "Cundinamarca, Colombia",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
