@@ -63,6 +63,57 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -60.04735,
+          -3.03249
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 989.2025556967614,
+        "location": "Amazonas, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -60.0142681,
+          -3.1073413
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 991.6633901008084,
+        "location": "Amazonas, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -59.487776,
+          13.0792797
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 1356.648849863231,
+        "location": "Christ Church, Barbados",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -66.0042,
           18.4378
         ]
@@ -72,7 +123,24 @@
         "distance": 2248.6082129850242,
         "location": "Carolina, Puerto Rico",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.836061,
+          -13.413001
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 2723.328797986175,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
       }
     },
     {
@@ -88,6 +156,40 @@
         "player": "Palin",
         "distance": 2727.210633644083,
         "location": "Puno, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.5894754,
+          9.0036538
+        ]
+      },
+      "properties": {
+        "player": "georoulette",
+        "distance": 3007.001675306852,
+        "location": "Panamá, Panama",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -68.015043,
+          -22.350377
+        ]
+      },
+      "properties": {
+        "player": "Igorjan94 (wildtravel_club)",
+        "distance": 3209.5333933862394,
+        "location": "Antofagasta, Chile",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
