@@ -2,8 +2,9 @@
   "type": "FeatureCollection",
   "roundInfo": {
     "number": 9,
-    "endedAt": null,
-    "language": "es"
+    "endedAt": "2026-05-20T23:46:40.348Z",
+    "language": "es",
+    "dnsChecks": []
   },
   "features": [
     {
@@ -38,7 +39,8 @@
         "distance": 252.1191190140339,
         "location": "Santa Cruz, Argentina",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#d4af37",
+        "eliminated": false
       }
     },
     {
@@ -55,7 +57,8 @@
         "distance": 255.68527217811732,
         "location": "Santa Cruz, Argentina",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#c0c0c0",
+        "eliminated": false
       }
     },
     {
@@ -72,7 +75,8 @@
         "distance": 378.16766186797565,
         "location": "Santa Cruz, Argentina",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#cd7f32",
+        "eliminated": false
       }
     },
     {
@@ -89,7 +93,8 @@
         "distance": 431.43246026307526,
         "location": "Magallanes y Antártica Chilena, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -106,7 +111,8 @@
         "distance": 433.7689963260058,
         "location": "Magallanes y Antártica Chilena, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -123,7 +129,8 @@
         "distance": 636.8565716356893,
         "location": "Los Lagos, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -140,7 +147,8 @@
         "distance": 805.1373767806408,
         "location": "Neuquén, Argentina",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -157,7 +165,8 @@
         "distance": 943.5901411926978,
         "location": "Tierra del Fuego, Argentina",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -174,7 +183,8 @@
         "distance": 1518.1462240476944,
         "location": "Santiago Metropolitan, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -191,7 +201,8 @@
         "distance": 1552.1904204043067,
         "location": "Santiago Metropolitan, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -208,7 +219,8 @@
         "distance": 1911.8600543915293,
         "location": "Ciudad de Buenos Aires, Argentina",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -225,7 +237,8 @@
         "distance": 3425.0837306230505,
         "location": "Arequipa, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -242,7 +255,8 @@
         "distance": 3480.8885539101893,
         "location": "La Paz, Bolivia",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -259,7 +273,8 @@
         "distance": 5923.39851432927,
         "location": "Antioquia, Colombia",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -275,7 +290,8 @@
         "player": "georoulette",
         "distance": 6194.448312188072,
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -292,7 +308,8 @@
         "distance": 6362.609583717542,
         "location": "Puntarenas, Costa Rica",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -309,7 +326,8 @@
         "distance": 6433.802239165705,
         "location": "Alajuela, Costa Rica",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -326,7 +344,8 @@
         "distance": 7152.201710487222,
         "location": "Izabal, Guatemala",
         "marker-symbol": "circle",
-        "marker-color": "#ff0000"
+        "marker-color": "#ff0000",
+        "eliminated": true
       }
     }
   ]
