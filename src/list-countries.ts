@@ -1,5 +1,5 @@
 import { parseArgs } from 'node:util';
-import { isMain } from './cli-helpers.ts';
+import { exitWithError, isMain, isParseArgsError } from './cli-helpers.ts';
 import { openGadm, REJECTED_GIDS } from './gadm.ts';
 import { SAMPLING_BBOX } from './sampler.ts';
 
@@ -50,6 +50,8 @@ if (isMain(import.meta.url)) {
   try {
     await main();
   } catch (cause) {
-    fail(cause instanceof Error ? cause.message : String(cause));
+    const message = cause instanceof Error ? cause.message : String(cause);
+    if (isParseArgsError(cause)) fail(message);
+    else exitWithError(message);
   }
 }

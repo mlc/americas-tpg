@@ -4,6 +4,20 @@ import { RNG_NAMES, type RngName } from './rng.ts';
 
 export type FailFn = (message: string) => never;
 
+export function exitWithError(message: string, usage?: string): never {
+  process.stderr.write(usage ? `${message}\n\n${usage}` : `${message}\n`);
+  process.exit(1);
+}
+
+export function isParseArgsError(err: unknown): boolean {
+  return (
+    err instanceof TypeError &&
+    'code' in err &&
+    typeof (err as { code?: unknown }).code === 'string' &&
+    (err as { code: string }).code.startsWith('ERR_PARSE_ARGS_')
+  );
+}
+
 export function isMain(metaUrl: string): boolean {
   return (
     process.argv[1] !== undefined &&

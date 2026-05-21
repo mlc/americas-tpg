@@ -1,5 +1,10 @@
 import { parseArgs } from 'node:util';
-import { isMain, parseRng } from './cli-helpers.ts';
+import {
+  exitWithError,
+  isMain,
+  isParseArgsError,
+  parseRng,
+} from './cli-helpers.ts';
 import { type GadmHandle, openGadm } from './gadm.ts';
 import { mainLanguageOf } from './language.ts';
 import { createRng, type RandomSource } from './rng.ts';
@@ -158,6 +163,8 @@ if (isMain(import.meta.url)) {
   try {
     await main();
   } catch (cause) {
-    fail(cause instanceof Error ? cause.message : String(cause));
+    const message = cause instanceof Error ? cause.message : String(cause);
+    if (isParseArgsError(cause)) fail(message);
+    else exitWithError(message);
   }
 }

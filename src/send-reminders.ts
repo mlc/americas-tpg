@@ -1,5 +1,10 @@
 import { parseArgs } from 'node:util';
-import { isMain, parseRound } from './cli-helpers.ts';
+import {
+  exitWithError,
+  isMain,
+  isParseArgsError,
+  parseRound,
+} from './cli-helpers.ts';
 import {
   eliminationsForRound,
   endedAtOf,
@@ -128,6 +133,8 @@ if (isMain(import.meta.url)) {
   try {
     await main();
   } catch (cause) {
-    fail(cause instanceof Error ? cause.message : String(cause));
+    const message = cause instanceof Error ? cause.message : String(cause);
+    if (isParseArgsError(cause)) fail(message);
+    else exitWithError(message);
   }
 }

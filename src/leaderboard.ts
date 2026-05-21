@@ -1,7 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import type { FeatureCollection, Point } from 'geojson';
-import { isMain } from './cli-helpers.ts';
+import { exitWithError, isMain, isParseArgsError } from './cli-helpers.ts';
 import {
   endedAtOf,
   type RoundFile,
@@ -315,6 +315,8 @@ if (isMain(import.meta.url)) {
   try {
     await main();
   } catch (cause) {
-    fail(cause instanceof Error ? cause.message : String(cause));
+    const message = cause instanceof Error ? cause.message : String(cause);
+    if (isParseArgsError(cause)) fail(message);
+    else exitWithError(message);
   }
 }
