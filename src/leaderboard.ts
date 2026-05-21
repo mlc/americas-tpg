@@ -6,11 +6,11 @@ import {
   endedAtOf,
   type RoundFile,
   submissionsOf,
-  submissionTrackerUrl,
   submitters,
   targetOf,
 } from './round-domain.ts';
 import { DEFAULT_ROUNDS_DIR, listRoundFiles, readRound } from './round-file.ts';
+import { submissionTrackerUrl } from './round-format.ts';
 
 const DEFAULT_LEADERBOARD_PATH = 'LEADERBOARD.md';
 

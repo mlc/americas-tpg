@@ -14,7 +14,6 @@ import {
   openGadm,
 } from './gadm.ts';
 import {
-  googleMapsUrl,
   normalizePlayerName,
   type RoundFeature,
   type RoundFile,
@@ -22,6 +21,7 @@ import {
   submissionsOf,
   validateSubmissionEligibility,
 } from './round-domain.ts';
+import { googleMapsUrl } from './round-format.ts';
 
 export type { LookupLocation } from './gadm.ts';
 export { makeGadmLookupLocation } from './gadm.ts';

@@ -8,9 +8,7 @@ import {
 import {
   eliminationsForRound,
   endedAtOf,
-  roundExpiry,
   submissionsOf,
-  submissionTrackerUrl,
   submitters,
 } from './round-domain.ts';
 import {
@@ -19,6 +17,7 @@ import {
   resolveRound,
   roundPath,
 } from './round-file.ts';
+import { roundExpiry, submissionTrackerUrl } from './round-format.ts';
 
 const USAGE = `Usage: yarn send-reminders [--round N] [--rounds-dir <dir>]
 

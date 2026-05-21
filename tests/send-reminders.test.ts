@@ -3,13 +3,13 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, test } from 'node:test';
-import {
-  type RoundFile,
-  type SubmissionFeature,
-  submissionTrackerUrl,
-  type TargetFeature,
+import type {
+  RoundFile,
+  SubmissionFeature,
+  TargetFeature,
 } from '../src/round-domain.ts';
 import { roundPath, writeRoundAtomic } from '../src/round-file.ts';
+import { submissionTrackerUrl } from '../src/round-format.ts';
 import { sendReminders } from '../src/send-reminders.ts';
 import { withEliminated } from './test-helpers.ts';
 

@@ -4,22 +4,24 @@ import { Instant } from '@js-joda/core';
 import {
   eliminationsForRound,
   evaluateDnsCheck,
-  formatLocation,
-  formatPlayersList,
-  formatRoundResultDiscord,
-  formatStandings,
-  formatTargetDiscord,
   normalizePlayerName,
   type RoundFile,
-  RULES_URL,
-  roundExpiry,
   type SubmissionFeature,
-  submissionTrackerUrl,
   submitters,
   type TargetFeature,
   TIE_BUFFER_KM,
   validateSubmissionEligibility,
 } from '../src/round-domain.ts';
+import {
+  formatLocation,
+  formatPlayersList,
+  formatRoundResultDiscord,
+  formatStandings,
+  formatTargetDiscord,
+  RULES_URL,
+  roundExpiry,
+  submissionTrackerUrl,
+} from '../src/round-format.ts';
 import { linkText, withEliminated } from './test-helpers.ts';
 
 // Fixed "now" for formatTargetDiscord tests: weekday afternoon in May, when

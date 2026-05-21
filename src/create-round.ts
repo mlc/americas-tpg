@@ -10,8 +10,6 @@ import { mainLanguageOf } from './language.ts';
 import { createRng, type RandomSource } from './rng.ts';
 import {
   endedAtOf,
-  formatLocation,
-  formatTargetDiscord,
   type RoundFile,
   type TargetFeature,
 } from './round-domain.ts';
@@ -21,6 +19,7 @@ import {
   roundPath,
   writeRoundAtomic,
 } from './round-file.ts';
+import { formatLocation, formatTargetDiscord } from './round-format.ts';
 import { samplePosition } from './sampler.ts';
 
 const USAGE = `Usage: yarn create-round [--rng <crypto|math|random.org>] [--rounds-dir <dir>]
