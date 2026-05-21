@@ -55,7 +55,7 @@ and in particular:
 | `yarn submit-round <player> <coord>...` | Record a player submission. |
 | `yarn end-round` | Close the active round and print standings. |
 | `yarn send-reminders` | List players eligible for the active round who have not yet submitted. Errors on round 1. |
-| `yarn leaderboard` | Regenerate `LEADERBOARD.md` from every ended round: survivors first (alphabetical), then eliminated players (most-recent first, italicized). Cells are integer-km distances, bold on the round of elimination, `DNS` for eligible-but-no-submission, blank when out or not yet joined. |
+| `yarn leaderboard` | Regenerate `LEADERBOARD.md`: embedded ` ```geojson ` map of every round's target (via `targetsMap`) + table of survivors then eliminated. Cells: `**bold**` on closest submission of round, `*italic*` on submission of elimination (can stack), `DNS` for eligible-but-no-submission, blank otherwise. |
 | `yarn list-countries` | Print every non-USA country whose GADM bbox intersects the sampling band. |
 | `yarn test` | Run `node --test` over every `tests/**/*.test.ts`. |
 | `yarn typecheck` | `tsc --noEmit` over `src/`. |
@@ -112,8 +112,11 @@ validators don't special-case it.
   - `endedAt` — `null` while the round is open, ISO 8601 string once
     closed. Note the camelCase: this used to live on the target as
     `ended_at`, and the rename is intentional.
-  - `language` — optional ISO 639-1 string for countries with a known main
-    language. Drives the "Round"/"Ronda"/"Rodada"/etc. translation in
+  - `language` — optional ISO language code for countries with a known main
+    language. Usually ISO 639-1, but `srn` (Sranan Tongo, the main language
+    of Suriname) is ISO 639-3 because Sranan Tongo has no 639-1 entry — the
+    `GID0_TO_ISO639_1` map name is kept for continuity even though one entry
+    is a 639-3 code. Drives the "Round"/"Ronda"/"Rodada"/etc. translation in
     `formatTargetDiscord` via `roundLabel` from `language.ts`.
 - `features[0]` is the target: `id: 'target'`, point geometry, and
   `properties.player === 'Target'`, `properties.distance === null`,
@@ -156,10 +159,11 @@ introduced; there is no longer a recompute path on the consumer side.
 `endRound` runs an anti-griefing rule on top of standard elimination:
 when a did-not-submit player could not realistically have escaped
 elimination — judged from their submission history in this game's prior
-rounds plus the MorphiorDB API at `https://tpg.marsmathis.com/api` — the
-actual last-place submitter(s) are spared instead. The rule's per-DNS
-findings persist as `roundInfo.dnsChecks` (an array of `DnsCheck` items
-defined in `round-domain.ts`):
+rounds (plus, historically, the MorphiorDB API at
+`https://tpg.marsmathis.com/api`; **MorphiorDB lookups are currently
+disabled** — see below) — the actual last-place submitter(s) are spared
+instead. The rule's per-DNS findings persist as `roundInfo.dnsChecks` (an
+array of `DnsCheck` items defined in `round-domain.ts`):
 
 - Each item carries `player`, `couldHaveEscaped` (boolean), `best`
   (`{ point: [lon, lat]; distanceKm: number } | null` — bundled so the
@@ -185,6 +189,15 @@ defined in `round-domain.ts`):
 - MorphiorDB unavailability degrades gracefully to local-only history;
   the per-DNS check records `morphiorDbStatus: 'unavailable'` and the
   round closes normally.
+- **MorphiorDB lookups are currently disabled** (commit `fc144a5`,
+  "disable morphiordb for now"): `evaluateDnsForPlayer` no longer calls
+  `MorphiorClient.findPlayers` / `fetchSubmissions` at all. Every
+  `DnsCheck` is stamped `morphiorDbStatus: 'unavailable'` with
+  `morphiorDbSubmissionCount: null`, and the rule evaluates from
+  local-only history. The `EndRoundDeps.morphiorClient` seam is retained
+  for test stubs and for re-wiring later — when MorphiorDB returns, re-add
+  the client call in `evaluateDnsForPlayer` (the original logic is in the
+  commit before `fc144a5`).
 
 `validateRoundFile` enforces presence-iff-ended on `roundInfo.dnsChecks`:
 in-progress rounds (`endedAt: null`) MUST NOT carry the field; ended
@@ -208,7 +221,7 @@ In `validateSubmissionEligibility`, the early-returns are ordered: ended-round c
 
 **Prefer sports/competition vocabulary over literal translations** when picking a `*_LABEL` value. The Haitian Creole choices anchor the convention: `Tou` for round (sports turn, not `Wonn`/`Manch`), `Klasman` for leaderboard (sports standings, not a compound calque). Same idea drives `Manche` (FR, a sport's leg), `Ronde` (NL), and the Romance-language standings terms (`Clasificación`, `Classificação`, `Classement`). Future labels should pick the natural sports term in each language. Localization applies only to the target — submission locations stay in GADM English. The selected language is persisted as `roundInfo.language` on the round file (not on the target's properties), and `formatTargetDiscord` reads it from there.
 
-`formatTargetDiscord` produces a six-line Discord message in this fixed order: round header, submission-tracker link, rules link, leaderboard link, expiry timestamp, plain-coords line. See the function itself for the exact format strings. The three link lines are **bilingual** for non-English rounds (English first, then translation, separated by ` / `) and plain English for English / unknown / missing language. Link targets are pinned at the top of `round-domain.ts`: `RULES_URL` → `https://github.com/mlc/americas-tpg/blob/main/RULES.md`, `LEADERBOARD_URL` → `https://github.com/mlc/americas-tpg/blob/main/LEADERBOARD.md`, and `submissionTrackerUrl(round)` → `https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/NNN.geojson` (3-digit zero-padded, mirroring `roundPath`). Don't repoint these at local paths or fork URLs. The result is consumed via `CreateRoundResult.discordMessage` and printed by the create-round CLI.
+`formatTargetDiscord` produces a six-line Discord message in this fixed order: round header, submission-tracker link, rules link, leaderboard link, expiry timestamp, plain-coords line. See the function itself for the exact format strings. The three link lines are **bilingual** for non-English rounds (English first, then translation, separated by ` / `) and plain English for English / unknown / missing language. The submission-tracker and leaderboard URLs are wrapped in angle brackets (`[label](<url>)`) — Discord's embed-suppression syntax — so the geojson.io tracker map and the LEADERBOARD.md file don't generate huge auto-embeds in the channel. The rules link is intentionally left unwrapped: rules embeds are short and informative. Link targets are pinned at the top of `round-domain.ts`: `RULES_URL` → `https://github.com/mlc/americas-tpg/blob/main/RULES.md`, `LEADERBOARD_URL` → `https://github.com/mlc/americas-tpg/blob/main/LEADERBOARD.md`, and `submissionTrackerUrl(round)` → `https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/NNN.geojson` (3-digit zero-padded, mirroring `roundPath`). Don't repoint these at local paths or fork URLs. The result is consumed via `CreateRoundResult.discordMessage` and printed by the create-round CLI.
 
 ### GADM lookup performance
 
