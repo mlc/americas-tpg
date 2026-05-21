@@ -165,6 +165,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -68.37040476806294,
+          12.233361505503758
+        ]
+      },
+      "properties": {
+        "player": "Summitblvd",
+        "distance": 1987.6761407800461,
+        "location": "Bonaire, Bonaire, Sint Eustatius and Saba",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -66.0042,
           18.4378
         ]
