@@ -114,6 +114,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -59.527357,
+          13.066533
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 1357.67876832271,
+        "location": "Christ Church, Barbados",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -60.945975,
           13.7333917
         ]
@@ -224,6 +241,23 @@
         "player": "Igorjan94 (wildtravel_club)",
         "distance": 3209.5333933862394,
         "location": "Antofagasta, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.5017821,
+          -23.7428128
+        ]
+      },
+      "properties": {
+        "player": "Talking Nonsense",
+        "distance": 3219.743774792791,
+        "location": "Jujuy, Argentina",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
