@@ -23,6 +23,74 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -52.33398,
+          4.93824
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 275.2538578920444,
+        "location": "Cayenne, French Guiana",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -54.0368806,
+          5.4939083
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 335.54100078558827,
+        "location": "Saint-Laurent-du-Maroni, French Guiana",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -66.0042,
+          18.4378
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 2248.6082129850242,
+        "location": "Carolina, Puerto Rico",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.368408,
+          -15.041782
+        ]
+      },
+      "properties": {
+        "player": "Palin",
+        "distance": 2727.210633644083,
+        "location": "Puno, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
