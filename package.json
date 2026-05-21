@@ -1,7 +1,7 @@
 {
   "name": "americas",
   "type": "module",
-  "packageManager": "yarn@4.14.1",
+  "packageManager": "yarn@4.15.0",
   "engines": {
     "node": ">=24"
   },
@@ -27,7 +27,7 @@
     "@types/geojson": "7946.0.16",
     "@types/node": "24.12.4",
     "husky": "9.1.7",
-    "lint-staged": "17.0.4",
+    "lint-staged": "17.0.5",
     "typescript": "6.0.3"
   },
   "dependencies": {
