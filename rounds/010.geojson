@@ -97,6 +97,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -61.0362535,
+          10.6566023
+        ]
+      },
+      "properties": {
+        "player": "Johann Sebastian Bach",
+        "distance": 1247.605171387456,
+        "location": "Sangre Grande, Trinidad and Tobago",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -59.487776,
           13.0792797
         ]
@@ -173,6 +190,23 @@
         "player": "maclang23",
         "distance": 2327.6198802206386,
         "location": "Cundinamarca, Colombia",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -67.78504177402684,
+          -16.26991366516831
+        ]
+      },
+      "properties": {
+        "player": "pandem",
+        "distance": 2643.1653996096065,
+        "location": "La Paz, Bolivia",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
