@@ -1,0 +1,28 @@
+{
+  "type": "FeatureCollection",
+  "roundInfo": {
+    "number": 11,
+    "endedAt": null,
+    "language": "es"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "target",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.42907,
+          18.6735
+        ]
+      },
+      "properties": {
+        "player": "Target",
+        "distance": null,
+        "location": "Puebla, México",
+        "marker-symbol": "star",
+        "marker-color": "#000000"
+      }
+    }
+  ]
+}
