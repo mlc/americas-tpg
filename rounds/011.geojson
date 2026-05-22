@@ -29,6 +29,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -98.30889336494252,
+          19.022369056579233
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 40.80188084706529,
+        "location": "Puebla, México",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -98.1993705,
           19.0429759
         ]
@@ -38,7 +55,7 @@
         "distance": 47.66648102986556,
         "location": "Puebla, México",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#c0c0c0"
       }
     },
     {
@@ -55,7 +72,7 @@
         "distance": 108.0709773868926,
         "location": "Distrito Federal, México",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -72,7 +89,92 @@
         "distance": 108.88572906384464,
         "location": "Distrito Federal, México",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -102.5756161,
+          22.768819
+        ]
+      },
+      "properties": {
+        "player": "georoulette",
+        "distance": 627.075461014956,
+        "location": "Zacatecas, México",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -91.2905109,
+          14.7676529
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 875.3289695435501,
+        "location": "Sololá, Guatemala",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -91.28495,
+          14.69527
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 879.980746678871,
+        "location": "Sololá, Guatemala",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -89.662608,
+          21.285237
+        ]
+      },
+      "properties": {
+        "player": "Johann Sebastian Bach",
+        "distance": 960.8442100657016,
+        "location": "Yucatán, México",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -89.8409994,
+          13.9266496
+        ]
+      },
+      "properties": {
+        "player": "Summitblvd",
+        "distance": 1057.3396713793468,
+        "location": "Ahuachapán, El Salvador",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
       }
     },
     {
