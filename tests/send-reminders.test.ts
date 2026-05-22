@@ -260,6 +260,48 @@ describe('sendReminders', () => {
     );
   });
 
+  test('--final emits a one-line terse reminder', async () => {
+    const r1 = makeRound(
+      1,
+      '2026-05-06T12:00:00Z',
+      withEliminated(
+        [
+          makeSubmission('alice', 10),
+          makeSubmission('bob', 20),
+          makeSubmission('carol', 30),
+        ],
+        ['carol'],
+      ),
+    );
+    await writeRoundAtomic(roundPath(1, dir), r1);
+    await writeRoundAtomic(roundPath(2, dir), makeRound(2, null));
+
+    const result = await sendReminders({ roundsDir: dir, final: true });
+    assert.deepEqual([...result.pending], ['alice', 'bob']);
+    assert.match(result.message, /^@alice @bob round ends <t:\d+:R>$/);
+    assert.equal(result.message.includes('\n'), false);
+  });
+
+  test('--final with no pending omits the @-mentions but keeps the timestamp', async () => {
+    const r1 = makeRound(
+      1,
+      '2026-05-06T12:00:00Z',
+      withEliminated(
+        [makeSubmission('alice', 10), makeSubmission('bob', 20)],
+        ['bob'],
+      ),
+    );
+    await writeRoundAtomic(roundPath(1, dir), r1);
+    await writeRoundAtomic(
+      roundPath(2, dir),
+      makeRound(2, null, [makeSubmission('alice', 5)]),
+    );
+
+    const result = await sendReminders({ roundsDir: dir, final: true });
+    assert.deepEqual([...result.pending], []);
+    assert.match(result.message, /^round ends <t:\d+:R>$/);
+  });
+
   test('message contains submission tracker URL in both branches', async () => {
     const r1 = makeRound(
       1,

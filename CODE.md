@@ -28,7 +28,7 @@ last surviving player wins.
 | `yarn create-round` | Start a new round of TPG. |
 | `yarn submit-round` | Submit a player's coordinate guess to the active round. |
 | `yarn end-round` | Close the active round, compute eliminations, and print standings. |
-| `yarn send-reminders` | List players eligible for the active round who have not yet submitted. Prints a Discord-pasteable message with @-mentions and a submission-tracker link. |
+| `yarn send-reminders` | List players eligible for the active round who have not yet submitted. Prints a Discord-pasteable message with @-mentions and a submission-tracker link. Pass `--final` for a one-line terse reminder (`@a @b @c round ends <relative>`). |
 | `yarn leaderboard` | Regenerate `LEADERBOARD.md` from every ended round: an embedded geojson map of all targets plus a player table (survivors first, then eliminated). |
 | `yarn test` | Run the test suite (`node --test`). |
 | `yarn typecheck` | Run `tsc --noEmit` against `src/`. |

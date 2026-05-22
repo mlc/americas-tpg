@@ -19,7 +19,7 @@ import {
 } from './round-file.ts';
 import { roundExpiry, submissionTrackerUrl } from './round-format.ts';
 
-const USAGE = `Usage: yarn send-reminders [--round N] [--rounds-dir <dir>]
+const USAGE = `Usage: yarn send-reminders [--round N] [--rounds-dir <dir>] [--final]
 
 Lists players eligible to submit to the active round who have not yet done so,
 formatted as a Discord-pasteable message with @-mentions and a submission-tracker
@@ -29,12 +29,14 @@ that are already ended.
 Options:
       --round N         Target a specific round (default: latest unended round)
       --rounds-dir <d>  Rounds directory (default: rounds)
+      --final           Emit a one-line terse reminder: "@a @b @c round ends <ts>"
   -h, --help            Show this message
 `;
 
 export interface SendRemindersDeps {
   roundsDir: string;
   explicitRound?: number;
+  final?: boolean;
 }
 
 export interface SendRemindersResult {
@@ -79,24 +81,32 @@ export async function sendReminders(
   const submitted = new Set(submitters(current));
   const pending = [...eligible].filter((p) => !submitted.has(p)).sort();
 
-  const trackerLink = `[Submission Tracker](${submissionTrackerUrl(round)})`;
-  const received = eligible.size - pending.length;
   const expiry = roundExpiry(undefined, 0);
-  const eliminationNames = [...eliminationsForRound(current)].sort();
-  const headerClauses = [
-    `Round ${round}`,
-    `${received}/${eligible.size} submissions received`,
-    ...(eliminationNames.length > 0
-      ? [`${eliminationNames.join(', ')} in elimination position`]
-      : []),
-    `round ends at <t:${expiry.epochSecond()}:t>`,
-  ];
-  const lines: string[] = [headerClauses.join(', ')];
-  if (pending.length > 0) {
-    lines.push(pending.map((p) => `@${p}`).join(' '));
+  const mentions = pending.map((p) => `@${p}`).join(' ');
+
+  let message: string;
+  if (deps.final) {
+    const tail = `round ends <t:${expiry.epochSecond()}:R>`;
+    message = mentions.length > 0 ? `${mentions} ${tail}` : tail;
+  } else {
+    const trackerLink = `[Submission Tracker](${submissionTrackerUrl(round)})`;
+    const received = eligible.size - pending.length;
+    const eliminationNames = [...eliminationsForRound(current)].sort();
+    const headerClauses = [
+      `Round ${round}`,
+      `${received}/${eligible.size} submissions received`,
+      ...(eliminationNames.length > 0
+        ? [`${eliminationNames.join(', ')} in elimination position`]
+        : []),
+      `round ends at <t:${expiry.epochSecond()}:t>`,
+    ];
+    const lines: string[] = [headerClauses.join(', ')];
+    if (mentions.length > 0) {
+      lines.push(mentions);
+    }
+    lines.push(trackerLink);
+    message = lines.join('\n');
   }
-  lines.push(trackerLink);
-  const message = lines.join('\n');
 
   return { round, pending, message };
 }
@@ -111,6 +121,7 @@ async function main(): Promise<void> {
     options: {
       round: { type: 'string' },
       'rounds-dir': { type: 'string' },
+      final: { type: 'boolean', default: false },
       help: { type: 'boolean', short: 'h', default: false },
     },
     strict: true,
@@ -124,7 +135,11 @@ async function main(): Promise<void> {
   const explicitRound = parseRound(values.round, fail);
   const roundsDir = values['rounds-dir'] ?? DEFAULT_ROUNDS_DIR;
 
-  const result = await sendReminders({ roundsDir, explicitRound });
+  const result = await sendReminders({
+    roundsDir,
+    explicitRound,
+    final: values.final,
+  });
   process.stdout.write(`${result.message}\n`);
 }
 
