@@ -250,6 +250,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -98.46793,
+          29.339013
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 1185.9591124230255,
+        "location": "Texas, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -79.899828,
           -6.705231
         ]
