@@ -46,6 +46,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -98.19316722561003,
+          19.03908763128327
+        ]
+      },
+      "properties": {
+        "player": "pandem",
+        "distance": 47.63138873758586,
+        "location": "Puebla, México",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -98.1993705,
           19.0429759
         ]
@@ -55,7 +72,7 @@
         "distance": 47.66648102986556,
         "location": "Puebla, México",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -72,7 +89,7 @@
         "distance": 108.0709773868926,
         "location": "Distrito Federal, México",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
@@ -88,6 +105,23 @@
         "player": "nhmartin4",
         "distance": 108.88572906384464,
         "location": "Distrito Federal, México",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.7970511,
+          16.7757768
+        ]
+      },
+      "properties": {
+        "player": "Daws",
+        "distance": 255.96775494690542,
+        "location": "Guerrero, México",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
