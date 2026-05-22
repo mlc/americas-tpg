@@ -46,6 +46,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -98.1990771,
+          19.0420489
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 47.593392404960255,
+        "location": "Puebla, México",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -98.19316722561003,
           19.03908763128327
         ]
@@ -55,7 +72,7 @@
         "distance": 47.63138873758586,
         "location": "Puebla, México",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -72,7 +89,7 @@
         "distance": 47.66648102986556,
         "location": "Puebla, México",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
@@ -189,6 +206,23 @@
       "properties": {
         "player": "Johann Sebastian Bach",
         "distance": 960.8442100657016,
+        "location": "Yucatán, México",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.56859,
+          20.68357
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 1056.1055399707323,
         "location": "Yucatán, México",
         "marker-symbol": "circle",
         "marker-color": "#444444"
