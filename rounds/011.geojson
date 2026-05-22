@@ -23,6 +23,74 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.1993705,
+          19.0429759
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 47.66648102986556,
+        "location": "Puebla, México",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.15929,
+          19.3576
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 108.0709773868926,
+        "location": "Distrito Federal, México",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.078703,
+          19.436298
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 108.88572906384464,
+        "location": "Distrito Federal, México",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.899828,
+          -6.705231
+        ]
+      },
+      "properties": {
+        "player": "Palin",
+        "distance": 3477.1919471434917,
+        "location": "Lambayeque, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
