@@ -637,13 +637,13 @@ describe('formatPlayersList', () => {
 describe('roundExpiry', () => {
   test('returns next-day 21:00 in New York (EDT case, May)', () => {
     // 2026-05-12T14:00:00Z → next-day 21:00 NY (EDT, UTC-4) = 2026-05-14T01:00:00Z.
-    const expiry = roundExpiry(Instant.parse('2026-05-12T14:00:00Z'));
+    const expiry = roundExpiry({ now: Instant.parse('2026-05-12T14:00:00Z') });
     assert.equal(expiry.toString(), '2026-05-14T01:00:00Z');
   });
 
   test('returns next-day 21:00 in New York (EST case, January)', () => {
     // 2026-01-15T14:00:00Z → next-day 21:00 NY (EST, UTC-5) = 2026-01-17T02:00:00Z.
-    const expiry = roundExpiry(Instant.parse('2026-01-15T14:00:00Z'));
+    const expiry = roundExpiry({ now: Instant.parse('2026-01-15T14:00:00Z') });
     assert.equal(expiry.toString(), '2026-01-17T02:00:00Z');
   });
 
@@ -651,7 +651,7 @@ describe('roundExpiry', () => {
     // 2026 US DST begins 2026-03-08 (clocks jump from 02:00 EST → 03:00 EDT).
     // "now" the morning before → next-day 21:00 NY lands AFTER the transition,
     // so the resulting instant uses the EDT offset (UTC-4), not EST.
-    const expiry = roundExpiry(Instant.parse('2026-03-07T14:00:00Z'));
+    const expiry = roundExpiry({ now: Instant.parse('2026-03-07T14:00:00Z') });
     assert.equal(expiry.toString(), '2026-03-09T01:00:00Z');
   });
 
@@ -659,7 +659,7 @@ describe('roundExpiry', () => {
     // 2026 US DST ends 2026-11-01 (clocks fall back from 02:00 EDT → 01:00 EST).
     // "now" the morning before → next-day 21:00 NY lands AFTER the transition,
     // so the resulting instant uses the EST offset (UTC-5).
-    const expiry = roundExpiry(Instant.parse('2026-10-31T14:00:00Z'));
+    const expiry = roundExpiry({ now: Instant.parse('2026-10-31T14:00:00Z') });
     assert.equal(expiry.toString(), '2026-11-02T02:00:00Z');
   });
 
@@ -667,14 +667,14 @@ describe('roundExpiry', () => {
     // 2026-05-12T23:00:00Z = 2026-05-12T19:00 EDT. Naively "21:00 today" would
     // be just 2 hours away, but roundExpiry always adds a day first, so the
     // result is 2026-05-13T21:00 EDT = 2026-05-14T01:00:00Z (~26 hours out).
-    const expiry = roundExpiry(Instant.parse('2026-05-12T23:00:00Z'));
+    const expiry = roundExpiry({ now: Instant.parse('2026-05-12T23:00:00Z') });
     assert.equal(expiry.toString(), '2026-05-14T01:00:00Z');
   });
 
   test('"now" before midnight UTC but already next-day in NY rolls relative to NY date, not UTC date', () => {
     // 2026-05-13T01:00:00Z = 2026-05-12T21:00 EDT. NY calendar date is still
     // May 12, so next-day 21:00 NY = 2026-05-13T21:00 EDT = 2026-05-14T01:00:00Z.
-    const expiry = roundExpiry(Instant.parse('2026-05-13T01:00:00Z'));
+    const expiry = roundExpiry({ now: Instant.parse('2026-05-13T01:00:00Z') });
     assert.equal(expiry.toString(), '2026-05-14T01:00:00Z');
   });
 
@@ -690,7 +690,10 @@ describe('roundExpiry', () => {
   test('daysAhead = 0 returns same-day 21:00 in New York', () => {
     // 2026-05-13T14:00:00Z = 2026-05-13T10:00 EDT. Same-day 21:00 NY (EDT) =
     // 2026-05-14T01:00:00Z.
-    const expiry = roundExpiry(Instant.parse('2026-05-13T14:00:00Z'), 0);
+    const expiry = roundExpiry({
+      now: Instant.parse('2026-05-13T14:00:00Z'),
+      daysAhead: 0,
+    });
     assert.equal(expiry.toString(), '2026-05-14T01:00:00Z');
   });
 
@@ -698,26 +701,38 @@ describe('roundExpiry', () => {
     // 2026-05-13T01:00:00Z = 2026-05-12T21:00 EDT. NY calendar date is still
     // May 12, so same-day 21:00 NY = 2026-05-12T21:00 EDT = 2026-05-13T01:00:00Z
     // — the input instant itself.
-    const expiry = roundExpiry(Instant.parse('2026-05-13T01:00:00Z'), 0);
+    const expiry = roundExpiry({
+      now: Instant.parse('2026-05-13T01:00:00Z'),
+      daysAhead: 0,
+    });
     assert.equal(expiry.toString(), '2026-05-13T01:00:00Z');
   });
 
   test('daysAhead = 0 can return a past instant when "now" is after 21:00 NY', () => {
     // 2026-05-12T23:00:00Z = 2026-05-12T19:00 EDT — before 21:00 NY today, so
     // same-day expiry is still ahead by 2 hours.
-    const before2100 = roundExpiry(Instant.parse('2026-05-12T23:00:00Z'), 0);
+    const before2100 = roundExpiry({
+      now: Instant.parse('2026-05-12T23:00:00Z'),
+      daysAhead: 0,
+    });
     assert.equal(before2100.toString(), '2026-05-13T01:00:00Z');
     // 2026-05-13T03:00:00Z = 2026-05-12T23:00 EDT — past 21:00 NY today, so
     // same-day expiry is 2 hours in the past. The function doesn't clamp;
     // callers send reminders before the deadline, not after.
-    const past2100 = roundExpiry(Instant.parse('2026-05-13T03:00:00Z'), 0);
+    const past2100 = roundExpiry({
+      now: Instant.parse('2026-05-13T03:00:00Z'),
+      daysAhead: 0,
+    });
     assert.equal(past2100.toString(), '2026-05-13T01:00:00Z');
     assert.ok(past2100.isBefore(Instant.parse('2026-05-13T03:00:00Z')));
   });
 
   test('daysAhead = 2 advances exactly two NY calendar days', () => {
     // 2026-05-12T14:00:00Z + 2 days → 2026-05-14T21:00 EDT = 2026-05-15T01:00:00Z.
-    const expiry = roundExpiry(Instant.parse('2026-05-12T14:00:00Z'), 2);
+    const expiry = roundExpiry({
+      now: Instant.parse('2026-05-12T14:00:00Z'),
+      daysAhead: 2,
+    });
     assert.equal(expiry.toString(), '2026-05-15T01:00:00Z');
   });
 
@@ -725,13 +740,19 @@ describe('roundExpiry', () => {
     // 2026-03-08T14:00:00Z is 2026-03-08T10:00 EDT (DST already started at
     // 02:00 local). Same-day 21:00 NY uses the post-transition EDT offset
     // (UTC-4), so 21:00 EDT = 2026-03-09T01:00:00Z.
-    const expiry = roundExpiry(Instant.parse('2026-03-08T14:00:00Z'), 0);
+    const expiry = roundExpiry({
+      now: Instant.parse('2026-03-08T14:00:00Z'),
+      daysAhead: 0,
+    });
     assert.equal(expiry.toString(), '2026-03-09T01:00:00Z');
   });
 
   test('explicit daysAhead = 1 matches the default behavior', () => {
     const now = Instant.parse('2026-05-12T14:00:00Z');
-    assert.equal(roundExpiry(now, 1).toString(), roundExpiry(now).toString());
+    assert.equal(
+      roundExpiry({ now, daysAhead: 1 }).toString(),
+      roundExpiry({ now }).toString(),
+    );
   });
 });
 

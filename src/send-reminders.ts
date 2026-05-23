@@ -81,7 +81,7 @@ export async function sendReminders(
   const submitted = new Set(submitters(current));
   const pending = [...eligible].filter((p) => !submitted.has(p)).sort();
 
-  const expiry = roundExpiry(undefined, 0);
+  const expiry = roundExpiry({ daysAhead: 0 });
   const mentions = pending.map((p) => `@${p}`).join(' ');
 
   let message: string;
