@@ -23,6 +23,74 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.5678,
+          -33.40765
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 395.87900502825806,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.64326,
+          -33.4399
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 403.6919147668998,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.9755558,
+          -26.0736488
+        ]
+      },
+      "properties": {
+        "player": "Palin",
+        "distance": 599.1879776311749,
+        "location": "Salta, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.5894754,
+          9.0036538
+        ]
+      },
+      "properties": {
+        "player": "georoulette",
+        "distance": 4681.885943494434,
+        "location": "Panamá, Panama",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
