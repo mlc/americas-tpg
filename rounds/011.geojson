@@ -2,8 +2,23 @@
   "type": "FeatureCollection",
   "roundInfo": {
     "number": 11,
-    "endedAt": null,
-    "language": "es"
+    "endedAt": "2026-05-23T00:50:12.898Z",
+    "language": "es",
+    "dnsChecks": [
+      {
+        "player": "Igorjan94 (wildtravel_club)",
+        "best": {
+          "point": [
+            -68.908476,
+            -22.496451
+          ],
+          "distanceKm": 5590.097659709616
+        },
+        "couldHaveEscaped": false,
+        "morphiorDbStatus": "unavailable",
+        "morphiorDbSubmissionCount": null
+      }
+    ]
   },
   "features": [
     {
@@ -38,7 +53,8 @@
         "distance": 40.80188084706529,
         "location": "Puebla, México",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#d4af37",
+        "eliminated": false
       }
     },
     {
@@ -55,7 +71,8 @@
         "distance": 47.593392404960255,
         "location": "Puebla, México",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#c0c0c0",
+        "eliminated": false
       }
     },
     {
@@ -72,7 +89,8 @@
         "distance": 47.63138873758586,
         "location": "Puebla, México",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#cd7f32",
+        "eliminated": false
       }
     },
     {
@@ -89,7 +107,8 @@
         "distance": 47.66648102986556,
         "location": "Puebla, México",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -106,7 +125,8 @@
         "distance": 108.0709773868926,
         "location": "Distrito Federal, México",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -123,7 +143,8 @@
         "distance": 108.88572906384464,
         "location": "Distrito Federal, México",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -140,7 +161,8 @@
         "distance": 255.96775494690542,
         "location": "Guerrero, México",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -157,7 +179,8 @@
         "distance": 627.075461014956,
         "location": "Zacatecas, México",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -174,7 +197,8 @@
         "distance": 875.3289695435501,
         "location": "Sololá, Guatemala",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -191,7 +215,8 @@
         "distance": 879.980746678871,
         "location": "Sololá, Guatemala",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -208,7 +233,8 @@
         "distance": 960.8442100657016,
         "location": "Yucatán, México",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -225,7 +251,8 @@
         "distance": 1056.1055399707323,
         "location": "Yucatán, México",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -242,7 +269,8 @@
         "distance": 1057.3396713793468,
         "location": "Ahuachapán, El Salvador",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -259,7 +287,8 @@
         "distance": 1185.9591124230255,
         "location": "Texas, United States",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -276,7 +305,8 @@
         "distance": 3477.1919471434917,
         "location": "Lambayeque, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#ff0000"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     }
   ]

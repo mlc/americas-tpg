@@ -1,0 +1,28 @@
+{
+  "type": "FeatureCollection",
+  "roundInfo": {
+    "number": 12,
+    "endedAt": null,
+    "language": "es"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "target",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -67.11019,
+          -31.36973
+        ]
+      },
+      "properties": {
+        "player": "Target",
+        "distance": null,
+        "location": "San Juan, Argentina",
+        "marker-symbol": "star",
+        "marker-color": "#000000"
+      }
+    }
+  ]
+}
