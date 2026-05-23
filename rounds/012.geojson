@@ -80,6 +80,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -70.6068333,
+          -33.4169722
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 399.464598410608,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -70.6112625,
           -33.4224707
         ]
