@@ -46,6 +46,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -70.5983889,
+          -33.4016278
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 397.86543361361447,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -70.64326,
           -33.4399
         ]
@@ -55,7 +72,7 @@
         "distance": 403.6919147668998,
         "location": "Santiago Metropolitan, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -72,7 +89,24 @@
         "distance": 599.1879776311749,
         "location": "Salta, Argentina",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -58.39136,
+          -34.60988
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 888.9812139818475,
+        "location": "Ciudad de Buenos Aires, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
       }
     },
     {
@@ -105,6 +139,23 @@
         "player": "georoulette",
         "distance": 4681.885943494434,
         "location": "Panamá, Panama",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -61.128584924359075,
+          10.585860154170948
+        ]
+      },
+      "properties": {
+        "player": "Johann Sebastian Bach",
+        "distance": 4708.637579148669,
+        "location": "Sangre Grande, Trinidad and Tobago",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
