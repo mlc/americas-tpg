@@ -63,6 +63,40 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -70.6068333,
+          -33.4169722
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 399.464598410608,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.6112625,
+          -33.4224707
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 400.14636021931113,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -70.64326,
           -33.4399
         ]
@@ -72,7 +106,7 @@
         "distance": 403.6919147668998,
         "location": "Santiago Metropolitan, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
@@ -114,6 +148,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -67.78504177402684,
+          -16.26991366516831
+        ]
+      },
+      "properties": {
+        "player": "pandem",
+        "distance": 1680.4151717170748,
+        "location": "La Paz, Bolivia",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -71.5362592,
           -16.3999567
         ]
@@ -122,6 +173,23 @@
         "player": "Patxepi",
         "distance": 1723.784759648081,
         "location": "Arequipa, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -75.5845278,
+          6.1181111
+        ]
+      },
+      "properties": {
+        "player": "Daws",
+        "distance": 4264.554216986226,
+        "location": "Antioquia, Colombia",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
@@ -156,6 +224,23 @@
         "player": "Johann Sebastian Bach",
         "distance": 4708.637579148669,
         "location": "Sangre Grande, Trinidad and Tobago",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -68.9334527,
+          12.10478916
+        ]
+      },
+      "properties": {
+        "player": "Summitblvd",
+        "distance": 4838.065104694958,
+        "location": "Curaçao",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
