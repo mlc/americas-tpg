@@ -80,6 +80,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -71.5362592,
+          -16.3999567
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 1723.784759648081,
+        "location": "Arequipa, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -79.5894754,
           9.0036538
         ]
