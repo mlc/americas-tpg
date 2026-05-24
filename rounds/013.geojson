@@ -165,6 +165,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -70.34893055555555,
+          -15.636700000000001
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 1847.4086792120902,
+        "location": "Puno, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -61.128584924359075,
           10.585860154170948
         ]
