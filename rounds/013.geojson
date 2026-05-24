@@ -131,6 +131,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -54.445,
+          -25.7011
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 426.424082690135,
+        "location": "Misiones, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -47.054272,
           -22.9009083
         ]
@@ -155,6 +172,23 @@
       "properties": {
         "player": "Norton",
         "distance": 782.4292399275828,
+        "location": "São Paulo, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.4760243,
+          -23.4238806
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 798.0825777078684,
         "location": "São Paulo, Brazil",
         "marker-symbol": "circle",
         "marker-color": "#444444"
@@ -190,6 +224,23 @@
         "player": "Johann Sebastian Bach",
         "distance": 3691.3653305919242,
         "location": "Sangre Grande, Trinidad and Tobago",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.5227366,
+          8.98454609
+        ]
+      },
+      "properties": {
+        "player": "georoulette",
+        "distance": 4414.170487969889,
+        "location": "Panamá, Panama",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
