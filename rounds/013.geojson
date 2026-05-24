@@ -1,0 +1,96 @@
+{
+  "type": "FeatureCollection",
+  "roundInfo": {
+    "number": 13,
+    "endedAt": null,
+    "language": "pt"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "target",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -54.07274,
+          -21.88133
+        ]
+      },
+      "properties": {
+        "player": "Target",
+        "distance": null,
+        "location": "Mato Grosso do Sul, Brasil",
+        "marker-symbol": "star",
+        "marker-color": "#000000"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -54.5937,
+          -25.4087
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 395.7977689394779,
+        "location": "Alto Paraná, Paraguay",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -54.63478,
+          -25.49771
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 406.1735899529733,
+        "location": "Alto Paraná, Paraguay",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -54.5493082,
+          -25.5754391
+        ]
+      },
+      "properties": {
+        "player": "Palin",
+        "distance": 413.61996976678586,
+        "location": "Paraná, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -54.479722,
+          -25.613333
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 417.04147423175505,
+        "location": "Paraná, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
+    }
+  ]
+}
