@@ -29,6 +29,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -54.59518611611662,
+          -20.460571297116203
+        ]
+      },
+      "properties": {
+        "player": "pandem",
+        "distance": 167.01065554761857,
+        "location": "Mato Grosso do Sul, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -54.5937,
           -25.4087
         ]
@@ -38,7 +55,7 @@
         "distance": 395.7977689394779,
         "location": "Alto Paraná, Paraguay",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#c0c0c0"
       }
     },
     {
@@ -55,7 +72,7 @@
         "distance": 406.1735899529733,
         "location": "Alto Paraná, Paraguay",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -72,7 +89,7 @@
         "distance": 411.0536214019267,
         "location": "Paraná, Brazil",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
