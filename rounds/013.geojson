@@ -123,6 +123,23 @@
         "distance": 730.3525513325654,
         "location": "São Paulo, Brazil",
         "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.6641806,
+          -23.5636944
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 782.4292399275828,
+        "location": "São Paulo, Brazil",
+        "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
     }
