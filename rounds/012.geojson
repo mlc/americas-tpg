@@ -2,8 +2,9 @@
   "type": "FeatureCollection",
   "roundInfo": {
     "number": 12,
-    "endedAt": null,
-    "language": "es"
+    "endedAt": "2026-05-24T01:26:47.555Z",
+    "language": "es",
+    "dnsChecks": []
   },
   "features": [
     {
@@ -29,6 +30,24 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -70.0503388889,
+          -33.8280499999
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 388.00887934903045,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37",
+        "eliminated": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -70.5678,
           -33.40765
         ]
@@ -38,7 +57,8 @@
         "distance": 395.87900502825806,
         "location": "Santiago Metropolitan, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#c0c0c0",
+        "eliminated": false
       }
     },
     {
@@ -55,7 +75,8 @@
         "distance": 397.86543361361447,
         "location": "Santiago Metropolitan, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32",
+        "eliminated": false
       }
     },
     {
@@ -72,7 +93,8 @@
         "distance": 399.464598410608,
         "location": "Santiago Metropolitan, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -89,7 +111,8 @@
         "distance": 399.464598410608,
         "location": "Santiago Metropolitan, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -106,7 +129,8 @@
         "distance": 400.14636021931113,
         "location": "Santiago Metropolitan, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -123,7 +147,8 @@
         "distance": 403.6919147668998,
         "location": "Santiago Metropolitan, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -140,7 +165,8 @@
         "distance": 599.1879776311749,
         "location": "Salta, Argentina",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -157,7 +183,8 @@
         "distance": 888.9812139818475,
         "location": "Ciudad de Buenos Aires, Argentina",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -174,7 +201,8 @@
         "distance": 1680.4151717170748,
         "location": "La Paz, Bolivia",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -191,7 +219,8 @@
         "distance": 1723.784759648081,
         "location": "Arequipa, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -208,7 +237,8 @@
         "distance": 4264.554216986226,
         "location": "Antioquia, Colombia",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -225,7 +255,8 @@
         "distance": 4681.885943494434,
         "location": "Panamá, Panama",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -242,7 +273,8 @@
         "distance": 4708.637579148669,
         "location": "Sangre Grande, Trinidad and Tobago",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -259,7 +291,8 @@
         "distance": 4838.065104694958,
         "location": "Curaçao",
         "marker-symbol": "circle",
-        "marker-color": "#ff0000"
+        "marker-color": "#ff0000",
+        "eliminated": true
       }
     }
   ]
