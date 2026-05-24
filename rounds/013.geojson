@@ -63,6 +63,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -54.584665,
+          -25.548202
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 411.0536214019267,
+        "location": "Paraná, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -54.5493082,
           -25.5754391
         ]
@@ -72,7 +89,7 @@
         "distance": 413.61996976678586,
         "location": "Paraná, Brazil",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
