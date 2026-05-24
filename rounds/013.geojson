@@ -157,6 +157,23 @@
         "distance": 782.4292399275828,
         "location": "São Paulo, Brazil",
         "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -61.128584924359075,
+          10.585860154170948
+        ]
+      },
+      "properties": {
+        "player": "Johann Sebastian Bach",
+        "distance": 3691.3653305919242,
+        "location": "Sangre Grande, Trinidad and Tobago",
+        "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
     }
