@@ -80,6 +80,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -61.395365347,
+          10.6626968524
+        ]
+      },
+      "properties": {
+        "player": "Johann Sebastian Bach",
+        "distance": 909.8308474461255,
+        "location": "Tunapuna/Piarco, Trinidad and Tobago",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -79.529026,
           8.910566
         ]
