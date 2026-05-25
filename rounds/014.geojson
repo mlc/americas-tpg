@@ -80,6 +80,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -75.1570056,
+          6.2322278
+        ]
+      },
+      "properties": {
+        "player": "Daws",
+        "distance": 684.8777349089372,
+        "location": "Antioquia, Colombia",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -61.395365347,
           10.6626968524
         ]
