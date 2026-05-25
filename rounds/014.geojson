@@ -29,6 +29,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -68.896235,
+          12.08396
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 388.314841371802,
+        "location": "Curaçao",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -68.86647419904823,
           12.081245426145601
         ]
@@ -38,7 +55,7 @@
         "distance": 388.5251400271423,
         "location": "Curaçao",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#c0c0c0"
       }
     },
     {
@@ -55,7 +72,7 @@
         "distance": 644.3885804709565,
         "location": "Cundinamarca, Colombia",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -72,7 +89,7 @@
         "distance": 644.4138017365746,
         "location": "Cundinamarca, Colombia",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
