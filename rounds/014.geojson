@@ -23,6 +23,90 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -68.86647419904823,
+          12.081245426145601
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 388.5251400271423,
+        "location": "Curaçao",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.00417,
+          5.0239
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 644.4138017365746,
+        "location": "Cundinamarca, Colombia",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.529026,
+          8.910566
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 1109.5535657253843,
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -78.3609027,
+          -0.1242653
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 1387.6439412824782,
+        "location": "Pichincha, Ecuador",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.899828,
+          -6.705231
+        ]
+      },
+      "properties": {
+        "player": "Palin",
+        "distance": 2062.496415010062,
+        "location": "Lambayeque, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
