@@ -80,6 +80,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -75.1572132,
+          6.2344252
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 684.8022652217829,
+        "location": "Antioquia, Colombia",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -75.1570056,
           6.2322278
         ]
@@ -105,6 +122,22 @@
         "player": "Johann Sebastian Bach",
         "distance": 909.8308474461255,
         "location": "Tunapuna/Piarco, Trinidad and Tobago",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -78.85408,
+          9.5775
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 1039.3222063304104,
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
@@ -155,6 +188,23 @@
         "player": "Palin",
         "distance": 2062.496415010062,
         "location": "Lambayeque, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -86.82239747748689,
+          21.156351599065953
+        ]
+      },
+      "properties": {
+        "player": "pandem",
+        "distance": 2326.211531546333,
+        "location": "Quintana Roo, México",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
