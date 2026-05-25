@@ -63,6 +63,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -74.06612,
+          4.60865
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 679.4116424107267,
+        "location": "Bogotá D.C., Colombia",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -79.529026,
           8.910566
         ]
@@ -71,7 +88,7 @@
         "player": "Loading...",
         "distance": 1109.5535657253843,
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
