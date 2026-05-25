@@ -46,6 +46,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -74.0035556,
+          5.0235
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 644.3885804709565,
+        "location": "Cundinamarca, Colombia",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -74.00417,
           5.0239
         ]
@@ -55,7 +72,7 @@
         "distance": 644.4138017365746,
         "location": "Cundinamarca, Colombia",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -72,7 +89,7 @@
         "distance": 679.4116424107267,
         "location": "Bogotá D.C., Colombia",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
