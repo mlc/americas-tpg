@@ -63,6 +63,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -55.2001389,
+          5.4566028
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 947.5089474113116,
+        "location": "Para, Suriname",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -52.7774,
           5.22161
         ]
@@ -72,7 +89,7 @@
         "distance": 1139.5819917982053,
         "location": "Cayenne, French Guiana",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
