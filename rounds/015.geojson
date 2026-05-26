@@ -80,6 +80,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -60.9609806,
+          13.7334111
+        ]
+      },
+      "properties": {
+        "player": "Daws",
+        "distance": 1587.0636092828697,
+        "location": "Vieux Fort, Saint Lucia",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -71.836061,
           -13.413001
         ]
@@ -87,6 +104,23 @@
       "properties": {
         "player": "Loading...",
         "distance": 1845.2897247616595,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.9786359,
+          -13.5170947
+        ]
+      },
+      "properties": {
+        "player": "Palin",
+        "distance": 1864.0699485685557,
         "location": "Cusco, Peru",
         "marker-symbol": "circle",
         "marker-color": "#ff0000"
