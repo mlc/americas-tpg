@@ -55,6 +55,23 @@
         "distance": 1139.5819917982053,
         "location": "Cayenne, French Guiana",
         "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.836061,
+          -13.413001
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 1845.2897247616595,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
     }
