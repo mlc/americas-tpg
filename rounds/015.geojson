@@ -114,6 +114,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -61.36083,
+          12.634484
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 1464.5490760111766,
+        "location": "Grenadines, Saint Vincent and the Grenadines",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -59.487776,
           13.0792797
         ]
