@@ -23,6 +23,40 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -60.04735,
+          -3.03249
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 308.8687863648424,
+        "location": "Amazonas, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -52.7774,
+          5.22161
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 1139.5819917982053,
+        "location": "Cayenne, French Guiana",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
