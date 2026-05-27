@@ -116,13 +116,13 @@ describe('simplestyleColorToKml', () => {
 });
 
 describe('iconHrefForSymbol', () => {
-  test('star maps to the star icon', () => {
-    assert.match(iconHrefForSymbol('star'), /\/star\.png$/);
+  test('star maps to the white star paddle pin', () => {
+    assert.match(iconHrefForSymbol('star'), /\/paddle\/wht-stars\.png$/);
   });
 
-  test('circle and anything unknown map to the circle icon', () => {
-    assert.match(iconHrefForSymbol('circle'), /\/placemark_circle\.png$/);
-    assert.match(iconHrefForSymbol('mystery'), /\/placemark_circle\.png$/);
+  test('circle and anything unknown map to the white circle paddle pin', () => {
+    assert.match(iconHrefForSymbol('circle'), /\/paddle\/wht-circle\.png$/);
+    assert.match(iconHrefForSymbol('mystery'), /\/paddle\/wht-circle\.png$/);
   });
 });
 
@@ -189,18 +189,27 @@ describe('buildRoundsKml', () => {
     }
   });
 
-  test('styles carry the converted color and the symbol icon href', () => {
+  test('styles carry the converted color and the symbol paddle pin', () => {
     const r1 = styledEnded(1, T1, [sub('alice', 10)]); // alice = closest = gold
     const kml = buildRoundsKml([r1]);
-    // target: star + black.
+    // target: star paddle + black.
     assert.match(
       kml,
-      /<Style id="s_star_000000">\s*<IconStyle>\s*<color>ff000000<\/color>\s*<Icon>\s*<href>[^<]*\/star\.png<\/href>/,
+      /<Style id="s_star_000000">\s*<IconStyle>\s*<color>ff000000<\/color>\s*<Icon>\s*<href>[^<]*\/paddle\/wht-stars\.png<\/href>/,
     );
-    // gold player: circle + ff37afd4.
+    // gold player: circle paddle + ff37afd4.
     assert.match(
       kml,
-      /<Style id="s_circle_d4af37">\s*<IconStyle>\s*<color>ff37afd4<\/color>\s*<Icon>\s*<href>[^<]*\/placemark_circle\.png<\/href>/,
+      /<Style id="s_circle_d4af37">\s*<IconStyle>\s*<color>ff37afd4<\/color>\s*<Icon>\s*<href>[^<]*\/paddle\/wht-circle\.png<\/href>/,
+    );
+  });
+
+  test('each style anchors the paddle tip at bottom-center via hotSpot', () => {
+    const r1 = styledEnded(1, T1, [sub('alice', 10)]);
+    const kml = buildRoundsKml([r1]);
+    assert.match(
+      kml,
+      /<hotSpot x="0.5" y="0" xunits="fraction" yunits="fraction"\/>/,
     );
   });
 

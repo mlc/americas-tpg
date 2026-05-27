@@ -14,9 +14,13 @@ const KML_NS = 'http://www.opengis.net/kml/2.2';
 const DOCUMENT_NAME = 'Américas TPG Rounds';
 const DEFAULT_OUTPUT = 'rounds.kml';
 
-const ICON_BASE = 'http://maps.google.com/mapfiles/kml/shapes';
-const STAR_ICON = `${ICON_BASE}/star.png`;
-const CIRCLE_ICON = `${ICON_BASE}/placemark_circle.png`;
+// Google's white "paddle" pins (teardrop with a knocked-out symbol). White
+// base pixels multiply cleanly under IconStyle <color>, so the pin renders in
+// the marker color with the symbol inside — unlike the flat black `shapes/`
+// glyphs, which stay black because black * any color = black.
+const ICON_BASE = 'http://maps.google.com/mapfiles/kml/paddle';
+const STAR_ICON = `${ICON_BASE}/wht-stars.png`;
+const CIRCLE_ICON = `${ICON_BASE}/wht-circle.png`;
 
 const HEX6_RE = /^#?([0-9a-fA-F]{6})$/;
 // Default-player gray, mirroring SIMPLESTYLE.DEFAULT_PLAYER ('#444444'). Used as
@@ -44,8 +48,9 @@ export function simplestyleColorToKml(hex: string): string {
   return `ff${bb}${gg}${rr}`;
 }
 
-/** Google-hosted shape icon for a simplestyle marker symbol: `star` → star,
- * anything else (circle / unknown / missing) → circle. */
+/** Google-hosted white paddle pin for a simplestyle marker symbol: `star` →
+ * star paddle, anything else (circle / unknown / missing) → circle paddle.
+ * White-based so IconStyle <color> tints the pin to the marker color. */
 export function iconHrefForSymbol(symbol: string): string {
   return symbol === SIMPLESTYLE.TARGET_SYMBOL ? STAR_ICON : CIRCLE_ICON;
 }
@@ -104,6 +109,15 @@ export function buildRoundsKml(rounds: readonly RoundFile[]): string {
     const iconStyle = document.ele('Style', { id }).ele('IconStyle');
     iconStyle.ele('color').txt(simplestyleColorToKml(color)).up();
     iconStyle.ele('Icon').ele('href').txt(iconHrefForSymbol(symbol)).up().up();
+    // Paddle pins point from the bottom-center, so anchor the tip on the point.
+    iconStyle
+      .ele('hotSpot', {
+        x: '0.5',
+        y: '0',
+        xunits: 'fraction',
+        yunits: 'fraction',
+      })
+      .up();
   }
 
   for (const round of rounds) {

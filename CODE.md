@@ -106,9 +106,11 @@ emits one KML 2.2 document: each round becomes its own `<Folder>` (a layer),
 each point a `<Placemark>` named for the player — or `Target` for the target.
 Marker styling is transcribed from the simplestyle markers already on disk:
 the `marker-color` hex is converted to KML's `aabbggrr` byte order at full
-opacity, and `marker-symbol` selects a Google-hosted shape icon (star for the
-target, circle for players). The output `rounds.kml` is gitignored. This
-replaces the old GDAL `ogrmerge.py` pipeline — no external toolchain needed.
+opacity and tints a Google-hosted white **paddle pin** (a teardrop pin with the
+symbol knocked out — star for the target, circle for players), so each point
+shows as a colored pin with its symbol inside. The output `rounds.kml` is
+gitignored. This replaces the old GDAL `ogrmerge.py` pipeline — no external
+toolchain needed.
 
 ### Publishing round updates
 
