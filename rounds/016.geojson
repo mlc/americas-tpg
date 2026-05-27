@@ -63,6 +63,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -77.10850139490529,
+          -12.023823440290181
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 662.3241970423671,
+        "location": "Callao, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -77.10843,
           -12.02419
         ]
@@ -72,7 +89,7 @@
         "distance": 662.3652661411237,
         "location": "Callao, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
