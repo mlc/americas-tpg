@@ -23,6 +23,57 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -78.7821624,
+          -2.2478228
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 452.9477322661854,
+        "location": "Chimborazo, Ecuador",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -78.57359,
+          -0.6202
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 620.6898606934603,
+        "location": "Cotopaxi, Ecuador",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.10843,
+          -12.02419
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 662.3652661411237,
+        "location": "Callao, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
