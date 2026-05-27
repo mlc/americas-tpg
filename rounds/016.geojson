@@ -63,6 +63,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -77.10758,
+          -12.02356
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 662.2994732751644,
+        "location": "Callao, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -77.10850139490529,
           -12.023823440290181
         ]
@@ -72,7 +89,7 @@
         "distance": 662.3241970423671,
         "location": "Callao, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
@@ -121,6 +138,40 @@
       "properties": {
         "player": "nhmartin4",
         "distance": 665.2523555424715,
+        "location": "Lima Province, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.03508690649664,
+          -12.121694539098653
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 673.599244393275,
+        "location": "Lima Province, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.028415,
+          -12.134821
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 675.0978299173153,
         "location": "Lima Province, Peru",
         "marker-symbol": "circle",
         "marker-color": "#444444"
