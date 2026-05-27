@@ -72,6 +72,57 @@
         "distance": 662.3652661411237,
         "location": "Callao, Peru",
         "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.02482499999999,
+          -12.04383611111111
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 665.0206655247737,
+        "location": "Lima Province, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -75.5845278,
+          6.1181111
+        ]
+      },
+      "properties": {
+        "player": "Daws",
+        "distance": 1370.1847106504924,
+        "location": "Antioquia, Colombia",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -84.218731005,
+          10.0156330869
+        ]
+      },
+      "properties": {
+        "player": "Johann Sebastian Bach",
+        "distance": 1942.8167599739813,
+        "location": "Alajuela, Costa Rica",
+        "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
     }
