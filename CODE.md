@@ -30,6 +30,7 @@ last surviving player wins.
 | `yarn end-round` | Close the active round, compute eliminations, and print standings. |
 | `yarn send-reminders` | List players eligible for the active round who have not yet submitted. Prints a Discord-pasteable message with @-mentions and a submission-tracker link. Pass `--final` for a one-line terse reminder (`@a @b @c round ends <relative>`). |
 | `yarn leaderboard` | Regenerate `LEADERBOARD.md` from every ended round: an embedded geojson map of all targets plus a player table (survivors first, then eliminated). |
+| `yarn build-kml` | Export every ended round to a single KML file (`rounds.kml`): one folder per round, one named placemark per point, styled from the simplestyle markers. |
 | `yarn test` | Run the test suite (`node --test`). |
 | `yarn typecheck` | Run `tsc --noEmit` against `src/`. |
 | `yarn lint` | Run Biome's linter. |
@@ -92,6 +93,30 @@ The map markers in each round file follow the
 the target is a black star, players are circles colored gold/silver/bronze for
 1st/2nd/3rd, red for last place (using the same 25 m tie rule), and gray
 otherwise. Colors are recomputed on every write.
+
+### Exporting to KML
+
+```sh
+yarn build-kml                          # writes rounds.kmz
+yarn build-kml --rounds-dir other -o out.kmz
+```
+
+`build-kml` reads every **ended** round (in-progress rounds are skipped) and
+emits a single **KMZ** archive: each round becomes its own `<Folder>` (a layer),
+each point a `<Placemark>` named for the player — or `Target` for the target,
+shown as a Google-Maps-style teardrop pin in the simplestyle marker color (gold/
+silver/bronze for 1st/2nd/3rd, red for last, gray otherwise; a black star for
+the target).
+
+The pin color is **baked into a PNG** bundled inside the KMZ (under `images/`),
+not set via KML `<color>` — because Google My Maps ignores `<IconStyle><color>`
+on import, so tinting in KML would render the pins uncolored. The pin images
+live in `assets/pins/` (one per simplestyle marker) and are regenerated with
+`scripts/render-pins.sh` (requires `rsvg-convert` from librsvg); re-run it after
+changing the marker palette in `src/simplestyle.ts`.
+
+The output `rounds.kmz` is gitignored. This replaces the old GDAL `ogrmerge.py`
+pipeline — no external toolchain needed at export time.
 
 ### Publishing round updates
 

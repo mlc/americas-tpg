@@ -1,0 +1,260 @@
+import { readFile, writeFile } from 'node:fs/promises';
+import { parseArgs } from 'node:util';
+import { strToU8, zipSync } from 'fflate';
+import { create } from 'xmlbuilder2';
+import { exitWithError, isMain, isParseArgsError } from './cli-helpers.ts';
+import {
+  endedAtOf,
+  type RoundFeature,
+  type RoundFile,
+} from './round-domain.ts';
+import { DEFAULT_ROUNDS_DIR, listRoundFiles, readRound } from './round-file.ts';
+import { SIMPLESTYLE } from './simplestyle.ts';
+
+const KML_NS = 'http://www.opengis.net/kml/2.2';
+const DOCUMENT_NAME = 'Américas TPG Rounds';
+const DEFAULT_OUTPUT = 'rounds.kmz';
+
+// Pin PNGs are 64x64 with the teardrop tip at the bottom-centre; anchor the tip
+// on the point (insetPixels measures y from the top of the icon).
+const ICON_SIZE = 64;
+const HOTSPOT = {
+  x: String(ICON_SIZE / 2),
+  y: String(ICON_SIZE),
+  xunits: 'pixels',
+  yunits: 'insetPixels',
+} as const;
+
+// Color-baked pin images live here (committed; regenerate with
+// scripts/render-pins.sh). Google My Maps ignores KML <IconStyle><color> on
+// import, so the marker color is baked into each PNG instead of tinted in KML.
+const PIN_DIR = new URL('../assets/pins/', import.meta.url);
+
+const HEX6_RE = /^#?([0-9a-fA-F]{6})$/;
+const FALLBACK_RGB6 = '444444'; // mirrors SIMPLESTYLE.DEFAULT_PLAYER ('#444444')
+
+/** The lowercase `rrggbb` of a simplestyle hex color, or the default-player
+ * color on malformed input. */
+function rgb6(hex: string): string {
+  const match = HEX6_RE.exec(hex.trim());
+  return (match ? match[1] : FALLBACK_RGB6).toLowerCase();
+}
+
+/** Style/pin id for a (symbol, color) pair, e.g. `s_star_000000`. Also the
+ * basename of the bundled pin PNG (`assets/pins/<id>.png`). */
+function styleIdFor(symbol: string, color: string): string {
+  return `s_${symbol}_${rgb6(color)}`;
+}
+
+// The pin PNGs that exist on disk. A (symbol, color) outside this set — e.g. a
+// hand-edited round file with a novel color — clamps to the nearest pin so the
+// KMZ never references a missing image: stars fall back to the target pin,
+// everything else to the gray default-player pin.
+const KNOWN_PIN_IDS: ReadonlySet<string> = new Set([
+  styleIdFor(SIMPLESTYLE.TARGET_SYMBOL, SIMPLESTYLE.TARGET_COLOR),
+  styleIdFor(SIMPLESTYLE.PLAYER_SYMBOL, SIMPLESTYLE.GOLD),
+  styleIdFor(SIMPLESTYLE.PLAYER_SYMBOL, SIMPLESTYLE.SILVER),
+  styleIdFor(SIMPLESTYLE.PLAYER_SYMBOL, SIMPLESTYLE.BRONZE),
+  styleIdFor(SIMPLESTYLE.PLAYER_SYMBOL, SIMPLESTYLE.LAST),
+  styleIdFor(SIMPLESTYLE.PLAYER_SYMBOL, SIMPLESTYLE.DEFAULT_PLAYER),
+]);
+
+const TARGET_PIN_ID = styleIdFor(
+  SIMPLESTYLE.TARGET_SYMBOL,
+  SIMPLESTYLE.TARGET_COLOR,
+);
+const DEFAULT_PLAYER_PIN_ID = styleIdFor(
+  SIMPLESTYLE.PLAYER_SYMBOL,
+  SIMPLESTYLE.DEFAULT_PLAYER,
+);
+
+/**
+ * The simplestyle markers `applySimplestyle` stamps on every feature. They are
+ * not declared in `TargetProperties` / `SubmissionProperties`, so the KML
+ * builder reads them through this widened lookup rather than the domain types.
+ * Missing values fall back to a gray circle.
+ */
+function markerOf(feature: RoundFeature): { symbol: string; color: string } {
+  const props = feature.properties as Record<string, unknown>;
+  const symbol = props['marker-symbol'];
+  const color = props['marker-color'];
+  return {
+    symbol: typeof symbol === 'string' ? symbol : SIMPLESTYLE.PLAYER_SYMBOL,
+    color: typeof color === 'string' ? color : SIMPLESTYLE.DEFAULT_PLAYER,
+  };
+}
+
+/** The bundled-pin id a feature renders as, clamped to an id that exists in
+ * `assets/pins/`. */
+function pinIdOf(feature: RoundFeature): string {
+  const { symbol, color } = markerOf(feature);
+  const id = styleIdFor(symbol, color);
+  if (KNOWN_PIN_IDS.has(id)) return id;
+  return symbol === SIMPLESTYLE.TARGET_SYMBOL
+    ? TARGET_PIN_ID
+    : DEFAULT_PLAYER_PIN_ID;
+}
+
+/** The distinct pin ids used across the given rounds, sorted for deterministic
+ * output. */
+export function collectPinIds(rounds: readonly RoundFile[]): string[] {
+  const ids = new Set<string>();
+  for (const round of rounds) {
+    for (const feature of round.features) ids.add(pinIdOf(feature));
+  }
+  return [...ids].sort();
+}
+
+/**
+ * Build the `doc.kml` document for a KMZ: one shared `<Style>` per distinct pin
+ * (referencing the bundled `images/<id>.png`), one `<Folder>` per round (in the
+ * order given), one `<Placemark>` per feature named for its `properties.player`
+ * (`Target` for the target). Pure; throws on empty input. Ended/in-progress
+ * filtering is the caller's job (see `generateKmz`).
+ */
+export function buildRoundsKmlDocument(rounds: readonly RoundFile[]): string {
+  if (rounds.length === 0) {
+    throw new Error('no rounds to export');
+  }
+
+  const doc = create({ version: '1.0', encoding: 'UTF-8' });
+  const document = doc.ele('kml', { xmlns: KML_NS }).ele('Document');
+  document.ele('name').txt(DOCUMENT_NAME).up();
+
+  for (const id of collectPinIds(rounds)) {
+    const style = document.ele('Style', { id });
+    const iconStyle = style.ele('IconStyle');
+    iconStyle.ele('scale').txt('1').up();
+    iconStyle.ele('Icon').ele('href').txt(`images/${id}.png`).up().up();
+    iconStyle.ele('hotSpot', HOTSPOT).up();
+    // Hide the persistent label; the player name still shows on click.
+    style.ele('LabelStyle').ele('scale').txt('0').up().up();
+  }
+
+  for (const round of rounds) {
+    const folder = document.ele('Folder');
+    folder.ele('name').txt(`Round ${round.roundInfo.number}`).up();
+    for (const feature of round.features) {
+      const [lon, lat] = feature.geometry.coordinates;
+      const placemark = folder.ele('Placemark');
+      placemark.ele('name').txt(feature.properties.player).up();
+      placemark
+        .ele('styleUrl')
+        .txt(`#${pinIdOf(feature)}`)
+        .up();
+      placemark.ele('Point').ele('coordinates').txt(`${lon},${lat}`).up().up();
+    }
+  }
+
+  return doc.end({ prettyPrint: true });
+}
+
+/**
+ * Build the KMZ archive (a zip of `doc.kml` + the bundled `images/<id>.png`
+ * pins) for the given rounds. `loadPin(id)` supplies the PNG bytes for a pin
+ * id; `generateKmz` wires it to the committed `assets/pins/` files.
+ */
+export function buildRoundsKmz(
+  rounds: readonly RoundFile[],
+  loadPin: (id: string) => Uint8Array,
+): Uint8Array {
+  const kml = buildRoundsKmlDocument(rounds);
+  const files: Record<string, Uint8Array> = { 'doc.kml': strToU8(kml) };
+  for (const id of collectPinIds(rounds)) {
+    files[`images/${id}.png`] = loadPin(id);
+  }
+  return zipSync(files);
+}
+
+interface GenerateKmzDeps {
+  roundsDir: string;
+}
+
+interface GenerateKmzResult {
+  kmz: Uint8Array;
+  rounds: number;
+}
+
+/**
+ * Read every ended round in `roundsDir` and build the KMZ archive. In-progress
+ * rounds (`endedAt: null`) are skipped, mirroring `generateLeaderboard`. Throws
+ * if there are no ended rounds.
+ */
+export async function generateKmz(
+  deps: GenerateKmzDeps,
+): Promise<GenerateKmzResult> {
+  const entries = await listRoundFiles(deps.roundsDir);
+  const ended: RoundFile[] = [];
+  for (const entry of entries) {
+    const file = await readRound(entry.path);
+    if (endedAtOf(file) !== null) ended.push(file);
+  }
+  if (ended.length === 0) {
+    throw new Error('no ended rounds found');
+  }
+
+  const pins = new Map<string, Uint8Array>();
+  for (const id of collectPinIds(ended)) {
+    pins.set(id, await readFile(new URL(`${id}.png`, PIN_DIR)));
+  }
+  const loadPin = (id: string): Uint8Array => {
+    const bytes = pins.get(id);
+    if (!bytes) throw new Error(`missing pin asset for ${id}`);
+    return bytes;
+  };
+
+  return { kmz: buildRoundsKmz(ended, loadPin), rounds: ended.length };
+}
+
+const USAGE = `Usage: yarn build-kml [--rounds-dir <dir>] [-o <file>]
+
+Exports every ended round in the rounds directory to a single KMZ file: one
+<Folder> per round, one <Placemark> per point (named for the player, or
+"Target"), each shown as a Google-Maps-style pin in the simplestyle marker
+color (a color-baked PNG bundled in the archive). In-progress rounds are
+skipped.
+
+Options:
+      --rounds-dir <d>  Rounds directory (default: ${DEFAULT_ROUNDS_DIR})
+  -o, --output <f>      Output KMZ path (default: ${DEFAULT_OUTPUT})
+  -h, --help            Show this message
+`;
+
+function fail(message: string): never {
+  process.stderr.write(`${message}\n\n${USAGE}`);
+  process.exit(1);
+}
+
+async function main(): Promise<void> {
+  const { values } = parseArgs({
+    options: {
+      'rounds-dir': { type: 'string' },
+      output: { type: 'string', short: 'o' },
+      help: { type: 'boolean', short: 'h', default: false },
+    },
+    strict: true,
+  });
+
+  if (values.help) {
+    process.stdout.write(USAGE);
+    return;
+  }
+
+  const roundsDir = values['rounds-dir'] ?? DEFAULT_ROUNDS_DIR;
+  const output = values.output ?? DEFAULT_OUTPUT;
+  const { kmz, rounds } = await generateKmz({ roundsDir });
+  await writeFile(output, kmz);
+  process.stdout.write(
+    `wrote ${output} (${rounds} round${rounds === 1 ? '' : 's'})\n`,
+  );
+}
+
+if (isMain(import.meta.url)) {
+  try {
+    await main();
+  } catch (cause) {
+    const message = cause instanceof Error ? cause.message : String(cause);
+    if (isParseArgsError(cause)) fail(message);
+    else exitWithError(message);
+  }
+}

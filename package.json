@@ -19,7 +19,7 @@
     "format": "biome format --write .",
     "check": "biome check .",
     "prepare": "husky",
-    "build-kml": "ogrmerge.py -dsco NameField=player -o rounds.kml -f kml rounds/*"
+    "build-kml": "yarn node src/kml.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.15",
@@ -36,7 +36,9 @@
     "@ngageoint/geopackage": "4.2.6",
     "@turf/boolean-point-in-polygon": "7.3.5",
     "@turf/distance": "7.3.5",
-    "geographiclib-dms": "2.2.0"
+    "fflate": "0.8.3",
+    "geographiclib-dms": "2.2.0",
+    "xmlbuilder2": "4.0.3"
   },
   "resolutions": {
     "better-sqlite3": "12.10.0"

@@ -19,3 +19,7 @@ node_modules
 # Local data (GADM geopackage, etc.)
 data/
 
+# Generated KML/KMZ export (yarn build-kml)
+rounds.kmz
+rounds.kml
+
