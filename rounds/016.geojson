@@ -114,6 +114,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -77.03116,
+          -12.046286
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 665.2523555424715,
+        "location": "Lima Province, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -75.5845278,
           6.1181111
         ]
