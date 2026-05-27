@@ -97,20 +97,26 @@ otherwise. Colors are recomputed on every write.
 ### Exporting to KML
 
 ```sh
-yarn build-kml                          # writes rounds.kml
-yarn build-kml --rounds-dir other -o out.kml
+yarn build-kml                          # writes rounds.kmz
+yarn build-kml --rounds-dir other -o out.kmz
 ```
 
 `build-kml` reads every **ended** round (in-progress rounds are skipped) and
-emits one KML 2.2 document: each round becomes its own `<Folder>` (a layer),
-each point a `<Placemark>` named for the player — or `Target` for the target.
-Marker styling is transcribed from the simplestyle markers already on disk:
-the `marker-color` hex is converted to KML's `aabbggrr` byte order at full
-opacity and tints a Google-hosted white **paddle pin** (a teardrop pin with the
-symbol knocked out — star for the target, circle for players), so each point
-shows as a colored pin with its symbol inside. The output `rounds.kml` is
-gitignored. This replaces the old GDAL `ogrmerge.py` pipeline — no external
-toolchain needed.
+emits a single **KMZ** archive: each round becomes its own `<Folder>` (a layer),
+each point a `<Placemark>` named for the player — or `Target` for the target,
+shown as a Google-Maps-style teardrop pin in the simplestyle marker color (gold/
+silver/bronze for 1st/2nd/3rd, red for last, gray otherwise; a black star for
+the target).
+
+The pin color is **baked into a PNG** bundled inside the KMZ (under `images/`),
+not set via KML `<color>` — because Google My Maps ignores `<IconStyle><color>`
+on import, so tinting in KML would render the pins uncolored. The pin images
+live in `assets/pins/` (one per simplestyle marker) and are regenerated with
+`scripts/render-pins.sh` (requires `rsvg-convert` from librsvg); re-run it after
+changing the marker palette in `src/simplestyle.ts`.
+
+The output `rounds.kmz` is gitignored. This replaces the old GDAL `ogrmerge.py`
+pipeline — no external toolchain needed at export time.
 
 ### Publishing round updates
 

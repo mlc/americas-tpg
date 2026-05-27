@@ -3,14 +3,16 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, test } from 'node:test';
+import { strFromU8, unzipSync } from 'fflate';
 import { create } from 'xmlbuilder2';
 import {
-  buildRoundsKml,
-  generateKml,
-  iconHrefForSymbol,
-  simplestyleColorToKml,
+  buildRoundsKmlDocument,
+  buildRoundsKmz,
+  collectPinIds,
+  generateKmz,
 } from '../src/kml.ts';
 import type {
+  RoundFeature,
   RoundFile,
   SubmissionFeature,
   TargetFeature,
@@ -88,53 +90,79 @@ function styledEnded(
   );
 }
 
-const countOf = (kml: string, re: RegExp): number =>
-  (kml.match(re) ?? []).length;
+/** Inject explicit marker-* props onto a feature (bypassing the domain types,
+ * as `applySimplestyle` does at runtime). */
+function withMarker(
+  feature: RoundFeature,
+  symbol: string,
+  color: string,
+): RoundFeature {
+  return {
+    ...feature,
+    properties: {
+      ...feature.properties,
+      'marker-symbol': symbol,
+      'marker-color': color,
+    },
+  } as unknown as RoundFeature;
+}
 
-const allMatches = (kml: string, re: RegExp): string[] =>
-  [...kml.matchAll(re)].map((m) => m[1]);
+function roundOf(...features: RoundFeature[]): RoundFile {
+  return {
+    type: 'FeatureCollection',
+    roundInfo: { number: 1, endedAt: T1, dnsChecks: [] },
+    features,
+  };
+}
 
-describe('simplestyleColorToKml', () => {
-  test('reverses rrggbb to bbggrr with ff opacity', () => {
-    assert.equal(simplestyleColorToKml('#d4af37'), 'ff37afd4');
-    assert.equal(simplestyleColorToKml('#000000'), 'ff000000');
-    assert.equal(simplestyleColorToKml('#ff0000'), 'ff0000ff');
-    assert.equal(simplestyleColorToKml('#c0c0c0'), 'ffc0c0c0');
-    assert.equal(simplestyleColorToKml('#cd7f32'), 'ff327fcd');
+const countOf = (s: string, re: RegExp): number => (s.match(re) ?? []).length;
+const allMatches = (s: string, re: RegExp): string[] =>
+  [...s.matchAll(re)].map((m) => m[1]);
+
+const PODIUM_IDS = [
+  's_circle_444444',
+  's_circle_c0c0c0',
+  's_circle_cd7f32',
+  's_circle_d4af37',
+  's_circle_ff0000',
+  's_star_000000',
+];
+
+describe('collectPinIds', () => {
+  test('distinct, sorted pin ids across a styled round', () => {
+    // a=gold, b=silver, c=bronze, d=gray, e=red(last) + target star.
+    const r1 = styledEnded(
+      1,
+      T1,
+      [sub('a', 10), sub('b', 20), sub('c', 30), sub('d', 40), sub('e', 50)],
+      ['e'],
+    );
+    assert.deepEqual(collectPinIds([r1]), PODIUM_IDS);
   });
 
-  test('accepts uppercase, a missing leading #, and surrounding whitespace', () => {
-    assert.equal(simplestyleColorToKml('#D4AF37'), 'ff37afd4');
-    assert.equal(simplestyleColorToKml('d4af37'), 'ff37afd4');
-    assert.equal(simplestyleColorToKml(' #d4af37 '), 'ff37afd4');
+  test('a feature without marker-* clamps to the gray circle pin', () => {
+    const raw = endedRound(1, T1, withEliminated([sub('alice', 10)], []));
+    assert.deepEqual(collectPinIds([raw]), ['s_circle_444444']);
   });
 
-  test('malformed input falls back to default-player gray', () => {
-    assert.equal(simplestyleColorToKml('nope'), 'ff444444');
-    assert.equal(simplestyleColorToKml(''), 'ff444444');
+  test('an unknown marker color clamps to a known pin (no missing image)', () => {
+    const r = roundOf(
+      withMarker(target(), 'star', '#123456'),
+      withMarker(sub('alice', 10), 'circle', '#123456'),
+    );
+    assert.deepEqual(collectPinIds([r]), ['s_circle_444444', 's_star_000000']);
   });
 });
 
-describe('iconHrefForSymbol', () => {
-  test('star maps to the white star paddle pin', () => {
-    assert.match(iconHrefForSymbol('star'), /\/paddle\/wht-stars\.png$/);
-  });
-
-  test('circle and anything unknown map to the white circle paddle pin', () => {
-    assert.match(iconHrefForSymbol('circle'), /\/paddle\/wht-circle\.png$/);
-    assert.match(iconHrefForSymbol('mystery'), /\/paddle\/wht-circle\.png$/);
-  });
-});
-
-describe('buildRoundsKml', () => {
+describe('buildRoundsKmlDocument', () => {
   test('empty input throws', () => {
-    assert.throws(() => buildRoundsKml([]), /no rounds to export/);
+    assert.throws(() => buildRoundsKmlDocument([]), /no rounds to export/);
   });
 
   test('one Folder per round, named "Round N", in input order', () => {
     const r1 = styledEnded(1, T1, [sub('alice', 10)]);
     const r2 = styledEnded(2, T2, [sub('bob', 20)]);
-    const kml = buildRoundsKml([r1, r2]);
+    const kml = buildRoundsKmlDocument([r1, r2]);
     assert.equal(countOf(kml, /<Folder>/g), 2);
     const folderNames = allMatches(kml, /<Folder>\s*<name>([^<]*)<\/name>/g);
     assert.deepEqual(folderNames, ['Round 1', 'Round 2']);
@@ -142,8 +170,7 @@ describe('buildRoundsKml', () => {
 
   test('one Placemark per feature; target placemark is named "Target"', () => {
     const r1 = styledEnded(1, T1, [sub('alice', 10), sub('bob', 20)]);
-    const kml = buildRoundsKml([r1]);
-    // target + 2 submissions = 3 placemarks.
+    const kml = buildRoundsKmlDocument([r1]);
     assert.equal(countOf(kml, /<Placemark>/g), 3);
     const names = allMatches(kml, /<Placemark>\s*<name>([^<]*)<\/name>/g);
     assert.deepEqual(names, ['Target', 'alice', 'bob']);
@@ -151,66 +178,43 @@ describe('buildRoundsKml', () => {
 
   test('placemark name is the player verbatim; XML metachars escaped', () => {
     const r1 = styledEnded(1, T1, [sub('A & B <x>', 10)]);
-    const kml = buildRoundsKml([r1]);
+    const kml = buildRoundsKmlDocument([r1]);
     assert.match(kml, /<name>A &amp; B &lt;x&gt;<\/name>/);
-    assert.doesNotMatch(kml, /<name>A & B <x><\/name>/);
-    // And the whole document still re-parses as well-formed XML.
     assert.doesNotThrow(() => create(kml));
   });
 
   test('emoji player names survive unescaped in UTF-8', () => {
     const r1 = styledEnded(1, T1, [sub('Martin 🇳🇱', 10)]);
-    const kml = buildRoundsKml([r1]);
+    const kml = buildRoundsKmlDocument([r1]);
     assert.match(kml, /<name>Martin 🇳🇱<\/name>/);
   });
 
-  test('K distinct (symbol,color) pairs yield K shared Styles', () => {
-    // gold (closest), silver, bronze, gray, red(last) + target star = 6 colors,
-    // 2 symbols (star, circle) → 6 distinct (symbol,color) pairs.
-    const r1 = styledEnded(
-      1,
-      T1,
-      [sub('a', 10), sub('b', 20), sub('c', 30), sub('d', 40), sub('e', 50)],
-      ['e'],
+  test('styles reference bundled images/<id>.png with hotSpot and hidden label', () => {
+    const r1 = styledEnded(1, T1, [sub('alice', 10)]); // gold + target star
+    const kml = buildRoundsKmlDocument([r1]);
+    assert.match(
+      kml,
+      /<Style id="s_circle_d4af37">\s*<IconStyle>\s*<scale>1<\/scale>\s*<Icon>\s*<href>images\/s_circle_d4af37\.png<\/href>\s*<\/Icon>\s*<hotSpot x="32" y="64" xunits="pixels" yunits="insetPixels"\/>\s*<\/IconStyle>\s*<LabelStyle>\s*<scale>0<\/scale>/,
     );
-    const kml = buildRoundsKml([r1]);
-    assert.equal(countOf(kml, /<Style id="/g), 6);
+    assert.match(kml, /<href>images\/s_star_000000\.png<\/href>/);
+  });
+
+  test('no KML <color> tint and no remote icon hrefs (color is baked into the PNG)', () => {
+    const r1 = styledEnded(1, T1, [sub('alice', 10)]);
+    const kml = buildRoundsKmlDocument([r1]);
+    assert.doesNotMatch(kml, /<color>/);
+    assert.doesNotMatch(kml, /maps\.google\.com/);
   });
 
   test('every styleUrl references a defined Style id', () => {
     const r1 = styledEnded(1, T1, [sub('a', 10), sub('b', 20)], ['b']);
     const r2 = styledEnded(2, T2, [sub('a', 5)]);
-    const kml = buildRoundsKml([r1, r2]);
+    const kml = buildRoundsKmlDocument([r1, r2]);
     const ids = new Set(allMatches(kml, /<Style id="([^"]+)"/g));
     const refs = allMatches(kml, /<styleUrl>#([^<]+)<\/styleUrl>/g);
     assert.ok(refs.length > 0);
-    for (const ref of refs) {
-      assert.ok(ids.has(ref), `styleUrl #${ref} has no matching <Style id>`);
-    }
-  });
-
-  test('styles carry the converted color and the symbol paddle pin', () => {
-    const r1 = styledEnded(1, T1, [sub('alice', 10)]); // alice = closest = gold
-    const kml = buildRoundsKml([r1]);
-    // target: star paddle + black.
-    assert.match(
-      kml,
-      /<Style id="s_star_000000">\s*<IconStyle>\s*<color>ff000000<\/color>\s*<Icon>\s*<href>[^<]*\/paddle\/wht-stars\.png<\/href>/,
-    );
-    // gold player: circle paddle + ff37afd4.
-    assert.match(
-      kml,
-      /<Style id="s_circle_d4af37">\s*<IconStyle>\s*<color>ff37afd4<\/color>\s*<Icon>\s*<href>[^<]*\/paddle\/wht-circle\.png<\/href>/,
-    );
-  });
-
-  test('each style anchors the paddle tip at bottom-center via hotSpot', () => {
-    const r1 = styledEnded(1, T1, [sub('alice', 10)]);
-    const kml = buildRoundsKml([r1]);
-    assert.match(
-      kml,
-      /<hotSpot x="0.5" y="0" xunits="fraction" yunits="fraction"\/>/,
-    );
+    for (const ref of refs)
+      assert.ok(ids.has(ref), `dangling styleUrl #${ref}`);
   });
 
   test('coordinates are emitted lon,lat in that order', () => {
@@ -221,61 +225,80 @@ describe('buildRoundsKml', () => {
       [],
       target([-66.55809, -26.2263]),
     );
-    const kml = buildRoundsKml([r1]);
+    const kml = buildRoundsKmlDocument([r1]);
     assert.match(kml, /<coordinates>-66\.55809,-26\.2263<\/coordinates>/);
     assert.match(kml, /<coordinates>-65\.97,-26\.07<\/coordinates>/);
   });
 
   test('target-only round yields one Placemark named Target', () => {
-    // Freshly created / active round: features = [target], zero submissions.
     const open = applySimplestyle(openRound(1, []));
-    const kml = buildRoundsKml([open]);
+    const kml = buildRoundsKmlDocument([open]);
     assert.equal(countOf(kml, /<Folder>/g), 1);
     assert.equal(countOf(kml, /<Placemark>/g), 1);
     assert.match(kml, /<Placemark>\s*<name>Target<\/name>/);
   });
 
-  test('feature missing marker-* falls back to a gray circle', () => {
-    // Raw fixture, never run through applySimplestyle → no marker-* props.
+  test('feature missing marker-* falls back to the gray circle pin', () => {
     const raw = endedRound(1, T1, withEliminated([sub('alice', 10)], []));
-    const kml = buildRoundsKml([raw]);
+    const kml = buildRoundsKmlDocument([raw]);
     assert.match(kml, /<Style id="s_circle_444444">/);
-    assert.match(kml, /<color>ff444444<\/color>/);
-    // No throw, valid XML.
+    assert.match(kml, /<styleUrl>#s_circle_444444<\/styleUrl>/);
     assert.doesNotThrow(() => create(kml));
   });
 
   test('output is a well-formed KML 2.2 document', () => {
-    const r1 = styledEnded(1, T1, [sub('alice', 10)]);
-    const kml = buildRoundsKml([r1]);
+    const kml = buildRoundsKmlDocument([
+      styledEnded(1, T1, [sub('alice', 10)]),
+    ]);
     assert.match(kml, /^<\?xml version="1\.0" encoding="UTF-8"\?>/);
     assert.match(kml, /<kml xmlns="http:\/\/www\.opengis\.net\/kml\/2\.2">/);
     const obj = create(kml).end({ format: 'object' }) as {
       kml: { Document: unknown };
     };
-    assert.ok(obj.kml.Document, 'expected a <Document> under <kml>');
+    assert.ok(obj.kml.Document);
   });
 });
 
-describe('generateKml', () => {
+describe('buildRoundsKmz', () => {
+  test('zips doc.kml plus one images/<id>.png per distinct pin', () => {
+    const r1 = styledEnded(1, T1, [sub('alice', 10)]); // gold + target star
+    const loaded: string[] = [];
+    const kmz = buildRoundsKmz([r1], (id) => {
+      loaded.push(id);
+      return new Uint8Array([1, 2, 3]);
+    });
+    const entries = unzipSync(kmz);
+    const names = Object.keys(entries).sort();
+    assert.deepEqual(names, [
+      'doc.kml',
+      'images/s_circle_d4af37.png',
+      'images/s_star_000000.png',
+    ]);
+    assert.deepEqual(loaded.sort(), ['s_circle_d4af37', 's_star_000000']);
+    assert.deepEqual([...entries['images/s_star_000000.png']], [1, 2, 3]);
+    assert.match(strFromU8(entries['doc.kml']), /<kml xmlns=/);
+  });
+});
+
+describe('generateKmz', () => {
   let dir: string;
   beforeEach(async () => {
-    dir = await mkdtemp(join(tmpdir(), 'tpg-kml-'));
+    dir = await mkdtemp(join(tmpdir(), 'tpg-kmz-'));
   });
   afterEach(async () => {
     await rm(dir, { recursive: true, force: true });
   });
 
   test('throws on empty rounds dir', async () => {
-    await assert.rejects(generateKml({ roundsDir: dir }), /no ended rounds/);
+    await assert.rejects(generateKmz({ roundsDir: dir }), /no ended rounds/);
   });
 
   test('throws when only in-progress rounds exist', async () => {
     await writeRoundAtomic(roundPath(1, dir), openRound(1, [sub('alice', 10)]));
-    await assert.rejects(generateKml({ roundsDir: dir }), /no ended rounds/);
+    await assert.rejects(generateKmz({ roundsDir: dir }), /no ended rounds/);
   });
 
-  test('in-progress latest round is skipped; only ended rounds emitted', async () => {
+  test('bundles real pin assets and skips in-progress rounds', async () => {
     await writeRoundAtomic(
       roundPath(1, dir),
       endedRound(
@@ -284,25 +307,21 @@ describe('generateKml', () => {
         withEliminated([sub('alice', 10), sub('bob', 20)], ['bob']),
       ),
     );
-    await writeRoundAtomic(roundPath(2, dir), openRound(2, [sub('alice', 5)]));
-    const { kml, rounds } = await generateKml({ roundsDir: dir });
+    await writeRoundAtomic(roundPath(2, dir), openRound(2, [sub('carol', 5)]));
+    const { kmz, rounds } = await generateKmz({ roundsDir: dir });
     assert.equal(rounds, 1);
+
+    const entries = unzipSync(kmz);
+    assert.ok(entries['doc.kml'], 'doc.kml present');
+    const kml = strFromU8(entries['doc.kml']);
     assert.match(kml, /<name>Round 1<\/name>/);
     assert.doesNotMatch(kml, /<name>Round 2<\/name>/);
-    assert.match(kml, /<name>alice<\/name>/);
-  });
-
-  test('exports every ended round as its own Folder', async () => {
-    await writeRoundAtomic(
-      roundPath(1, dir),
-      endedRound(1, T1, withEliminated([sub('alice', 10)], [])),
-    );
-    await writeRoundAtomic(
-      roundPath(2, dir),
-      endedRound(2, T2, withEliminated([sub('alice', 11)], [])),
-    );
-    const { kml, rounds } = await generateKml({ roundsDir: dir });
-    assert.equal(rounds, 2);
-    assert.equal(countOf(kml, /<Folder>/g), 2);
+    // alice = gold (closest), bob = red (last) + target star.
+    for (const id of ['s_circle_d4af37', 's_circle_ff0000', 's_star_000000']) {
+      const png = entries[`images/${id}.png`];
+      assert.ok(png, `bundled images/${id}.png`);
+      // Real PNG bytes start with the PNG signature.
+      assert.deepEqual([...png.slice(0, 4)], [0x89, 0x50, 0x4e, 0x47]);
+    }
   });
 });
