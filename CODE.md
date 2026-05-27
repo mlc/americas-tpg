@@ -93,6 +93,28 @@ the target is a black star, players are circles colored gold/silver/bronze for
 1st/2nd/3rd, red for last place (using the same 25 m tie rule), and gray
 otherwise. Colors are recomputed on every write.
 
+### Publishing round updates
+
+Whenever round state on disk changes — a new round is created, submissions come
+in while a round is in progress, or a round is ended and the leaderboard
+regenerated — push it with the shared `publish` git alias:
+
+```sh
+git publish
+```
+
+It stages `LEADERBOARD.md` and `rounds`, commits them as `update rounds`, and
+pushes to `main`. The alias lives in the version-controlled `.gitaliases` file
+rather than `.git/config`, so its definition travels with the repo — but git
+won't load it automatically. Activate it once per clone:
+
+```sh
+git config --local include.path ../.gitaliases
+```
+
+(The path is relative to `.git/config`, so `../.gitaliases` resolves to the repo
+root.) Edits to `.gitaliases` then propagate on pull with no re-run needed.
+
 ## Data dependency
 
 `data/gadm.gpkg` is the GADM 4.10 administrative-boundaries geopackage. It is

@@ -1,0 +1,6 @@
+# Shared git aliases for this repo. Version-controlled so edits propagate.
+# Activate once per clone:
+#   git config --local include.path ../.gitaliases
+[alias]
+	# Commit new/updated round files + leaderboard and push to main.
+	publish = !git add LEADERBOARD.md rounds && git commit -m 'update rounds' LEADERBOARD.md rounds && git push origin main
