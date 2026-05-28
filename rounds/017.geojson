@@ -89,6 +89,40 @@
         "distance": 232.36008012880114,
         "location": "Lima Province, Peru",
         "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -78.7821624,
+          -2.2478228
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 885.034842053649,
+        "location": "Chimborazo, Ecuador",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -75.5845278,
+          6.1181111
+        ]
+      },
+      "properties": {
+        "player": "Daws",
+        "distance": 1796.7172661195148,
+        "location": "Antioquia, Colombia",
+        "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
     }
