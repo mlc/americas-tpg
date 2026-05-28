@@ -23,6 +23,57 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.10843,
+          -12.02419
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 227.66091628451423,
+        "location": "Callao, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.03116,
+          -12.046286
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 229.45860602232898,
+        "location": "Lima Province, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.0347,
+          -12.07222
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 232.36008012880114,
+        "location": "Lima Province, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
