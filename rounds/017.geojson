@@ -46,6 +46,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -77.02482499999999,
+          -12.04383611111111
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 229.14716095628296,
+        "location": "Lima Province, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -77.03116,
           -12.046286
         ]
@@ -55,7 +72,7 @@
         "distance": 229.45860602232898,
         "location": "Lima Province, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
