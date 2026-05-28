@@ -29,6 +29,40 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -77.10758,
+          -12.02356
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 227.58229280260883,
+        "location": "Callao, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.10850139490529,
+          -12.023823440290181
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 227.6210954911255,
+        "location": "Callao, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -77.10843,
           -12.02419
         ]
@@ -38,7 +72,7 @@
         "distance": 227.66091628451423,
         "location": "Callao, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -55,7 +89,7 @@
         "distance": 229.14716095628296,
         "location": "Lima Province, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#444444"
       }
     },
     {
@@ -72,7 +106,7 @@
         "distance": 229.45860602232898,
         "location": "Lima Province, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
@@ -87,6 +121,40 @@
       "properties": {
         "player": "mlc",
         "distance": 232.36008012880114,
+        "location": "Lima Province, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.03508690649664,
+          -12.121694539098653
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 237.85427325727656,
+        "location": "Lima Province, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.027201,
+          -12.134856
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 239.26695824434634,
         "location": "Lima Province, Peru",
         "marker-symbol": "circle",
         "marker-color": "#444444"
