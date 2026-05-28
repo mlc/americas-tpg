@@ -1,4 +1,5 @@
 import { readFile, writeFile } from 'node:fs/promises';
+import { format, parse } from 'node:path';
 import { parseArgs } from 'node:util';
 import { strToU8, zipSync } from 'fflate';
 import { create } from 'xmlbuilder2';
@@ -14,6 +15,12 @@ import { SIMPLESTYLE } from './simplestyle.ts';
 const KML_NS = 'http://www.opengis.net/kml/2.2';
 const DOCUMENT_NAME = 'Américas TPG Rounds';
 const DEFAULT_OUTPUT = 'rounds.kmz';
+
+// Google My Maps shows at most 10 layers (one <Folder>/round = one layer) per
+// map, so importing a KMZ with more rounds silently drops the overflow. When
+// there are more ended rounds than this, the export is split into multiple KMZ
+// files of at most this many rounds each.
+const MAX_ROUNDS_PER_KMZ = 10;
 
 // Pin PNGs are 64x64 with the teardrop tip at the bottom-centre; anchor the tip
 // on the point (insetPixels measures y from the top of the icon).
@@ -166,19 +173,58 @@ export function buildRoundsKmz(
   return zipSync(files);
 }
 
+/**
+ * Split rounds into consecutive groups of at most `size` (the last group holds
+ * the remainder). Pure; preserves input order.
+ */
+export function chunkRounds(
+  rounds: readonly RoundFile[],
+  size = MAX_ROUNDS_PER_KMZ,
+): RoundFile[][] {
+  const chunks: RoundFile[][] = [];
+  for (let i = 0; i < rounds.length; i += size) {
+    chunks.push(rounds.slice(i, i + size));
+  }
+  return chunks;
+}
+
+/**
+ * Output path for one split chunk: the base `output` path with
+ * `-<first>-<last>` (3-digit zero-padded round numbers, mirroring `roundPath`)
+ * inserted before the extension. Preserves the directory and extension.
+ */
+export function partOutputPath(
+  output: string,
+  first: number,
+  last: number,
+): string {
+  const { dir, name, ext } = parse(output);
+  const pad = (n: number): string => String(n).padStart(3, '0');
+  return format({ dir, name: `${name}-${pad(first)}-${pad(last)}`, ext });
+}
+
 interface GenerateKmzDeps {
   roundsDir: string;
 }
 
-interface GenerateKmzResult {
+interface KmzFile {
   kmz: Uint8Array;
+  firstRound: number;
+  lastRound: number;
   rounds: number;
 }
 
+interface GenerateKmzResult {
+  files: KmzFile[];
+  totalRounds: number;
+}
+
 /**
- * Read every ended round in `roundsDir` and build the KMZ archive. In-progress
- * rounds (`endedAt: null`) are skipped, mirroring `generateLeaderboard`. Throws
- * if there are no ended rounds.
+ * Read every ended round in `roundsDir` and build one or more KMZ archives.
+ * In-progress rounds (`endedAt: null`) are skipped, mirroring
+ * `generateLeaderboard`. More than `MAX_ROUNDS_PER_KMZ` ended rounds split into
+ * multiple files (10 rounds each) so each stays under Google My Maps' 10-layer
+ * cap. Throws if there are no ended rounds.
  */
 export async function generateKmz(
   deps: GenerateKmzDeps,
@@ -203,16 +249,27 @@ export async function generateKmz(
     return bytes;
   };
 
-  return { kmz: buildRoundsKmz(ended, loadPin), rounds: ended.length };
+  const files = chunkRounds(ended).map((chunk) => ({
+    kmz: buildRoundsKmz(chunk, loadPin),
+    firstRound: chunk[0].roundInfo.number,
+    lastRound: chunk[chunk.length - 1].roundInfo.number,
+    rounds: chunk.length,
+  }));
+
+  return { files, totalRounds: ended.length };
 }
 
 const USAGE = `Usage: yarn build-kml [--rounds-dir <dir>] [-o <file>]
 
-Exports every ended round in the rounds directory to a single KMZ file: one
-<Folder> per round, one <Placemark> per point (named for the player, or
-"Target"), each shown as a Google-Maps-style pin in the simplestyle marker
-color (a color-baked PNG bundled in the archive). In-progress rounds are
-skipped.
+Exports every ended round in the rounds directory to KMZ: one <Folder> per
+round, one <Placemark> per point (named for the player, or "Target"), each
+shown as a Google-Maps-style pin in the simplestyle marker color (a color-baked
+PNG bundled in the archive). In-progress rounds are skipped.
+
+Google My Maps shows at most 10 layers per map, so more than 10 rounds split
+into files of 10 rounds each, named <output>-NNN-MMM.kmz by round-number range
+(e.g. rounds-001-010.kmz). With 10 or fewer rounds the verbatim output path is
+used.
 
 Options:
       --rounds-dir <d>  Rounds directory (default: ${DEFAULT_ROUNDS_DIR})
@@ -242,11 +299,17 @@ async function main(): Promise<void> {
 
   const roundsDir = values['rounds-dir'] ?? DEFAULT_ROUNDS_DIR;
   const output = values.output ?? DEFAULT_OUTPUT;
-  const { kmz, rounds } = await generateKmz({ roundsDir });
-  await writeFile(output, kmz);
-  process.stdout.write(
-    `wrote ${output} (${rounds} round${rounds === 1 ? '' : 's'})\n`,
-  );
+  const { files } = await generateKmz({ roundsDir });
+  const single = files.length === 1;
+  for (const file of files) {
+    const path = single
+      ? output
+      : partOutputPath(output, file.firstRound, file.lastRound);
+    await writeFile(path, file.kmz);
+    process.stdout.write(
+      `wrote ${path} (${file.rounds} round${file.rounds === 1 ? '' : 's'})\n`,
+    );
+  }
 }
 
 if (isMain(import.meta.url)) {

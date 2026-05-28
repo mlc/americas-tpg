@@ -30,7 +30,7 @@ last surviving player wins.
 | `yarn end-round` | Close the active round, compute eliminations, and print standings. |
 | `yarn send-reminders` | List players eligible for the active round who have not yet submitted. Prints a Discord-pasteable message with @-mentions and a submission-tracker link. Pass `--final` for a one-line terse reminder (`@a @b @c round ends <relative>`). |
 | `yarn leaderboard` | Regenerate `LEADERBOARD.md` from every ended round: an embedded geojson map of all targets plus a player table (survivors first, then eliminated). |
-| `yarn build-kml` | Export every ended round to a single KML file (`rounds.kml`): one folder per round, one named placemark per point, styled from the simplestyle markers. |
+| `yarn build-kml` | Export every ended round to KMZ (`rounds.kmz`): one folder per round, one named placemark per point, styled from the simplestyle markers. More than 10 rounds split into `rounds-NNN-MMM.kmz` files of 10 rounds each (Google My Maps' 10-layer cap). |
 | `yarn test` | Run the test suite (`node --test`). |
 | `yarn typecheck` | Run `tsc --noEmit` against `src/`. |
 | `yarn lint` | Run Biome's linter. |
@@ -102,11 +102,18 @@ yarn build-kml --rounds-dir other -o out.kmz
 ```
 
 `build-kml` reads every **ended** round (in-progress rounds are skipped) and
-emits a single **KMZ** archive: each round becomes its own `<Folder>` (a layer),
-each point a `<Placemark>` named for the player — or `Target` for the target,
-shown as a Google-Maps-style teardrop pin in the simplestyle marker color (gold/
-silver/bronze for 1st/2nd/3rd, red for last, gray otherwise; a black star for
-the target).
+emits one or more **KMZ** archives: each round becomes its own `<Folder>` (a
+layer), each point a `<Placemark>` named for the player — or `Target` for the
+target, shown as a Google-Maps-style teardrop pin in the simplestyle marker
+color (gold/silver/bronze for 1st/2nd/3rd, red for last, gray otherwise; a
+black star for the target).
+
+Google My Maps shows at most **10 layers** per map, so importing a KMZ with
+more rounds silently drops the overflow. To stay under that cap, more than 10
+ended rounds split into multiple files of 10 rounds each, named by round-number
+range: `rounds-001-010.kmz`, `rounds-011-020.kmz`, … (3-digit zero-padded,
+derived from the `-o` base path). With 10 or fewer rounds the verbatim `-o`
+path is used (`rounds.kmz`).
 
 The pin color is **baked into a PNG** bundled inside the KMZ (under `images/`),
 not set via KML `<color>` — because Google My Maps ignores `<IconStyle><color>`

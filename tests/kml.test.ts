@@ -8,8 +8,10 @@ import { create } from 'xmlbuilder2';
 import {
   buildRoundsKmlDocument,
   buildRoundsKmz,
+  chunkRounds,
   collectPinIds,
   generateKmz,
+  partOutputPath,
 } from '../src/kml.ts';
 import type {
   RoundFeature,
@@ -127,6 +129,47 @@ const PODIUM_IDS = [
   's_circle_ff0000',
   's_star_000000',
 ];
+
+describe('chunkRounds', () => {
+  const rounds = (n: number): RoundFile[] =>
+    Array.from({ length: n }, (_, i) => styledEnded(i + 1, T1, [sub('a', 10)]));
+  const sizes = (chunks: RoundFile[][]): number[] =>
+    chunks.map((c) => c.length);
+
+  test('empty input yields no chunks', () => {
+    assert.deepEqual(chunkRounds([]), []);
+  });
+
+  test('10 or fewer rounds stay in one chunk', () => {
+    assert.deepEqual(sizes(chunkRounds(rounds(1))), [1]);
+    assert.deepEqual(sizes(chunkRounds(rounds(10))), [10]);
+  });
+
+  test('more than 10 rounds split into groups of 10 with a remainder', () => {
+    assert.deepEqual(sizes(chunkRounds(rounds(11))), [10, 1]);
+    assert.deepEqual(sizes(chunkRounds(rounds(23))), [10, 10, 3]);
+  });
+
+  test('preserves order across the split', () => {
+    const chunks = chunkRounds(rounds(12));
+    const numbers = chunks.flatMap((c) => c.map((r) => r.roundInfo.number));
+    assert.deepEqual(
+      numbers,
+      Array.from({ length: 12 }, (_, i) => i + 1),
+    );
+  });
+});
+
+describe('partOutputPath', () => {
+  test('inserts the 3-digit round range before the extension', () => {
+    assert.equal(partOutputPath('rounds.kmz', 1, 10), 'rounds-001-010.kmz');
+    assert.equal(partOutputPath('rounds.kmz', 11, 12), 'rounds-011-012.kmz');
+  });
+
+  test('preserves the directory', () => {
+    assert.equal(partOutputPath('out/x.kmz', 11, 20), 'out/x-011-020.kmz');
+  });
+});
 
 describe('collectPinIds', () => {
   test('distinct, sorted pin ids across a styled round', () => {
@@ -308,8 +351,10 @@ describe('generateKmz', () => {
       ),
     );
     await writeRoundAtomic(roundPath(2, dir), openRound(2, [sub('carol', 5)]));
-    const { kmz, rounds } = await generateKmz({ roundsDir: dir });
-    assert.equal(rounds, 1);
+    const { files, totalRounds } = await generateKmz({ roundsDir: dir });
+    assert.equal(totalRounds, 1);
+    assert.equal(files.length, 1);
+    const [{ kmz }] = files;
 
     const entries = unzipSync(kmz);
     assert.ok(entries['doc.kml'], 'doc.kml present');
@@ -323,5 +368,35 @@ describe('generateKmz', () => {
       // Real PNG bytes start with the PNG signature.
       assert.deepEqual([...png.slice(0, 4)], [0x89, 0x50, 0x4e, 0x47]);
     }
+  });
+
+  test('splits more than 10 ended rounds into 10-round files', async () => {
+    for (let n = 1; n <= 12; n++) {
+      await writeRoundAtomic(
+        roundPath(n, dir),
+        endedRound(n, T1, withEliminated([sub('a', 10)], [])),
+      );
+    }
+    const { files, totalRounds } = await generateKmz({ roundsDir: dir });
+    assert.equal(totalRounds, 12);
+    assert.equal(files.length, 2);
+
+    assert.deepEqual(
+      files.map((f) => [f.firstRound, f.lastRound, f.rounds]),
+      [
+        [1, 10, 10],
+        [11, 12, 2],
+      ],
+    );
+
+    // Each file's doc.kml holds exactly its chunk's rounds, none of the other's.
+    const kml0 = strFromU8(unzipSync(files[0].kmz)['doc.kml']);
+    const kml1 = strFromU8(unzipSync(files[1].kmz)['doc.kml']);
+    assert.match(kml0, /<name>Round 1<\/name>/);
+    assert.match(kml0, /<name>Round 10<\/name>/);
+    assert.doesNotMatch(kml0, /<name>Round 11<\/name>/);
+    assert.match(kml1, /<name>Round 11<\/name>/);
+    assert.match(kml1, /<name>Round 12<\/name>/);
+    assert.doesNotMatch(kml1, /<name>Round 1<\/name>/);
   });
 });

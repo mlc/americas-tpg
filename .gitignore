@@ -21,5 +21,6 @@ data/
 
 # Generated KML/KMZ export (yarn build-kml)
 rounds.kmz
+rounds-*.kmz
 rounds.kml
 
