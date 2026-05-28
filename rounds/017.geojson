@@ -29,6 +29,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -77.10755557945146,
+          -12.0218213495938
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 227.3896026149463,
+        "location": "Callao, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -77.10758,
           -12.02356
         ]
@@ -38,7 +55,7 @@
         "distance": 227.58229280260883,
         "location": "Callao, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#c0c0c0"
       }
     },
     {
@@ -55,7 +72,7 @@
         "distance": 227.6210954911255,
         "location": "Callao, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -71,23 +88,6 @@
         "player": "BD82",
         "distance": 227.66091628451423,
         "location": "Callao, Peru",
-        "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -77.02482499999999,
-          -12.04383611111111
-        ]
-      },
-      "properties": {
-        "player": "Patxepi",
-        "distance": 229.14716095628296,
-        "location": "Lima Province, Peru",
         "marker-symbol": "circle",
         "marker-color": "#444444"
       }
