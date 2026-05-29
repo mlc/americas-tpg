@@ -287,6 +287,26 @@ describe('buildRoundsKmlDocument', () => {
     assert.match(kml, /<href>images\/s_star_000000\.png<\/href>/);
   });
 
+  test('carries location and distance in ExtendedData for pin-click display', () => {
+    const r1 = styledEnded(
+      1,
+      T1,
+      [sub('alice', 12.3456)],
+      [],
+      target([-67.5, -42.5], 'Río Negro, Argentina'),
+    );
+    const kml = buildRoundsKmlDocument([r1]);
+    // Target: location only (its distance is null → no distance Data).
+    assert.match(
+      kml,
+      /<Data name="location">\s*<value>Río Negro, Argentina<\/value>/,
+    );
+    // Submission: distance formatted as km (sub() sets no location).
+    assert.match(kml, /<Data name="distance">\s*<value>12\.346 km<\/value>/);
+    assert.equal(countOf(kml, /<Data name="location">/g), 1);
+    assert.equal(countOf(kml, /<Data name="distance">/g), 1);
+  });
+
   test('no KML <color> tint and no remote icon hrefs (color is baked into the PNG)', () => {
     const r1 = styledEnded(1, T1, [sub('alice', 10)]);
     const kml = buildRoundsKmlDocument([r1]);

@@ -107,7 +107,9 @@ emits one or more **KMZ** archives: each round becomes its own `<Folder>` (a
 layer), each point a `<Placemark>` named for the player — or `Target` for the
 target, shown as a Google-Maps-style teardrop pin in the simplestyle marker
 color (gold/silver/bronze for 1st/2nd/3rd, red for last, gray otherwise; a
-black star for the target).
+black star for the target). Each placemark carries its `location` and
+`distance` (km) in KML `<ExtendedData>`, so My Maps shows them in the info
+window when a pin is clicked (the target has a location but no distance).
 
 Google My Maps shows at most **10 layers** per map, so importing a KMZ with
 more rounds silently drops the overflow. To stay under that cap, more than 10

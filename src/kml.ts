@@ -119,8 +119,10 @@ export function collectPinIds(rounds: readonly RoundFile[]): string[] {
  * Build the `doc.kml` document for a KMZ: one shared `<Style>` per distinct pin
  * (referencing the bundled `images/<id>.png`), one `<Folder>` per round (in the
  * order given), one `<Placemark>` per feature named for its `properties.player`
- * (`Target` for the target). Pure; throws on empty input. Ended/in-progress
- * filtering is the caller's job (see `generateKmz`).
+ * (`Target` for the target), with the feature's `location` and `distance`
+ * carried in `<ExtendedData>` so My Maps shows them on pin click. Pure; throws
+ * on empty input. Ended/in-progress filtering is the caller's job (see
+ * `generateKmz`).
  */
 export function buildRoundsKmlDocument(rounds: readonly RoundFile[]): string {
   if (rounds.length === 0) {
@@ -152,6 +154,22 @@ export function buildRoundsKmlDocument(rounds: readonly RoundFile[]): string {
         .ele('styleUrl')
         .txt(`#${pinIdOf(feature)}`)
         .up();
+      // location/distance shown in My Maps' info window on pin click. The
+      // target carries location only (distance is null); submissions carry
+      // both (location optional). Emit a <Data> only when the value is present.
+      const { location, distance } = feature.properties;
+      if (location || distance !== null) {
+        const data = placemark.ele('ExtendedData');
+        if (location) {
+          data.ele('Data', { name: 'location' }).ele('value').txt(location);
+        }
+        if (distance !== null) {
+          data
+            .ele('Data', { name: 'distance' })
+            .ele('value')
+            .txt(`${distance.toFixed(3)} km`);
+        }
+      }
       placemark.ele('Point').ele('coordinates').txt(`${lon},${lat}`).up().up();
     }
   }
