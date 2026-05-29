@@ -297,13 +297,28 @@ describe('buildRoundsKmlDocument', () => {
     assert.match(kml, /<name>Martin 🇳🇱<\/name>/);
   });
 
-  test('styles reference bundled images/<id>.png with hotSpot and hidden label', () => {
+  test('emits a My Maps icon-id StyleMap (normal/highlight) per pin with hotSpot and hidden label', () => {
     const r1 = styledEnded(1, T1, [sub('alice', 10)]); // gold + target star
     const kml = buildRoundsKmlDocument([r1]);
+    // Style id uses My Maps' icon-1899-<RRGGBB>-nodesc scheme (uppercase hex);
+    // normal sub-style: bundled png href + bottom-centre hotSpot (My Maps attr
+    // order x, xunits, y, yunits) + hidden persistent label.
     assert.match(
       kml,
-      /<Style id="s_circle_d4af37">\s*<IconStyle>\s*<scale>1<\/scale>\s*<Icon>\s*<href>images\/s_circle_d4af37\.png<\/href>\s*<\/Icon>\s*<hotSpot x="32" y="64" xunits="pixels" yunits="insetPixels"\/>\s*<\/IconStyle>\s*<LabelStyle>\s*<scale>0<\/scale>/,
+      /<Style id="icon-1899-D4AF37-nodesc-normal">\s*<IconStyle>\s*<scale>1<\/scale>\s*<Icon>\s*<href>images\/s_circle_d4af37\.png<\/href>\s*<\/Icon>\s*<hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"\/>\s*<\/IconStyle>\s*<LabelStyle>\s*<scale>0<\/scale>/,
     );
+    // highlight sub-style shows the label on hover.
+    assert.match(
+      kml,
+      /<Style id="icon-1899-D4AF37-nodesc-highlight">[\s\S]*?<LabelStyle>\s*<scale>1<\/scale>/,
+    );
+    // StyleMap wires normal+highlight; placemarks reference the StyleMap id.
+    assert.match(
+      kml,
+      /<StyleMap id="icon-1899-D4AF37-nodesc">\s*<Pair>\s*<key>normal<\/key>\s*<styleUrl>#icon-1899-D4AF37-nodesc-normal<\/styleUrl>\s*<\/Pair>\s*<Pair>\s*<key>highlight<\/key>\s*<styleUrl>#icon-1899-D4AF37-nodesc-highlight<\/styleUrl>\s*<\/Pair>\s*<\/StyleMap>/,
+    );
+    // Target's black pin → icon-1899-000000-nodesc, still href'ing the star png.
+    assert.match(kml, /<StyleMap id="icon-1899-000000-nodesc">/);
     assert.match(kml, /<href>images\/s_star_000000\.png<\/href>/);
   });
 
@@ -334,11 +349,16 @@ describe('buildRoundsKmlDocument', () => {
     assert.doesNotMatch(kml, /maps\.google\.com/);
   });
 
-  test('every styleUrl references a defined Style id', () => {
+  test('every styleUrl references a defined Style or StyleMap id', () => {
     const r1 = styledEnded(1, T1, [sub('a', 10), sub('b', 20)], ['b']);
     const r2 = styledEnded(2, T2, [sub('a', 5)]);
     const kml = buildRoundsKmlDocument([r1, r2]);
-    const ids = new Set(allMatches(kml, /<Style id="([^"]+)"/g));
+    // Placemark styleUrls point at StyleMap ids; Pair styleUrls point at the
+    // normal/highlight Style ids. Both kinds must resolve.
+    const ids = new Set([
+      ...allMatches(kml, /<Style id="([^"]+)"/g),
+      ...allMatches(kml, /<StyleMap id="([^"]+)"/g),
+    ]);
     const refs = allMatches(kml, /<styleUrl>#([^<]+)<\/styleUrl>/g);
     assert.ok(refs.length > 0);
     for (const ref of refs)
@@ -354,8 +374,8 @@ describe('buildRoundsKmlDocument', () => {
       target([-66.55809, -26.2263]),
     );
     const kml = buildRoundsKmlDocument([r1]);
-    assert.match(kml, /<coordinates>-66\.55809,-26\.2263<\/coordinates>/);
-    assert.match(kml, /<coordinates>-65\.97,-26\.07<\/coordinates>/);
+    assert.match(kml, /<coordinates>-66\.55809,-26\.2263,0<\/coordinates>/);
+    assert.match(kml, /<coordinates>-65\.97,-26\.07,0<\/coordinates>/);
   });
 
   test('target-only round yields one Placemark named Target', () => {
@@ -369,8 +389,9 @@ describe('buildRoundsKmlDocument', () => {
   test('feature missing marker-* falls back to the gray circle pin', () => {
     const raw = endedRound(1, T1, withEliminated([sub('alice', 10)], []));
     const kml = buildRoundsKmlDocument([raw]);
-    assert.match(kml, /<Style id="s_circle_444444">/);
-    assert.match(kml, /<styleUrl>#s_circle_444444<\/styleUrl>/);
+    assert.match(kml, /<StyleMap id="icon-1899-444444-nodesc">/);
+    assert.match(kml, /<href>images\/s_circle_444444\.png<\/href>/);
+    assert.match(kml, /<styleUrl>#icon-1899-444444-nodesc<\/styleUrl>/);
     assert.doesNotThrow(() => create(kml));
   });
 

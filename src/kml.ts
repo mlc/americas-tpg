@@ -26,12 +26,14 @@ const DEFAULT_OUTPUT = 'rounds.kmz';
 const MAX_ROUNDS_PER_KMZ = 10;
 
 // Pin PNGs are 64x64 with the teardrop tip at the bottom-centre; anchor the tip
-// on the point (insetPixels measures y from the top of the icon).
+// on the point (insetPixels measures y from the top of the icon). Attribute
+// order (x, xunits, y, yunits) mirrors My Maps' own KMZ export byte-for-byte —
+// see the StyleMap note on buildRoundsKmlDocument for why that fidelity matters.
 const ICON_SIZE = 64;
 const HOTSPOT = {
   x: String(ICON_SIZE / 2),
-  y: String(ICON_SIZE),
   xunits: 'pixels',
+  y: String(ICON_SIZE),
   yunits: 'insetPixels',
 } as const;
 
@@ -105,6 +107,25 @@ function pinIdOf(feature: RoundFeature): string {
     : DEFAULT_PLAYER_PIN_ID;
 }
 
+// Google My Maps draws *its own* catalog pin (number 1899, the default Maps
+// pin) tinted by the RRGGBB embedded in the StyleMap id, and only tip-anchors
+// the icon when that id matches its `icon-<n>-<RRGGBB>[-nodesc]` scheme. A bare
+// or foreign style id is re-centred — the pin floats off the true point, more
+// so the further you zoom out. My Maps also *ignores the bundled `<href>` PNG*
+// on import, so our color-baked art only reaches other KML viewers; in My Maps
+// the marker colour is the sole surviving signal (target black; podium
+// gold/silver/bronze; last red; else gray). Verified empirically against My
+// Maps' own KMZ export — don't "simplify" the id back to a plain Style id.
+const MYMAPS_PIN_ICON = '1899';
+
+/** The My Maps StyleMap id for a bundled pin id (`s_<symbol>_<rrggbb>`): the
+ * pin's colour re-expressed in My Maps' `icon-1899-<RRGGBB>-nodesc` scheme so
+ * the importer tints + tip-anchors its catalog pin. */
+export function myMapsStyleId(pinId: string): string {
+  const rrggbb = pinId.slice(pinId.lastIndexOf('_') + 1).toUpperCase();
+  return `icon-${MYMAPS_PIN_ICON}-${rrggbb}-nodesc`;
+}
+
 /** The distinct pin ids used across the given rounds, sorted for deterministic
  * output. */
 export function collectPinIds(rounds: readonly RoundFile[]): string[] {
@@ -116,13 +137,24 @@ export function collectPinIds(rounds: readonly RoundFile[]): string[] {
 }
 
 /**
- * Build the `doc.kml` document for a KMZ: one shared `<Style>` per distinct pin
- * (referencing the bundled `images/<id>.png`), one `<Folder>` per round (in the
- * order given), one `<Placemark>` per feature named for its `properties.player`
- * (`Target` for the target), with the feature's `location` and `distance`
- * carried in `<ExtendedData>` so My Maps shows them on pin click. Pure; throws
- * on empty input. Ended/in-progress filtering is the caller's job (see
- * `generateKmz`).
+ * Build the `doc.kml` document for a KMZ: one `<StyleMap>` (normal/highlight)
+ * per distinct pin colour, one `<Folder>` per round (in the order given), one
+ * `<Placemark>` per feature named for its `properties.player` (`Target` for the
+ * target), with the feature's `location` and `distance` carried in
+ * `<ExtendedData>` so My Maps shows them on pin click. Pure; throws on empty
+ * input. Ended/in-progress filtering is the caller's job (see `generateKmz`).
+ *
+ * **Load-bearing — the `icon-1899-<RRGGBB>-nodesc` StyleMap id is what makes My
+ * Maps place pins correctly.** See `myMapsStyleId`: My Maps draws its own
+ * catalog pin tinted by the id's RRGGBB and only tip-anchors it for that id
+ * scheme; any other id is re-centred, so the pin floats off the point (a fixed
+ * screen-pixel offset that looks far off zoomed out and converges as you zoom
+ * in). The normal/highlight `<StyleMap>`, the `x,xunits,y,yunits` hotSpot order,
+ * and the trailing `,0` altitude all mirror a real My Maps export. My Maps
+ * ignores the bundled `<Icon><href>images/<pinId>.png</href>` — that PNG is for
+ * other KML viewers only — so colour is the only marker signal that survives in
+ * My Maps (the star/circle symbols do not). Verified empirically; don't revert
+ * the id scheme to a plain Style id.
  */
 export function buildRoundsKmlDocument(rounds: readonly RoundFile[]): string {
   if (rounds.length === 0) {
@@ -133,14 +165,36 @@ export function buildRoundsKmlDocument(rounds: readonly RoundFile[]): string {
   const document = doc.ele('kml', { xmlns: KML_NS }).ele('Document');
   document.ele('name').txt(DOCUMENT_NAME).up();
 
-  for (const id of collectPinIds(rounds)) {
-    const style = document.ele('Style', { id });
+  // One IconStyle <Style>; labelScale 0 hides the persistent label (normal),
+  // 1 shows it on hover (highlight) — matching My Maps' export. `pinId` is the
+  // bundled-PNG basename (the <href>); `styleId` is the My Maps icon-scheme id.
+  const iconStyleEle = (pinId: string, styleId: string, labelScale: string) => {
+    const style = document.ele('Style', { id: styleId });
     const iconStyle = style.ele('IconStyle');
     iconStyle.ele('scale').txt('1').up();
-    iconStyle.ele('Icon').ele('href').txt(`images/${id}.png`).up().up();
+    iconStyle.ele('Icon').ele('href').txt(`images/${pinId}.png`).up().up();
     iconStyle.ele('hotSpot', HOTSPOT).up();
-    // Hide the persistent label; the player name still shows on click.
-    style.ele('LabelStyle').ele('scale').txt('0').up().up();
+    style.ele('LabelStyle').ele('scale').txt(labelScale).up().up();
+    style.up();
+  };
+
+  // Dedup by My Maps style id (colour); today each colour maps to one pin PNG.
+  const styleToPin = new Map<string, string>();
+  for (const pinId of collectPinIds(rounds)) {
+    const styleId = myMapsStyleId(pinId);
+    if (!styleToPin.has(styleId)) styleToPin.set(styleId, pinId);
+  }
+  for (const [styleId, pinId] of styleToPin) {
+    iconStyleEle(pinId, `${styleId}-normal`, '0');
+    iconStyleEle(pinId, `${styleId}-highlight`, '1');
+    const styleMap = document.ele('StyleMap', { id: styleId });
+    const normal = styleMap.ele('Pair');
+    normal.ele('key').txt('normal').up();
+    normal.ele('styleUrl').txt(`#${styleId}-normal`).up().up();
+    const highlight = styleMap.ele('Pair');
+    highlight.ele('key').txt('highlight').up();
+    highlight.ele('styleUrl').txt(`#${styleId}-highlight`).up().up();
+    styleMap.up();
   }
 
   for (const round of rounds) {
@@ -152,7 +206,7 @@ export function buildRoundsKmlDocument(rounds: readonly RoundFile[]): string {
       placemark.ele('name').txt(feature.properties.player).up();
       placemark
         .ele('styleUrl')
-        .txt(`#${pinIdOf(feature)}`)
+        .txt(`#${myMapsStyleId(pinIdOf(feature))}`)
         .up();
       // location/distance shown in My Maps' info window on pin click. The
       // target carries location only (distance is null); submissions carry
@@ -170,7 +224,13 @@ export function buildRoundsKmlDocument(rounds: readonly RoundFile[]): string {
             .txt(`${distance.toFixed(3)} km`);
         }
       }
-      placemark.ele('Point').ele('coordinates').txt(`${lon},${lat}`).up().up();
+      // Trailing ,0 altitude mirrors My Maps' own coordinate format.
+      placemark
+        .ele('Point')
+        .ele('coordinates')
+        .txt(`${lon},${lat},0`)
+        .up()
+        .up();
     }
   }
 
