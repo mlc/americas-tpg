@@ -23,6 +23,74 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.16098,
+          -41.14653
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 443.2548971489859,
+        "location": "Río Negro, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.3107,
+          -41.13208
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 451.52569996780176,
+        "location": "Río Negro, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -72.9501857,
+          -50.9431262
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 806.900061759169,
+        "location": "Magallanes y Antártica Chilena, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.54501511829459,
+          -16.40546646575274
+        ]
+      },
+      "properties": {
+        "player": "Patxepi",
+        "distance": 3135.0485723120246,
+        "location": "Arequipa, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
