@@ -225,6 +225,20 @@ export function partOutputPath(
 }
 
 /**
+ * The output path for each KMZ file `generateKmz` produced, parallel to its
+ * `files` array. A single file uses the verbatim `output` path; a split uses
+ * `partOutputPath` per chunk so each file is named by its round-number range.
+ * Pure.
+ */
+export function kmzOutputPaths(
+  output: string,
+  files: readonly { firstRound: number; lastRound: number }[],
+): string[] {
+  if (files.length === 1) return [output];
+  return files.map((f) => partOutputPath(output, f.firstRound, f.lastRound));
+}
+
+/**
  * Parse an `--only-players` file: one player per line, blank lines ignored.
  * Names are normalized (NFC + zero-width strip + trim) via `normalizePlayerName`
  * so they compare equal to the normalized player names stored on submissions.
@@ -372,11 +386,9 @@ async function main(): Promise<void> {
     ? parseOnlyPlayers(await readFile(values['only-players'], 'utf8'))
     : undefined;
   const { files } = await generateKmz({ roundsDir, onlyPlayers });
-  const single = files.length === 1;
-  for (const file of files) {
-    const path = single
-      ? output
-      : partOutputPath(output, file.firstRound, file.lastRound);
+  const paths = kmzOutputPaths(output, files);
+  for (const [i, file] of files.entries()) {
+    const path = paths[i];
     await writeFile(path, file.kmz);
     process.stdout.write(
       `wrote ${path} (${file.rounds} round${file.rounds === 1 ? '' : 's'})\n`,

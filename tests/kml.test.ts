@@ -12,6 +12,7 @@ import {
   collectPinIds,
   filterRoundToPlayers,
   generateKmz,
+  kmzOutputPaths,
   parseOnlyPlayers,
   partOutputPath,
 } from '../src/kml.ts';
@@ -170,6 +171,25 @@ describe('partOutputPath', () => {
 
   test('preserves the directory', () => {
     assert.equal(partOutputPath('out/x.kmz', 11, 20), 'out/x-011-020.kmz');
+  });
+});
+
+describe('kmzOutputPaths', () => {
+  test('a single file uses the verbatim output path', () => {
+    assert.deepEqual(
+      kmzOutputPaths('rounds.kmz', [{ firstRound: 1, lastRound: 8 }]),
+      ['rounds.kmz'],
+    );
+  });
+
+  test('multiple files are named by round-number range', () => {
+    assert.deepEqual(
+      kmzOutputPaths('rounds.kmz', [
+        { firstRound: 1, lastRound: 10 },
+        { firstRound: 11, lastRound: 12 },
+      ]),
+      ['rounds-001-010.kmz', 'rounds-011-012.kmz'],
+    );
   });
 });
 
