@@ -10,7 +10,9 @@ import {
   buildRoundsKmz,
   chunkRounds,
   collectPinIds,
+  filterRoundToPlayers,
   generateKmz,
+  parseOnlyPlayers,
   partOutputPath,
 } from '../src/kml.ts';
 import type {
@@ -168,6 +170,49 @@ describe('partOutputPath', () => {
 
   test('preserves the directory', () => {
     assert.equal(partOutputPath('out/x.kmz', 11, 20), 'out/x-011-020.kmz');
+  });
+});
+
+describe('parseOnlyPlayers', () => {
+  test('one name per line, trimmed; blank lines dropped', () => {
+    const set = parseOnlyPlayers('alice\n  bob  \n\n  \ncarol\n');
+    assert.deepEqual([...set].sort(), ['alice', 'bob', 'carol']);
+  });
+
+  test('handles CRLF and dedupes', () => {
+    const set = parseOnlyPlayers('alice\r\nbob\r\nalice\r\n');
+    assert.deepEqual([...set].sort(), ['alice', 'bob']);
+  });
+
+  test('empty content yields an empty set', () => {
+    assert.equal(parseOnlyPlayers('').size, 0);
+    assert.equal(parseOnlyPlayers('\n\n  \n').size, 0);
+  });
+});
+
+describe('filterRoundToPlayers', () => {
+  test('keeps the target and only the listed players', () => {
+    const round = styledEnded(1, T1, [
+      sub('alice', 10),
+      sub('bob', 20),
+      sub('carol', 30),
+    ]);
+    const filtered = filterRoundToPlayers(round, new Set(['alice', 'carol']));
+    const players = filtered.features.map((f) => f.properties.player);
+    assert.deepEqual(players, ['Target', 'alice', 'carol']);
+  });
+
+  test('a round with no listed player becomes target-only', () => {
+    const round = styledEnded(1, T1, [sub('alice', 10), sub('bob', 20)]);
+    const filtered = filterRoundToPlayers(round, new Set(['zoe']));
+    assert.equal(filtered.features.length, 1);
+    assert.equal(filtered.features[0].properties.player, 'Target');
+  });
+
+  test('preserves roundInfo', () => {
+    const round = styledEnded(7, T1, [sub('alice', 10)]);
+    const filtered = filterRoundToPlayers(round, new Set(['alice']));
+    assert.deepEqual(filtered.roundInfo, round.roundInfo);
   });
 });
 
@@ -398,5 +443,40 @@ describe('generateKmz', () => {
     assert.match(kml1, /<name>Round 11<\/name>/);
     assert.match(kml1, /<name>Round 12<\/name>/);
     assert.doesNotMatch(kml1, /<name>Round 1<\/name>/);
+  });
+
+  test('onlyPlayers restricts placemarks to listed players plus the target', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      endedRound(
+        1,
+        T1,
+        withEliminated(
+          [sub('alice', 10), sub('bob', 20), sub('carol', 30)],
+          ['carol'],
+        ),
+      ),
+    );
+    const { files } = await generateKmz({
+      roundsDir: dir,
+      onlyPlayers: new Set(['alice', 'carol']),
+    });
+    const kml = strFromU8(unzipSync(files[0].kmz)['doc.kml']);
+    const names = allMatches(kml, /<Placemark>\s*<name>([^<]*)<\/name>/g);
+    assert.deepEqual(names, ['Target', 'alice', 'carol']);
+  });
+
+  test('onlyPlayers excluding everyone in a round still emits the target', async () => {
+    await writeRoundAtomic(
+      roundPath(1, dir),
+      endedRound(1, T1, withEliminated([sub('alice', 10), sub('bob', 20)], [])),
+    );
+    const { files } = await generateKmz({
+      roundsDir: dir,
+      onlyPlayers: new Set(['zoe']),
+    });
+    const kml = strFromU8(unzipSync(files[0].kmz)['doc.kml']);
+    const names = allMatches(kml, /<Placemark>\s*<name>([^<]*)<\/name>/g);
+    assert.deepEqual(names, ['Target']);
   });
 });

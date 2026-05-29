@@ -6,8 +6,11 @@ import { create } from 'xmlbuilder2';
 import { exitWithError, isMain, isParseArgsError } from './cli-helpers.ts';
 import {
   endedAtOf,
+  normalizePlayerName,
   type RoundFeature,
   type RoundFile,
+  submissionsOf,
+  targetOf,
 } from './round-domain.ts';
 import { DEFAULT_ROUNDS_DIR, listRoundFiles, readRound } from './round-file.ts';
 import { SIMPLESTYLE } from './simplestyle.ts';
@@ -203,8 +206,43 @@ export function partOutputPath(
   return format({ dir, name: `${name}-${pad(first)}-${pad(last)}`, ext });
 }
 
+/**
+ * Parse an `--only-players` file: one player per line, blank lines ignored.
+ * Names are normalized (NFC + zero-width strip + trim) via `normalizePlayerName`
+ * so they compare equal to the normalized player names stored on submissions.
+ * Pure.
+ */
+export function parseOnlyPlayers(content: string): Set<string> {
+  const names = new Set<string>();
+  for (const line of content.split(/\r?\n/)) {
+    const name = normalizePlayerName(line);
+    if (name) names.add(name);
+  }
+  return names;
+}
+
+/**
+ * Restrict a round to the listed players: keep the target (always) plus the
+ * submissions whose normalized player is in `allowed`, dropping the rest. A
+ * round where no listed player submitted becomes target-only. Returns a new
+ * RoundFile; `roundInfo` and the target are preserved. Pure.
+ */
+export function filterRoundToPlayers(
+  round: RoundFile,
+  allowed: ReadonlySet<string>,
+): RoundFile {
+  const target = targetOf(round);
+  const kept = submissionsOf(round).filter((s) =>
+    allowed.has(normalizePlayerName(s.properties.player)),
+  );
+  return { ...round, features: [target, ...kept] };
+}
+
 interface GenerateKmzDeps {
   roundsDir: string;
+  /** When set, only these players' submission placemarks are exported; target
+   * placemarks are always included. When omitted, every player is exported. */
+  onlyPlayers?: ReadonlySet<string>;
 }
 
 interface KmzFile {
@@ -239,8 +277,15 @@ export async function generateKmz(
     throw new Error('no ended rounds found');
   }
 
+  // Scope each round to the requested players (target always kept) before
+  // pins/chunking, so the bundled pins and folder contents reflect the filter.
+  const allowed = deps.onlyPlayers;
+  const scoped = allowed
+    ? ended.map((round) => filterRoundToPlayers(round, allowed))
+    : ended;
+
   const pins = new Map<string, Uint8Array>();
-  for (const id of collectPinIds(ended)) {
+  for (const id of collectPinIds(scoped)) {
     pins.set(id, await readFile(new URL(`${id}.png`, PIN_DIR)));
   }
   const loadPin = (id: string): Uint8Array => {
@@ -249,7 +294,7 @@ export async function generateKmz(
     return bytes;
   };
 
-  const files = chunkRounds(ended).map((chunk) => ({
+  const files = chunkRounds(scoped).map((chunk) => ({
     kmz: buildRoundsKmz(chunk, loadPin),
     firstRound: chunk[0].roundInfo.number,
     lastRound: chunk[chunk.length - 1].roundInfo.number,
@@ -259,7 +304,7 @@ export async function generateKmz(
   return { files, totalRounds: ended.length };
 }
 
-const USAGE = `Usage: yarn build-kml [--rounds-dir <dir>] [-o <file>]
+const USAGE = `Usage: yarn build-kml [--rounds-dir <dir>] [-o <file>] [--only-players <file>]
 
 Exports every ended round in the rounds directory to KMZ: one <Folder> per
 round, one <Placemark> per point (named for the player, or "Target"), each
@@ -271,10 +316,15 @@ into files of 10 rounds each, named <output>-NNN-MMM.kmz by round-number range
 (e.g. rounds-001-010.kmz). With 10 or fewer rounds the verbatim output path is
 used.
 
+With --only-players, only the submission placemarks for the players named in
+the given file (one name per line, blank lines ignored) are exported; target
+placemarks are always included. Without it, every player is exported.
+
 Options:
-      --rounds-dir <d>  Rounds directory (default: ${DEFAULT_ROUNDS_DIR})
-  -o, --output <f>      Output KMZ path (default: ${DEFAULT_OUTPUT})
-  -h, --help            Show this message
+      --rounds-dir <d>     Rounds directory (default: ${DEFAULT_ROUNDS_DIR})
+  -o, --output <f>         Output KMZ path (default: ${DEFAULT_OUTPUT})
+      --only-players <f>   Only export these players (one name per line)
+  -h, --help               Show this message
 `;
 
 function fail(message: string): never {
@@ -287,6 +337,7 @@ async function main(): Promise<void> {
     options: {
       'rounds-dir': { type: 'string' },
       output: { type: 'string', short: 'o' },
+      'only-players': { type: 'string' },
       help: { type: 'boolean', short: 'h', default: false },
     },
     strict: true,
@@ -299,7 +350,10 @@ async function main(): Promise<void> {
 
   const roundsDir = values['rounds-dir'] ?? DEFAULT_ROUNDS_DIR;
   const output = values.output ?? DEFAULT_OUTPUT;
-  const { files } = await generateKmz({ roundsDir });
+  const onlyPlayers = values['only-players']
+    ? parseOnlyPlayers(await readFile(values['only-players'], 'utf8'))
+    : undefined;
+  const { files } = await generateKmz({ roundsDir, onlyPlayers });
   const single = files.length === 1;
   for (const file of files) {
     const path = single

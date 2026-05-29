@@ -30,7 +30,7 @@ last surviving player wins.
 | `yarn end-round` | Close the active round, compute eliminations, and print standings. |
 | `yarn send-reminders` | List players eligible for the active round who have not yet submitted. Prints a Discord-pasteable message with @-mentions and a submission-tracker link. Pass `--final` for a one-line terse reminder (`@a @b @c round ends <relative>`). |
 | `yarn leaderboard` | Regenerate `LEADERBOARD.md` from every ended round: an embedded geojson map of all targets plus a player table (survivors first, then eliminated). |
-| `yarn build-kml` | Export every ended round to KMZ (`rounds.kmz`): one folder per round, one named placemark per point, styled from the simplestyle markers. More than 10 rounds split into `rounds-NNN-MMM.kmz` files of 10 rounds each (Google My Maps' 10-layer cap). |
+| `yarn build-kml` | Export every ended round to KMZ (`rounds.kmz`): one folder per round, one named placemark per point, styled from the simplestyle markers. More than 10 rounds split into `rounds-NNN-MMM.kmz` files of 10 rounds each (Google My Maps' 10-layer cap). `--only-players <file>` restricts the export to the listed players (targets always included). |
 | `yarn test` | Run the test suite (`node --test`). |
 | `yarn typecheck` | Run `tsc --noEmit` against `src/`. |
 | `yarn lint` | Run Biome's linter. |
@@ -99,6 +99,7 @@ otherwise. Colors are recomputed on every write.
 ```sh
 yarn build-kml                          # writes rounds.kmz
 yarn build-kml --rounds-dir other -o out.kmz
+yarn build-kml --only-players keep.txt  # only the players listed in keep.txt
 ```
 
 `build-kml` reads every **ended** round (in-progress rounds are skipped) and
@@ -114,6 +115,13 @@ ended rounds split into multiple files of 10 rounds each, named by round-number
 range: `rounds-001-010.kmz`, `rounds-011-020.kmz`, … (3-digit zero-padded,
 derived from the `-o` base path). With 10 or fewer rounds the verbatim `-o`
 path is used (`rounds.kmz`).
+
+`--only-players <file>` reads a plain-text file (one player name per line,
+blank lines ignored) and exports only those players' submission placemarks;
+**target placemarks are always included** regardless of the filter. Name
+matching is case-sensitive (normalized: NFC + zero-width strip + trim), the
+same rule used everywhere else for player names. Without the flag, every player
+is exported. Filtering composes with the 10-round split.
 
 The pin color is **baked into a PNG** bundled inside the KMZ (under `images/`),
 not set via KML `<color>` — because Google My Maps ignores `<IconStyle><color>`
