@@ -114,6 +114,40 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -70.0503388889,
+          -33.8280499999
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 1192.78195145798,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -58.39136,
+          -34.60988
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 1373.9716080073267,
+        "location": "Ciudad de Buenos Aires, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -71.54501511829459,
           -16.40546646575274
         ]
