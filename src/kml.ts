@@ -1,12 +1,16 @@
 import { readFile, writeFile } from 'node:fs/promises';
+import { format, parse } from 'node:path';
 import { parseArgs } from 'node:util';
 import { strToU8, zipSync } from 'fflate';
 import { create } from 'xmlbuilder2';
 import { exitWithError, isMain, isParseArgsError } from './cli-helpers.ts';
 import {
   endedAtOf,
+  normalizePlayerName,
   type RoundFeature,
   type RoundFile,
+  submissionsOf,
+  targetOf,
 } from './round-domain.ts';
 import { DEFAULT_ROUNDS_DIR, listRoundFiles, readRound } from './round-file.ts';
 import { SIMPLESTYLE } from './simplestyle.ts';
@@ -15,13 +19,21 @@ const KML_NS = 'http://www.opengis.net/kml/2.2';
 const DOCUMENT_NAME = 'Américas TPG Rounds';
 const DEFAULT_OUTPUT = 'rounds.kmz';
 
+// Google My Maps shows at most 10 layers (one <Folder>/round = one layer) per
+// map, so importing a KMZ with more rounds silently drops the overflow. When
+// there are more ended rounds than this, the export is split into multiple KMZ
+// files of at most this many rounds each.
+const MAX_ROUNDS_PER_KMZ = 10;
+
 // Pin PNGs are 64x64 with the teardrop tip at the bottom-centre; anchor the tip
-// on the point (insetPixels measures y from the top of the icon).
+// on the point (insetPixels measures y from the top of the icon). Attribute
+// order (x, xunits, y, yunits) mirrors My Maps' own KMZ export byte-for-byte —
+// see the StyleMap note on buildRoundsKmlDocument for why that fidelity matters.
 const ICON_SIZE = 64;
 const HOTSPOT = {
   x: String(ICON_SIZE / 2),
-  y: String(ICON_SIZE),
   xunits: 'pixels',
+  y: String(ICON_SIZE),
   yunits: 'insetPixels',
 } as const;
 
@@ -95,6 +107,25 @@ function pinIdOf(feature: RoundFeature): string {
     : DEFAULT_PLAYER_PIN_ID;
 }
 
+// Google My Maps draws *its own* catalog pin (number 1899, the default Maps
+// pin) tinted by the RRGGBB embedded in the StyleMap id, and only tip-anchors
+// the icon when that id matches its `icon-<n>-<RRGGBB>[-nodesc]` scheme. A bare
+// or foreign style id is re-centred — the pin floats off the true point, more
+// so the further you zoom out. My Maps also *ignores the bundled `<href>` PNG*
+// on import, so our color-baked art only reaches other KML viewers; in My Maps
+// the marker colour is the sole surviving signal (target black; podium
+// gold/silver/bronze; last red; else gray). Verified empirically against My
+// Maps' own KMZ export — don't "simplify" the id back to a plain Style id.
+const MYMAPS_PIN_ICON = '1899';
+
+/** The My Maps StyleMap id for a bundled pin id (`s_<symbol>_<rrggbb>`): the
+ * pin's colour re-expressed in My Maps' `icon-1899-<RRGGBB>-nodesc` scheme so
+ * the importer tints + tip-anchors its catalog pin. */
+export function myMapsStyleId(pinId: string): string {
+  const rrggbb = pinId.slice(pinId.lastIndexOf('_') + 1).toUpperCase();
+  return `icon-${MYMAPS_PIN_ICON}-${rrggbb}-nodesc`;
+}
+
 /** The distinct pin ids used across the given rounds, sorted for deterministic
  * output. */
 export function collectPinIds(rounds: readonly RoundFile[]): string[] {
@@ -106,11 +137,24 @@ export function collectPinIds(rounds: readonly RoundFile[]): string[] {
 }
 
 /**
- * Build the `doc.kml` document for a KMZ: one shared `<Style>` per distinct pin
- * (referencing the bundled `images/<id>.png`), one `<Folder>` per round (in the
- * order given), one `<Placemark>` per feature named for its `properties.player`
- * (`Target` for the target). Pure; throws on empty input. Ended/in-progress
- * filtering is the caller's job (see `generateKmz`).
+ * Build the `doc.kml` document for a KMZ: one `<StyleMap>` (normal/highlight)
+ * per distinct pin colour, one `<Folder>` per round (in the order given), one
+ * `<Placemark>` per feature named for its `properties.player` (`Target` for the
+ * target), with the feature's `location` and `distance` carried in
+ * `<ExtendedData>` so My Maps shows them on pin click. Pure; throws on empty
+ * input. Ended/in-progress filtering is the caller's job (see `generateKmz`).
+ *
+ * **Load-bearing — the `icon-1899-<RRGGBB>-nodesc` StyleMap id is what makes My
+ * Maps place pins correctly.** See `myMapsStyleId`: My Maps draws its own
+ * catalog pin tinted by the id's RRGGBB and only tip-anchors it for that id
+ * scheme; any other id is re-centred, so the pin floats off the point (a fixed
+ * screen-pixel offset that looks far off zoomed out and converges as you zoom
+ * in). The normal/highlight `<StyleMap>`, the `x,xunits,y,yunits` hotSpot order,
+ * and the trailing `,0` altitude all mirror a real My Maps export. My Maps
+ * ignores the bundled `<Icon><href>images/<pinId>.png</href>` — that PNG is for
+ * other KML viewers only — so colour is the only marker signal that survives in
+ * My Maps (the star/circle symbols do not). Verified empirically; don't revert
+ * the id scheme to a plain Style id.
  */
 export function buildRoundsKmlDocument(rounds: readonly RoundFile[]): string {
   if (rounds.length === 0) {
@@ -121,14 +165,36 @@ export function buildRoundsKmlDocument(rounds: readonly RoundFile[]): string {
   const document = doc.ele('kml', { xmlns: KML_NS }).ele('Document');
   document.ele('name').txt(DOCUMENT_NAME).up();
 
-  for (const id of collectPinIds(rounds)) {
-    const style = document.ele('Style', { id });
+  // One IconStyle <Style>; labelScale 0 hides the persistent label (normal),
+  // 1 shows it on hover (highlight) — matching My Maps' export. `pinId` is the
+  // bundled-PNG basename (the <href>); `styleId` is the My Maps icon-scheme id.
+  const iconStyleEle = (pinId: string, styleId: string, labelScale: string) => {
+    const style = document.ele('Style', { id: styleId });
     const iconStyle = style.ele('IconStyle');
     iconStyle.ele('scale').txt('1').up();
-    iconStyle.ele('Icon').ele('href').txt(`images/${id}.png`).up().up();
+    iconStyle.ele('Icon').ele('href').txt(`images/${pinId}.png`).up().up();
     iconStyle.ele('hotSpot', HOTSPOT).up();
-    // Hide the persistent label; the player name still shows on click.
-    style.ele('LabelStyle').ele('scale').txt('0').up().up();
+    style.ele('LabelStyle').ele('scale').txt(labelScale).up().up();
+    style.up();
+  };
+
+  // Dedup by My Maps style id (colour); today each colour maps to one pin PNG.
+  const styleToPin = new Map<string, string>();
+  for (const pinId of collectPinIds(rounds)) {
+    const styleId = myMapsStyleId(pinId);
+    if (!styleToPin.has(styleId)) styleToPin.set(styleId, pinId);
+  }
+  for (const [styleId, pinId] of styleToPin) {
+    iconStyleEle(pinId, `${styleId}-normal`, '0');
+    iconStyleEle(pinId, `${styleId}-highlight`, '1');
+    const styleMap = document.ele('StyleMap', { id: styleId });
+    const normal = styleMap.ele('Pair');
+    normal.ele('key').txt('normal').up();
+    normal.ele('styleUrl').txt(`#${styleId}-normal`).up().up();
+    const highlight = styleMap.ele('Pair');
+    highlight.ele('key').txt('highlight').up();
+    highlight.ele('styleUrl').txt(`#${styleId}-highlight`).up().up();
+    styleMap.up();
   }
 
   for (const round of rounds) {
@@ -140,9 +206,31 @@ export function buildRoundsKmlDocument(rounds: readonly RoundFile[]): string {
       placemark.ele('name').txt(feature.properties.player).up();
       placemark
         .ele('styleUrl')
-        .txt(`#${pinIdOf(feature)}`)
+        .txt(`#${myMapsStyleId(pinIdOf(feature))}`)
         .up();
-      placemark.ele('Point').ele('coordinates').txt(`${lon},${lat}`).up().up();
+      // location/distance shown in My Maps' info window on pin click. The
+      // target carries location only (distance is null); submissions carry
+      // both (location optional). Emit a <Data> only when the value is present.
+      const { location, distance } = feature.properties;
+      if (location || distance !== null) {
+        const data = placemark.ele('ExtendedData');
+        if (location) {
+          data.ele('Data', { name: 'location' }).ele('value').txt(location);
+        }
+        if (distance !== null) {
+          data
+            .ele('Data', { name: 'distance' })
+            .ele('value')
+            .txt(`${distance.toFixed(3)} km`);
+        }
+      }
+      // Trailing ,0 altitude mirrors My Maps' own coordinate format.
+      placemark
+        .ele('Point')
+        .ele('coordinates')
+        .txt(`${lon},${lat},0`)
+        .up()
+        .up();
     }
   }
 
@@ -166,19 +254,107 @@ export function buildRoundsKmz(
   return zipSync(files);
 }
 
-interface GenerateKmzDeps {
-  roundsDir: string;
-}
-
-interface GenerateKmzResult {
-  kmz: Uint8Array;
-  rounds: number;
+/**
+ * Split rounds into consecutive groups of at most `size` (the last group holds
+ * the remainder). Pure; preserves input order.
+ */
+export function chunkRounds(
+  rounds: readonly RoundFile[],
+  size = MAX_ROUNDS_PER_KMZ,
+): RoundFile[][] {
+  const chunks: RoundFile[][] = [];
+  for (let i = 0; i < rounds.length; i += size) {
+    chunks.push(rounds.slice(i, i + size));
+  }
+  return chunks;
 }
 
 /**
- * Read every ended round in `roundsDir` and build the KMZ archive. In-progress
- * rounds (`endedAt: null`) are skipped, mirroring `generateLeaderboard`. Throws
- * if there are no ended rounds.
+ * Output path for one split chunk: the base `output` path with
+ * `-<first>-<last>` (3-digit zero-padded round numbers, mirroring `roundPath`)
+ * inserted before the extension. Preserves the directory and extension.
+ */
+export function partOutputPath(
+  output: string,
+  first: number,
+  last: number,
+): string {
+  const { dir, name, ext } = parse(output);
+  const pad = (n: number): string => String(n).padStart(3, '0');
+  return format({ dir, name: `${name}-${pad(first)}-${pad(last)}`, ext });
+}
+
+/**
+ * The output path for each KMZ file `generateKmz` produced, parallel to its
+ * `files` array. A single file uses the verbatim `output` path; a split uses
+ * `partOutputPath` per chunk so each file is named by its round-number range.
+ * Pure.
+ */
+export function kmzOutputPaths(
+  output: string,
+  files: readonly { firstRound: number; lastRound: number }[],
+): string[] {
+  if (files.length === 1) return [output];
+  return files.map((f) => partOutputPath(output, f.firstRound, f.lastRound));
+}
+
+/**
+ * Parse an `--only-players` file: one player per line, blank lines ignored.
+ * Names are normalized (NFC + zero-width strip + trim) via `normalizePlayerName`
+ * so they compare equal to the normalized player names stored on submissions.
+ * Pure.
+ */
+export function parseOnlyPlayers(content: string): Set<string> {
+  const names = new Set<string>();
+  for (const line of content.split(/\r?\n/)) {
+    const name = normalizePlayerName(line);
+    if (name) names.add(name);
+  }
+  return names;
+}
+
+/**
+ * Restrict a round to the listed players: keep the target (always) plus the
+ * submissions whose normalized player is in `allowed`, dropping the rest. A
+ * round where no listed player submitted becomes target-only. Returns a new
+ * RoundFile; `roundInfo` and the target are preserved. Pure.
+ */
+export function filterRoundToPlayers(
+  round: RoundFile,
+  allowed: ReadonlySet<string>,
+): RoundFile {
+  const target = targetOf(round);
+  const kept = submissionsOf(round).filter((s) =>
+    allowed.has(normalizePlayerName(s.properties.player)),
+  );
+  return { ...round, features: [target, ...kept] };
+}
+
+interface GenerateKmzDeps {
+  roundsDir: string;
+  /** When set, only these players' submission placemarks are exported; target
+   * placemarks are always included. When omitted, every player is exported. */
+  onlyPlayers?: ReadonlySet<string>;
+}
+
+interface KmzFile {
+  kmz: Uint8Array;
+  firstRound: number;
+  lastRound: number;
+  rounds: number;
+}
+
+interface GenerateKmzResult {
+  files: KmzFile[];
+  totalRounds: number;
+}
+
+/**
+ * Read every ended round in `roundsDir` and build one or more KMZ archives.
+ * In-progress rounds (`endedAt: null`) are skipped, mirroring
+ * `generateLeaderboard`. More than `MAX_ROUNDS_PER_KMZ` ended rounds split into
+ * multiple files (10 rounds each) so each stays under Google My Maps' 10-layer
+ * cap. Throws if there are no ended rounds.
  */
 export async function generateKmz(
   deps: GenerateKmzDeps,
@@ -193,8 +369,15 @@ export async function generateKmz(
     throw new Error('no ended rounds found');
   }
 
+  // Scope each round to the requested players (target always kept) before
+  // pins/chunking, so the bundled pins and folder contents reflect the filter.
+  const allowed = deps.onlyPlayers;
+  const scoped = allowed
+    ? ended.map((round) => filterRoundToPlayers(round, allowed))
+    : ended;
+
   const pins = new Map<string, Uint8Array>();
-  for (const id of collectPinIds(ended)) {
+  for (const id of collectPinIds(scoped)) {
     pins.set(id, await readFile(new URL(`${id}.png`, PIN_DIR)));
   }
   const loadPin = (id: string): Uint8Array => {
@@ -203,21 +386,37 @@ export async function generateKmz(
     return bytes;
   };
 
-  return { kmz: buildRoundsKmz(ended, loadPin), rounds: ended.length };
+  const files = chunkRounds(scoped).map((chunk) => ({
+    kmz: buildRoundsKmz(chunk, loadPin),
+    firstRound: chunk[0].roundInfo.number,
+    lastRound: chunk[chunk.length - 1].roundInfo.number,
+    rounds: chunk.length,
+  }));
+
+  return { files, totalRounds: ended.length };
 }
 
-const USAGE = `Usage: yarn build-kml [--rounds-dir <dir>] [-o <file>]
+const USAGE = `Usage: yarn build-kml [--rounds-dir <dir>] [-o <file>] [--only-players <file>]
 
-Exports every ended round in the rounds directory to a single KMZ file: one
-<Folder> per round, one <Placemark> per point (named for the player, or
-"Target"), each shown as a Google-Maps-style pin in the simplestyle marker
-color (a color-baked PNG bundled in the archive). In-progress rounds are
-skipped.
+Exports every ended round in the rounds directory to KMZ: one <Folder> per
+round, one <Placemark> per point (named for the player, or "Target"), each
+shown as a Google-Maps-style pin in the simplestyle marker color (a color-baked
+PNG bundled in the archive). In-progress rounds are skipped.
+
+Google My Maps shows at most 10 layers per map, so more than 10 rounds split
+into files of 10 rounds each, named <output>-NNN-MMM.kmz by round-number range
+(e.g. rounds-001-010.kmz). With 10 or fewer rounds the verbatim output path is
+used.
+
+With --only-players, only the submission placemarks for the players named in
+the given file (one name per line, blank lines ignored) are exported; target
+placemarks are always included. Without it, every player is exported.
 
 Options:
-      --rounds-dir <d>  Rounds directory (default: ${DEFAULT_ROUNDS_DIR})
-  -o, --output <f>      Output KMZ path (default: ${DEFAULT_OUTPUT})
-  -h, --help            Show this message
+      --rounds-dir <d>     Rounds directory (default: ${DEFAULT_ROUNDS_DIR})
+  -o, --output <f>         Output KMZ path (default: ${DEFAULT_OUTPUT})
+      --only-players <f>   Only export these players (one name per line)
+  -h, --help               Show this message
 `;
 
 function fail(message: string): never {
@@ -230,6 +429,7 @@ async function main(): Promise<void> {
     options: {
       'rounds-dir': { type: 'string' },
       output: { type: 'string', short: 'o' },
+      'only-players': { type: 'string' },
       help: { type: 'boolean', short: 'h', default: false },
     },
     strict: true,
@@ -242,11 +442,18 @@ async function main(): Promise<void> {
 
   const roundsDir = values['rounds-dir'] ?? DEFAULT_ROUNDS_DIR;
   const output = values.output ?? DEFAULT_OUTPUT;
-  const { kmz, rounds } = await generateKmz({ roundsDir });
-  await writeFile(output, kmz);
-  process.stdout.write(
-    `wrote ${output} (${rounds} round${rounds === 1 ? '' : 's'})\n`,
-  );
+  const onlyPlayers = values['only-players']
+    ? parseOnlyPlayers(await readFile(values['only-players'], 'utf8'))
+    : undefined;
+  const { files } = await generateKmz({ roundsDir, onlyPlayers });
+  const paths = kmzOutputPaths(output, files);
+  for (const [i, file] of files.entries()) {
+    const path = paths[i];
+    await writeFile(path, file.kmz);
+    process.stdout.write(
+      `wrote ${path} (${file.rounds} round${file.rounds === 1 ? '' : 's'})\n`,
+    );
+  }
 }
 
 if (isMain(import.meta.url)) {
