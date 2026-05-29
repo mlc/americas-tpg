@@ -46,6 +46,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -70.99767223768039,
+          -41.05431692953842
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 444.7124331093366,
+        "location": "Río Negro, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -71.3107,
           -41.13208
         ]
@@ -55,7 +72,24 @@
         "distance": 451.52569996780176,
         "location": "Río Negro, Argentina",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -72.93784149283726,
+          -41.46799403919032
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 513.3441758754465,
+        "location": "Los Lagos, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
       }
     },
     {
@@ -72,7 +106,7 @@
         "distance": 806.900061759169,
         "location": "Magallanes y Antártica Chilena, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
