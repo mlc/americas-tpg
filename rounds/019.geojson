@@ -29,6 +29,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -103.3749861,
+          20.6714056
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 230.0415023994034,
+        "location": "Jalisco, México",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -99.20399,
           19.44045
         ]
@@ -38,7 +55,7 @@
         "distance": 328.96286301213127,
         "location": "Distrito Federal, México",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#c0c0c0"
       }
     },
     {
@@ -55,7 +72,7 @@
         "distance": 334.17960558030364,
         "location": "Distrito Federal, México",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -72,7 +89,7 @@
         "distance": 910.7325382076825,
         "location": "Texas, United States",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
