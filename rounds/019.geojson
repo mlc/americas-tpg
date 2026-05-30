@@ -46,6 +46,40 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -99.1291317,
+          19.4430741
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 334.17960558030364,
+        "location": "Distrito Federal, México",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.46793,
+          29.339013
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 910.7325382076825,
+        "location": "Texas, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -91.28495,
           14.69527
         ]
