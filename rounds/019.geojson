@@ -23,6 +23,40 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.20399,
+          19.44045
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 328.96286301213127,
+        "location": "Distrito Federal, México",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -91.28495,
+          14.69527
+        ]
+      },
+      "properties": {
+        "player": "BD82",
+        "distance": 1312.6342207839564,
+        "location": "Sololá, Guatemala",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
