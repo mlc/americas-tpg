@@ -80,6 +80,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -99.133222,
+          19.431965
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 334.76740274630066,
+        "location": "Distrito Federal, México",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -98.46793,
           29.339013
         ]
@@ -87,6 +104,23 @@
       "properties": {
         "player": "Loading...",
         "distance": 910.7325382076825,
+        "location": "Texas, United States",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -97.167313,
+          29.43342
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 969.9179155585356,
         "location": "Texas, United States",
         "marker-symbol": "circle",
         "marker-color": "#444444"
