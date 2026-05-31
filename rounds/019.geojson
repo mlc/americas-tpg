@@ -2,8 +2,9 @@
   "type": "FeatureCollection",
   "roundInfo": {
     "number": 19,
-    "endedAt": null,
-    "language": "es"
+    "endedAt": "2026-05-31T01:24:16.116Z",
+    "language": "es",
+    "dnsChecks": []
   },
   "features": [
     {
@@ -38,7 +39,8 @@
         "distance": 230.0415023994034,
         "location": "Jalisco, México",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#d4af37",
+        "eliminated": false
       }
     },
     {
@@ -55,7 +57,8 @@
         "distance": 328.96286301213127,
         "location": "Distrito Federal, México",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#c0c0c0",
+        "eliminated": false
       }
     },
     {
@@ -72,7 +75,8 @@
         "distance": 334.17960558030364,
         "location": "Distrito Federal, México",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#cd7f32",
+        "eliminated": false
       }
     },
     {
@@ -89,7 +93,8 @@
         "distance": 334.76740274630066,
         "location": "Distrito Federal, México",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -106,7 +111,8 @@
         "distance": 344.1012540430016,
         "location": "Distrito Federal, México",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -123,7 +129,8 @@
         "distance": 910.7325382076825,
         "location": "Texas, United States",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -140,7 +147,8 @@
         "distance": 969.9179155585356,
         "location": "Texas, United States",
         "marker-symbol": "circle",
-        "marker-color": "#444444"
+        "marker-color": "#444444",
+        "eliminated": false
       }
     },
     {
@@ -157,7 +165,8 @@
         "distance": 1312.6342207839564,
         "location": "Sololá, Guatemala",
         "marker-symbol": "circle",
-        "marker-color": "#ff0000"
+        "marker-color": "#ff0000",
+        "eliminated": true
       }
     }
   ]
