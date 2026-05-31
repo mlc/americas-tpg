@@ -23,6 +23,57 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.59843630926098,
+          -33.413591959466714
+        ]
+      },
+      "properties": {
+        "player": "Norton",
+        "distance": 541.0677614594206,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.6112625,
+          -33.4224707
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 542.0173396010703,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.64343,
+          -33.441
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 544.4968501249223,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
