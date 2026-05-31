@@ -123,6 +123,23 @@
         "distance": 544.4968501249223,
         "location": "Santiago Metropolitan, Chile",
         "marker-symbol": "circle",
+        "marker-color": "#444444"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -58.392536,
+          -34.585762
+        ]
+      },
+      "properties": {
+        "player": "nhmartin4",
+        "distance": 591.9371609220025,
+        "location": "Ciudad de Buenos Aires, Argentina",
+        "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
     }
