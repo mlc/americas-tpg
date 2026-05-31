@@ -29,6 +29,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -60.65078,
+          -32.94442
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 417.70971672167644,
+        "location": "Santa Fe, Argentina",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -70.583967,
           -33.403578
         ]
@@ -38,7 +55,7 @@
         "distance": 539.9994631878674,
         "location": "Santiago Metropolitan, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#c0c0c0"
       }
     },
     {
@@ -55,7 +72,24 @@
         "distance": 541.0677614594206,
         "location": "Santiago Metropolitan, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.6068333,
+          -33.4169722
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 541.747437011758,
+        "location": "Santiago Metropolitan, Chile",
+        "marker-symbol": "circle",
+        "marker-color": "#444444"
       }
     },
     {
@@ -72,7 +106,7 @@
         "distance": 542.0173396010703,
         "location": "Santiago Metropolitan, Chile",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
