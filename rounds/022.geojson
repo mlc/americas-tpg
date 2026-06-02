@@ -63,6 +63,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -71.84175,
+          -13.40704
+        ]
+      },
+      "properties": {
+        "player": "maplemanatee",
+        "distance": 1308.9432610649985,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -71.836061,
           -13.413001
         ]
