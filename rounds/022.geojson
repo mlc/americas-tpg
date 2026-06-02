@@ -29,6 +29,23 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -60.4933787,
+          -3.1189445
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 796.1401194411973,
+        "location": "Amazonas, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -74.055408,
           4.6040851
         ]
@@ -38,7 +55,7 @@
         "distance": 1056.7556326679712,
         "location": "Bogotá D.C., Colombia",
         "marker-symbol": "circle",
-        "marker-color": "#d4af37"
+        "marker-color": "#c0c0c0"
       }
     },
     {
@@ -55,7 +72,7 @@
         "distance": 1056.8203330581841,
         "location": "Bogotá D.C., Colombia",
         "marker-symbol": "circle",
-        "marker-color": "#c0c0c0"
+        "marker-color": "#cd7f32"
       }
     },
     {
@@ -72,7 +89,7 @@
         "distance": 1308.9432610649985,
         "location": "Cusco, Peru",
         "marker-symbol": "circle",
-        "marker-color": "#cd7f32"
+        "marker-color": "#444444"
       }
     },
     {
