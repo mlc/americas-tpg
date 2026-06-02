@@ -23,6 +23,40 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.0556,
+          4.6047
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 1056.8203330581841,
+        "location": "Bogotá D.C., Colombia",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.836061,
+          -13.413001
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 1309.3403139646007,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
