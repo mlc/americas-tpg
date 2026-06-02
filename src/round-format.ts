@@ -28,7 +28,7 @@ export const LEADERBOARD_URL =
  */
 export function submissionTrackerUrl(round: number): string {
   const padded = String(round).padStart(3, '0');
-  return `https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/${padded}.geojson`;
+  return `https://geojson.io/?id=github:mlc/americas-tpg/blob/main/rounds/${padded}.geojson`;
 }
 
 export function formatLocation(props: {
