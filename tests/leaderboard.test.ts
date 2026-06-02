@@ -114,7 +114,7 @@ describe('buildLeaderboardMarkdown', () => {
     // location as the link title.
     assert.match(
       md,
-      /\[r1\]: https:\/\/geojson\.io\/#id=github:mlc\/americas-tpg\/blob\/main\/rounds\/001\.geojson "Río Negro, Argentina"/,
+      /\[r1\]: https:\/\/geojson\.io\/\?id=github:mlc\/americas-tpg\/blob\/main\/rounds\/001\.geojson "Río Negro, Argentina"/,
     );
   });
 
@@ -246,11 +246,11 @@ describe('buildLeaderboardMarkdown', () => {
     // (3-digit zero-padded) with the target location as the link title.
     assert.match(
       md,
-      /\[r1\]: https:\/\/geojson\.io\/#id=github:mlc\/americas-tpg\/blob\/main\/rounds\/001\.geojson "Río Negro, Argentina"/,
+      /\[r1\]: https:\/\/geojson\.io\/\?id=github:mlc\/americas-tpg\/blob\/main\/rounds\/001\.geojson "Río Negro, Argentina"/,
     );
     assert.match(
       md,
-      /\[r12\]: https:\/\/geojson\.io\/#id=github:mlc\/americas-tpg\/blob\/main\/rounds\/012\.geojson "Río Negro, Argentina"/,
+      /\[r12\]: https:\/\/geojson\.io\/\?id=github:mlc\/americas-tpg\/blob\/main\/rounds\/012\.geojson "Río Negro, Argentina"/,
     );
   });
 });

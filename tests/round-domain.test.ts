@@ -158,18 +158,18 @@ describe('submissionTrackerUrl', () => {
   test('zero-pads the round number to 3 digits and points at geojson.io', () => {
     assert.equal(
       submissionTrackerUrl(1),
-      'https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/001.geojson',
+      'https://geojson.io/?id=github:mlc/americas-tpg/blob/main/rounds/001.geojson',
     );
     assert.equal(
       submissionTrackerUrl(42),
-      'https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/042.geojson',
+      'https://geojson.io/?id=github:mlc/americas-tpg/blob/main/rounds/042.geojson',
     );
   });
 
   test('does not truncate four-digit round numbers', () => {
     assert.equal(
       submissionTrackerUrl(1234),
-      'https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/1234.geojson',
+      'https://geojson.io/?id=github:mlc/americas-tpg/blob/main/rounds/1234.geojson',
     );
   });
 });
@@ -180,7 +180,7 @@ describe('formatTargetDiscord', () => {
       formatTargetDiscord(buildRound(7, null, []), NOW),
       [
         '# Round 7, Río Negro, Argentina, [42.50000°S 67.50000°W](https://www.google.com/maps/search/?api=1&query=-42.5%2C-67.5)',
-        '[Submission Tracker](<https://geojson.io/#id=github:mlc/americas-tpg/blob/main/rounds/007.geojson>)',
+        '[Submission Tracker](<https://geojson.io/?id=github:mlc/americas-tpg/blob/main/rounds/007.geojson>)',
         '[Rules](https://github.com/mlc/americas-tpg/blob/main/RULES.md)',
         '[Leaderboard](<https://github.com/mlc/americas-tpg/blob/main/LEADERBOARD.md>)',
         EXPIRY_LINE,
