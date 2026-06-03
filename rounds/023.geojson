@@ -55,6 +55,40 @@
         "distance": 1047.3728457337663,
         "location": "Pará, Brazil",
         "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.836061,
+          -13.413001
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 1888.8720321047708,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
+        "marker-color": "#cd7f32"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -71.9438611,
+          -13.5379167
+        ]
+      },
+      "properties": {
+        "player": "maclang23",
+        "distance": 1904.2367659019176,
+        "location": "Cusco, Peru",
+        "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
     }
