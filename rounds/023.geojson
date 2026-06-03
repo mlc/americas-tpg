@@ -23,6 +23,40 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -60.4933787,
+          -3.1189445
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 753.6284390004316,
+        "location": "Amazonas, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.5062,
+          -1.4555
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 1047.3728457337663,
+        "location": "Pará, Brazil",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
