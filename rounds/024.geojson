@@ -23,6 +23,40 @@
         "marker-symbol": "star",
         "marker-color": "#000000"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.844334,
+          19.698683
+        ]
+      },
+      "properties": {
+        "player": "Rikk",
+        "distance": 250.6014312199242,
+        "location": "México, México",
+        "marker-symbol": "circle",
+        "marker-color": "#d4af37"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.20399,
+          19.44045
+        ]
+      },
+      "properties": {
+        "player": "mlc",
+        "distance": 251.24016850223225,
+        "location": "Distrito Federal, México",
+        "marker-symbol": "circle",
+        "marker-color": "#ff0000"
+      }
     }
   ]
 }
