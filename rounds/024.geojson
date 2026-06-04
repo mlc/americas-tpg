@@ -55,6 +55,23 @@
         "distance": 251.24016850223225,
         "location": "Distrito Federal, México",
         "marker-symbol": "circle",
+        "marker-color": "#c0c0c0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.46793,
+          29.339013
+        ]
+      },
+      "properties": {
+        "player": "Loading...",
+        "distance": 908.4938271431548,
+        "location": "Texas, United States",
+        "marker-symbol": "circle",
         "marker-color": "#ff0000"
       }
     }
