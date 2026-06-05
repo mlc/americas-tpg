@@ -1,0 +1,28 @@
+{
+  "type": "FeatureCollection",
+  "roundInfo": {
+    "number": 25,
+    "endedAt": null,
+    "language": "es"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "target",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -62.38924,
+          -33.22875
+        ]
+      },
+      "properties": {
+        "player": "Target",
+        "distance": null,
+        "location": "Córdoba, Argentina",
+        "marker-symbol": "star",
+        "marker-color": "#000000"
+      }
+    }
+  ]
+}
