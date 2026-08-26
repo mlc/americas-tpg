@@ -43,19 +43,26 @@ async function fetchChunk(): Promise<number[]> {
   return values;
 }
 
-export function createRandomOrgRng(): RandomSource {
-  const buffer: number[] = [];
-  return {
-    async next(): Promise<number> {
-      if (buffer.length === 0) {
-        const chunk = await fetchChunk();
-        buffer.push(...chunk);
-      }
-      const value = buffer.shift();
-      if (value === undefined) {
-        throw new Error('random.org buffer empty after refill');
-      }
-      return value;
-    },
-  };
+export class RngRandomOrg implements RandomSource {
+  private buffer: number[] = [];
+
+  async next(): Promise<{ value: number; done: false }> {
+    if (this.buffer.length === 0) {
+      const chunk = await fetchChunk();
+      this.buffer.push(...chunk);
+    }
+    const value = this.buffer.shift();
+    if (value === undefined) {
+      throw new Error('random.org buffer empty after refill');
+    }
+    return { value, done: false };
+  }
+
+  return() {
+    return Promise.reject('not supported');
+  }
+
+  throw(e: any) {
+    return Promise.reject(e);
+  }
 }

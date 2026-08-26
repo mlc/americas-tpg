@@ -1,26 +1,28 @@
 import { randomBytes } from 'node:crypto';
-import { createRandomOrgRng } from './rng-random-org.ts';
+import { RngRandomOrg } from './rng-random-org.ts';
 
-export interface RandomSource {
-  next(): Promise<number>;
-}
+export type RandomSource = AsyncIterator<number, never, never>;
 
 const FIFTY_THREE_BIT_MASK = (1n << 53n) - 1n;
 const TWO_TO_THE_53 = 2 ** 53;
 
 const cryptoRandom: RandomSource = {
-  async next(): Promise<number> {
-    const bytes = randomBytes(7);
-    let v = 0n;
-    for (const b of bytes) v = (v << 8n) | BigInt(b);
-    return Number(v & FIFTY_THREE_BIT_MASK) / TWO_TO_THE_53;
+  next: async () => {
+    const bytes = randomBytes(8);
+    bytes[0] = 0x3f;
+    bytes[1] = (bytes[1] & 0xf) | 0xf0;
+    return { value: bytes.readDoubleBE() - 1.0, done: false };
   },
+  return: () => Promise.reject(new Error('not supported')),
+  throw: (e?: any) => Promise.reject(e),
 };
 
 const mathRandom: RandomSource = {
-  async next(): Promise<number> {
-    return Math.random();
+  next: async () => {
+    return { value: Math.random(), done: false };
   },
+  return: () => Promise.reject(new Error('not supported')),
+  throw: (e?: any) => Promise.reject(e),
 };
 
 export type RngName = 'crypto' | 'math' | 'random.org';
@@ -28,12 +30,10 @@ export type RngName = 'crypto' | 'math' | 'random.org';
 export const rngFactories: Record<RngName, () => RandomSource> = {
   crypto: () => cryptoRandom,
   math: () => mathRandom,
-  'random.org': () => createRandomOrgRng(),
+  'random.org': () => new RngRandomOrg(),
 };
 
-export const RNG_NAMES = Object.keys(
-  rngFactories,
-) as (keyof typeof rngFactories)[];
+export const RNG_NAMES = Object.keys(rngFactories) as RngName[];
 
 export function createRng(name: RngName): RandomSource {
   return rngFactories[name]();

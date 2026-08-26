@@ -18,13 +18,13 @@ const Y_MIN = Math.sin(SAMPLING_BBOX.minLat * DEG_TO_RAD);
 const Y_MAX = Math.sin(SAMPLING_BBOX.maxLat * DEG_TO_RAD);
 
 async function nextLatitude(rng: RandomSource): Promise<number> {
-  const u = await rng.next();
+  const { value: u } = await rng.next();
   const y = Y_MIN + u * (Y_MAX - Y_MIN);
   return (Math.PI / 2 - Math.acos(y)) * RAD_TO_DEG;
 }
 
 async function nextLongitude(rng: RandomSource): Promise<number> {
-  const u = await rng.next();
+  const { value: u } = await rng.next();
   return (
     SAMPLING_BBOX.minLon + u * (SAMPLING_BBOX.maxLon - SAMPLING_BBOX.minLon)
   );

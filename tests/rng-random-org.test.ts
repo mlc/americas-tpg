@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, mock, test } from 'node:test';
-import { createRandomOrgRng } from '../src/rng-random-org.ts';
+import { RngRandomOrg } from '../src/rng-random-org.ts';
 import { mockGlobalFetch, statusResponse } from './test-helpers.ts';
 
 afterEach(() => {
@@ -16,8 +16,8 @@ describe('createRandomOrgRng — happy path', () => {
     const fetchMock = mockGlobalFetch(
       () => new Response(bodyOf([0.1, 0.2, 0.3])),
     );
-    const rng = createRandomOrgRng();
-    assert.equal(await rng.next(), 0.1);
+    const rng = new RngRandomOrg();
+    assert.deepStrictEqual(await rng.next(), { value: 0.1, done: false });
     assert.equal(fetchMock.mock.callCount(), 1);
   });
 
@@ -25,10 +25,10 @@ describe('createRandomOrgRng — happy path', () => {
     const fetchMock = mockGlobalFetch(
       () => new Response(bodyOf([0.1, 0.2, 0.3])),
     );
-    const rng = createRandomOrgRng();
-    assert.equal(await rng.next(), 0.1);
-    assert.equal(await rng.next(), 0.2);
-    assert.equal(await rng.next(), 0.3);
+    const rng = new RngRandomOrg();
+    assert.deepStrictEqual(await rng.next(), { value: 0.1, done: false });
+    assert.deepStrictEqual(await rng.next(), { value: 0.2, done: false });
+    assert.deepStrictEqual(await rng.next(), { value: 0.3, done: false });
     assert.equal(fetchMock.mock.callCount(), 1);
   });
 
@@ -36,18 +36,18 @@ describe('createRandomOrgRng — happy path', () => {
     const responses = [bodyOf([0.5]), bodyOf([0.7, 0.8])];
     let i = 0;
     const fetchMock = mockGlobalFetch(() => new Response(responses[i++]));
-    const rng = createRandomOrgRng();
-    assert.equal(await rng.next(), 0.5);
+    const rng = new RngRandomOrg();
+    assert.deepStrictEqual(await rng.next(), { value: 0.5, done: false });
     assert.equal(fetchMock.mock.callCount(), 1);
-    assert.equal(await rng.next(), 0.7);
+    assert.deepStrictEqual(await rng.next(), { value: 0.7, done: false });
     assert.equal(fetchMock.mock.callCount(), 2);
-    assert.equal(await rng.next(), 0.8);
+    assert.deepStrictEqual(await rng.next(), { value: 0.8, done: false });
     assert.equal(fetchMock.mock.callCount(), 2);
   });
 
   test('hits the configured endpoint with the expected query parameters', async () => {
     const fetchMock = mockGlobalFetch(() => new Response(bodyOf([0.42])));
-    await createRandomOrgRng().next();
+    await new RngRandomOrg().next();
     const url = String(fetchMock.mock.calls[0].arguments[0]);
     assert.match(url, /^https:\/\/www\.random\.org\/decimal-fractions\//);
     assert.match(url, /num=200\b/);
@@ -64,19 +64,19 @@ describe('createRandomOrgRng — error handling', () => {
       }),
     );
     await assert.rejects(
-      createRandomOrgRng().next(),
+      new RngRandomOrg().next(),
       /random\.org request failed: 503 Service Unavailable.*rate limited bro/,
     );
   });
 
   test('empty body → unparseable error', async () => {
     mockGlobalFetch(() => new Response('   \n  \n'));
-    await assert.rejects(createRandomOrgRng().next(), /unparseable response/);
+    await assert.rejects(new RngRandomOrg().next(), /unparseable response/);
   });
 
   test('non-numeric body → unparseable error', async () => {
     mockGlobalFetch(() => new Response('not-a-number\nalso-bad\n'));
-    await assert.rejects(createRandomOrgRng().next(), /unparseable response/);
+    await assert.rejects(new RngRandomOrg().next(), /unparseable response/);
   });
 
   test('TimeoutError surfaces as a "timed out" error', async () => {
@@ -86,7 +86,7 @@ describe('createRandomOrgRng — error handling', () => {
       throw err;
     });
     await assert.rejects(
-      createRandomOrgRng().next(),
+      new RngRandomOrg().next(),
       /random\.org request timed out after 15000 ms/,
     );
   });
@@ -96,7 +96,7 @@ describe('createRandomOrgRng — error handling', () => {
       throw new Error('ECONNREFUSED');
     });
     await assert.rejects(
-      createRandomOrgRng().next(),
+      new RngRandomOrg().next(),
       /random\.org request failed \(transport\): ECONNREFUSED/,
     );
   });

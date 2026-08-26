@@ -6,7 +6,7 @@ describe('cryptoRandom', () => {
   test('returns numbers in [0, 1)', async () => {
     const rng = createRng('crypto');
     for (let i = 0; i < 200; i++) {
-      const v = await rng.next();
+      const { value: v } = await rng.next();
       assert.equal(typeof v, 'number');
       assert.ok(Number.isFinite(v), 'finite');
       assert.ok(v >= 0 && v < 1, `out of range: ${v}`);
@@ -16,7 +16,7 @@ describe('cryptoRandom', () => {
   test('produces distinct values across calls (overwhelmingly likely)', async () => {
     const rng = createRng('crypto');
     const values = new Set<number>();
-    for (let i = 0; i < 100; i++) values.add(await rng.next());
+    for (let i = 0; i < 100; i++) values.add((await rng.next()).value);
     // 100 independent draws of a 2^53-bucket distribution colliding is
     // astronomically improbable; fewer than 100 unique => bug.
     assert.equal(values.size, 100);
@@ -26,7 +26,7 @@ describe('cryptoRandom', () => {
     const rng = createRng('crypto');
     const N = 5000;
     let sum = 0;
-    for (let i = 0; i < N; i++) sum += await rng.next();
+    for (let i = 0; i < N; i++) sum += (await rng.next()).value;
     const mean = sum / N;
     assert.ok(
       Math.abs(mean - 0.5) < 0.05,
@@ -39,7 +39,7 @@ describe('mathRandom', () => {
   test('returns numbers in [0, 1)', async () => {
     const rng = createRng('math');
     for (let i = 0; i < 200; i++) {
-      const v = await rng.next();
+      const { value: v } = await rng.next();
       assert.equal(typeof v, 'number');
       assert.ok(v >= 0 && v < 1);
     }
