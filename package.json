@@ -1,7 +1,7 @@
 {
   "name": "americas",
   "type": "module",
-  "packageManager": "yarn@4.15.0",
+  "packageManager": "yarn@4.18.0",
   "engines": {
     "node": ">=24"
   },
