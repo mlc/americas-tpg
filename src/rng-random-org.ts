@@ -6,10 +6,16 @@ const DECIMAL_PLACES = 20;
 const REQUEST_TIMEOUT_MS = 15_000;
 
 async function fetchChunk(): Promise<number[]> {
-  const url = `${ENDPOINT}?num=${CHUNK_SIZE}&dec=${DECIMAL_PLACES}&col=1&format=plain&rnd=new`;
+  const params = new URLSearchParams({
+    num: String(CHUNK_SIZE),
+    dec: String(DECIMAL_PLACES),
+    col: '1',
+    format: 'plain',
+    rnd: 'new',
+  });
   let response: Response;
   try {
-    response = await fetch(url, {
+    response = await fetch(`${ENDPOINT}?${params.toString()}`, {
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
   } catch (cause) {
