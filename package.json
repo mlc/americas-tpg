@@ -31,11 +31,11 @@
     "typescript": "6.0.3"
   },
   "dependencies": {
-    "@js-joda/core": "6.0.1",
-    "@js-joda/timezone": "2.25.1",
-    "@ngageoint/geopackage": "4.2.6",
-    "@turf/boolean-point-in-polygon": "7.3.5",
-    "@turf/distance": "7.3.5",
+    "@js-joda/core": "6.1.0",
+    "@js-joda/timezone": "2.25.2",
+    "@ngageoint/geopackage": "4.2.9",
+    "@turf/boolean-point-in-polygon": "7.4.0",
+    "@turf/distance": "7.4.0",
     "fflate": "0.8.3",
     "geographiclib-dms": "2.2.0",
     "xmlbuilder2": "4.0.3"
