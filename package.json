@@ -41,7 +41,7 @@
     "xmlbuilder2": "4.0.3"
   },
   "resolutions": {
-    "better-sqlite3": "12.10.0"
+    "better-sqlite3": "12.11.1"
   },
   "lint-staged": {
     "*": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
