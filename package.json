@@ -31,8 +31,8 @@
     "typescript": "6.0.3"
   },
   "dependencies": {
-    "@js-joda/core": "6.1.0",
-    "@js-joda/timezone": "2.25.2",
+    "@js-joda/core": "6.2.0",
+    "@js-joda/timezone": "2.26.0",
     "@ngageoint/geopackage": "4.2.9",
     "@turf/boolean-point-in-polygon": "7.4.0",
     "@turf/distance": "7.4.0",
